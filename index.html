@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jophy Chen — Full Stack & Game Systems Engineer</title>
+  
+  <!-- SEO & Social Meta -->
+  <meta name="description" content="Self-taught developer and game systems architect specializing in high-performance gameplay systems, Luau/TypeScript engineering, and modern web applications.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Jophy Chen — Full Stack & Game Systems Engineer">
+  <meta property="og:description" content="Explore my portfolio, projects, skills, and interactive terminal experience.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jophyyy.github.io">
+
+  <!-- Google Fonts: JetBrains Mono & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Favicon / Styles -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TERMINAL INTRO BOOT SEQUENCE (Inspired by ddaniel.dev)                -->
+  <!-- ========================================================================= -->
+  <div id="boot-terminal" class="boot-terminal">
+    <div class="boot-header">
+      <div class="window-controls">
+        <span class="control close"></span>
+        <span class="control minimize"></span>
+        <span class="control maximize"></span>
+      </div>
+      <div class="terminal-title">jophyyy@archlinux: ~ (bash)</div>
+      <button id="skip-boot-btn" class="skip-btn" title="Skip Intro">
+        <span>Skip Animation</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="13 17 18 12 13 7"></polyline>
+          <polyline points="6 17 11 12 6 7"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <div class="boot-body" id="boot-console">
+      <!-- Boot sequence typed lines will appear here dynamically via JS -->
+      <div id="boot-lines" class="boot-lines"></div>
+      <div class="boot-prompt-active">
+        <span class="prompt-user">jophyyy@archlinux</span>:<span class="prompt-dir">~/portfolio</span>$&nbsp;<span id="current-typing" class="current-typing"></span><span class="blinking-caret">█</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Spotlight Canvas Effect -->
+  <div id="spotlight-overlay" class="spotlight-overlay"></div>
+  <div id="grid-background" class="grid-background"></div>
+
+  <!-- Ambient "Drag Anywhere" Cue -->
+  <div class="ambient-cue">
+    <span class="pulse-dot"></span>
+    <span class="cue-text">DRAG / MOVE ANYWHERE</span>
+    <span id="coords-display" class="coords-display">[X: 0, Y: 0]</span>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. NAVIGATION BAR & FULLSCREEN MENU                                       -->
+  <!-- ========================================================================= -->
+  <header class="site-header">
+    <a href="#hero" class="brand-logo">
+      <span class="logo-prompt">~</span>
+      <span class="logo-name">jophy.dev</span>
+      <span class="status-indicator" title="Available for projects & roles">
+        <span class="status-dot"></span>
+        <span class="status-text">AVAILABLE</span>
+      </span>
+    </a>
+
+    <nav class="desktop-nav">
+      <a href="#about" class="nav-item"><span class="code-num">0.</span> ABOUT</a>
+      <a href="#skills" class="nav-item"><span class="code-num">1.</span> SKILLS</a>
+      <a href="#work" class="nav-item"><span class="code-num">2.</span> WORK</a>
+      <a href="#projects" class="nav-item"><span class="code-num">3.</span> PROJECTS</a>
+      <a href="#contact" class="nav-item"><span class="code-num">4.</span> CONTACT</a>
+      <a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="nav-cta">GITHUB ↗</a>
+    </nav>
+
+    <!-- Hamburger Toggle for Mobile / Overlay -->
+    <button id="menu-toggle" class="menu-toggle" aria-label="Toggle navigation menu">
+      <span class="bar bar-1"></span>
+      <span class="bar bar-2"></span>
+      <span class="bar bar-3"></span>
+    </button>
+  </header>
+
+  <!-- Fullscreen Navigation Overlay (Inspired by ddaniel.dev) -->
+  <div id="nav-overlay" class="nav-overlay">
+    <div class="nav-overlay-content">
+      <div class="overlay-bracket-open">// MENU_DISPATCH {</div>
+      <ul class="overlay-nav-list">
+        <li><a href="#about" class="overlay-nav-link"><span class="neon-idx">00.</span> <span class="link-label">ABOUT</span></a></li>
+        <li><a href="#skills" class="overlay-nav-link"><span class="neon-idx">01.</span> <span class="link-label">SKILLS</span></a></li>
+        <li><a href="#work" class="overlay-nav-link"><span class="neon-idx">02.</span> <span class="link-label">WORK & EXPERIENCE</span></a></li>
+        <li><a href="#projects" class="overlay-nav-link"><span class="neon-idx">03.</span> <span class="link-label">PROJECTS</span></a></li>
+        <li><a href="#contact" class="overlay-nav-link"><span class="neon-idx">04.</span> <span class="link-label">CONTACT</span></a></li>
+        <li><a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="overlay-nav-link"><span class="neon-idx">05.</span> <span class="link-label">GITHUB REPOSITORY ↗</span></a></li>
+      </ul>
+      <div class="overlay-bracket-close">}</div>
+      <div class="overlay-footer">
+        <div class="social-links">
+          <a href="https://github.com/jophyyy" target="_blank" rel="noopener">GitHub</a>
+          <span class="sep">•</span>
+          <a href="mailto:jophychen.dev@gmail.com">Email</a>
+          <span class="sep">•</span>
+          <a href="#contact">Terminal</a>
+        </div>
+        <div class="credit">Aesthetic inspired by ddaniel.dev • Crafted with pride</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT CONTAINER                                                    -->
+  <!-- ========================================================================= -->
+  <main id="main-content" class="main-content">
+
+    <!-- 3. HERO SECTION -->
+    <section id="hero" class="section hero-section">
+      <div class="section-container">
+        
+        <div class="terminal-tag">// SYSTEM READY • ARCH LINUX ENVIRONMENT</div>
+        
+        <h1 class="hero-name">
+          JOPHY CHEN<span class="neon-accent">.</span>
+        </h1>
+
+        <div class="hero-typing-wrapper">
+          <span class="prompt-sym">&gt;</span>
+          <span id="role-cycler" class="role-cycler">FULL STACK DEVELOPER</span>
+          <span class="type-cursor">_</span>
+        </div>
+
+        <p class="hero-bio">
+          Self-taught developer and systems architect obsessed with high-performance software,
+          distributed game simulation, and modern web applications. Expert at breaking complex problems
+          down to foundational code and scouring documentation for the cleanest architectural solutions.
+        </p>
+
+        <div class="tech-pills-row">
+          <span class="badge arch-badge">
+            <svg width="14" height="14" viewBox="0 0 300 300" fill="currentColor">
+              <path d="M141.2 9.8c-2.7 6.4-14.7 34.6-26.6 62.6-11.9 28-29.4 69.1-38.9 91.2s-24.8 58.2-34 80.2l-16.7 39.9 28.5-.7c15.7-.3 34.8-.8 42.4-1 7.7-.2 20.3-4.7 28.1-10 13.5-9.3 22-22.7 26.6-42.3 2.1-8.9 3.5-12.7 6.3-17 3.9-6 8.3-8.8 15.6-9.9 6.8-1.1 12.3.6 17.5 5.5 3.3 3.1 8 10.9 10.4 17.4 3.9 10.5 8.7 27.5 10.6 37.8 1.4 7.6 5.5 13.9 12.5 19 6.2 4.4 12.7 6.6 27.8 9.3 12.4 2.2 47.9 3 47.9 1.1 0-.6-83.3-195.9-105-236.4-5.3-9.9-10.2-18.7-10.9-19.5-1.1-1.3-3.6 2-15.1 27.8z"/>
+            </svg>
+            I use Arch btw
+          </span>
+          <span class="badge">Luau / Lua</span>
+          <span class="badge">TypeScript</span>
+          <span class="badge">React & Next.js</span>
+          <span class="badge">Systems Architecture</span>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">
+            <span>Get In Touch</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#projects" class="btn btn-outline">
+            <span>Explore Work</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M12 4v14"/></svg>
+          </a>
+          <button id="quick-cli-trigger" class="btn btn-terminal-ghost" title="Launch Interactive Terminal">
+            <span>&gt;_ Launch CLI</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. ABOUT SECTION (Code Block Structure) -->
+    <section id="about" class="section code-block-section">
+      <div class="section-container">
+        
+        <div class="code-bracket-tag">
+          <span class="code-keyword">const</span> <span class="code-var">ABOUT_ME</span> = <span class="code-keyword">class</span> <span class="code-type">Engineer</span> <span class="bracket">{</span>
+        </div>
+
+        <div class="code-block-inner">
+          <div class="about-grid">
+            <div class="about-text-col">
+              <h2 class="section-title">ENGINEERING WITH OBSESSIVE CURIOSITY</h2>
+              <p class="about-p">
+                I am a software engineer with over <strong>7+ years of self-taught development experience</strong>.
+                My journey began in the trenches of raw script editors, reverse-engineering game mechanics,
+                optimizing distributed network replication lag, and engineering robust interactive systems from scratch.
+              </p>
+              <p class="about-p">
+                I believe the best way to master technology is to build from first principles: crafting custom state
+                machines, optimizing packet budgets for multi-player games, and engineering web applications that feel
+                as fluid and responsive as native operating systems.
+              </p>
+              <p class="about-p highlight-p">
+                When I'm not writing code, you'll find me tinkering with Linux systems, profiling micro-benchmarks,
+                or exploring graphics rendering and modular architectures.
+              </p>
+
+              <div class="stats-row">
+                <div class="stat-card">
+                  <div class="stat-number">7+</div>
+                  <div class="stat-label">Years of Development</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">500K+</div>
+                  <div class="stat-label">Engagements & Visits</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">60 FPS</div>
+                  <div class="stat-label">Simulation Framerate</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">0.05ms</div>
+                  <div class="stat-label">Replication Budget</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="about-terminal-col">
+              <div class="mini-terminal-card">
+                <div class="mini-term-header">
+                  <div class="term-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <span class="mini-term-name">developer_profile.json</span>
+                </div>
+                <pre class="code-display"><code>{
+  <span class="key">"name"</span>: <span class="str">"Jophy Chen"</span>,
+  <span class="key">"handle"</span>: <span class="str">"jophyyy"</span>,
+  <span class="key">"focus"</span>: [
+    <span class="str">"Distributed Game Systems"</span>,
+    <span class="str">"Modular Luau Frameworks"</span>,
+    <span class="str">"Full-Stack Web Architecture"</span>
+  ],
+  <span class="key">"os"</span>: <span class="str">"Arch Linux (x86_64)"</span>,
+  <span class="key">"editor"</span>: <span class="str">"Neovim & VS Code"</span>,
+  <span class="key">"status"</span>: <span class="str">"Shipping high-impact features"</span>,
+  <span class="key">"availableForWork"</span>: <span class="bool">true</span>
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-bracket-tag close">
+          <span class="bracket">}</span>;
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. SKILLS SECTION -->
+    <section id="skills" class="section code-block-section">
+      <div class="section-container">
+        
+        <div class="code-bracket-tag">
+          <span class="code-keyword">export interface</span> <span class="code-type">SkillMatrix</span> <span class="bracket">{</span>
+        </div>
+
+        <div class="code-block-inner">
+          <h2 class="section-title">LANGUAGES & TECHNOLOGIES</h2>
+          <p class="skills-sub">
+            A comprehensive toolbelt built from real-world engineering across distributed game servers,
+            low-latency state synchronization, and modern web application development.
+          </p>
+
+          <div class="skills-split-container">
+            <!-- Column 1: Core Languages & Systems -->
+            <div class="skills-column">
+              <div class="column-header">
+                <span class="col-icon">⚡</span>
+                <span class="col-title">LANGUAGES & RUNTIMES</span>
+              </div>
+              <ul class="skills-list">
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">TypeScript / JavaScript</span>
+                    <span class="skill-level">Advanced</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 92%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Luau / Lua (Roblox Engine)</span>
+                    <span class="skill-level">Expert • 7+ Yrs</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 98%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Python</span>
+                    <span class="skill-level">Proficient</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 85%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">C / C++</span>
+                    <span class="skill-level">Systems & Memory</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 75%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">HTML5 & Modern CSS3</span>
+                    <span class="skill-level">Mastery</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 95%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">SQL & Data Modeling</span>
+                    <span class="skill-level">Relational / Key-Value</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 80%;"></div></div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Vertical Neon Divider -->
+            <div class="skills-neon-divider">
+              <div class="divider-line"></div>
+              <div class="divider-node">◈</div>
+              <div class="divider-line"></div>
+            </div>
+
+            <!-- Column 2: Frameworks, Architecture & Tools -->
+            <div class="skills-column">
+              <div class="column-header">
+                <span class="col-icon">🛠️</span>
+                <span class="col-title">FRAMEWORKS & INFRASTRUCTURE</span>
+              </div>
+              <ul class="skills-list">
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Roblox Engine & Client-Server Replication</span>
+                    <span class="skill-level">Core Specialization</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 98%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">React & Next.js</span>
+                    <span class="skill-level">Frontend & SSR</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 88%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Node.js & Express</span>
+                    <span class="skill-level">Backend Services</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 85%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Git & Distributed Version Control</span>
+                    <span class="skill-level">Git Flow Mastery</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 90%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Linux / Arch & Shell Scripting</span>
+                    <span class="skill-level">Daily Driver</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 92%;"></div></div>
+                </li>
+                <li class="skill-item">
+                  <div class="skill-meta">
+                    <span class="skill-name">Wally & Rojo Toolchain</span>
+                    <span class="skill-level">Package & Build Systems</span>
+                  </div>
+                  <div class="skill-bar"><div class="bar-fill" style="--percent: 94%;"></div></div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-bracket-tag close">
+          <span class="bracket">}</span>;
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. WORK & EXPERIENCE (Horizontal Interactive Timeline) -->
+    <section id="work" class="section code-block-section">
+      <div class="section-container">
+        
+        <div class="code-bracket-tag">
+          <span class="code-keyword">const</span> <span class="code-var">WORK_HISTORY</span> = <span class="bracket">[</span>
+        </div>
+
+        <div class="code-block-inner">
+          <div class="timeline-header-wrap">
+            <h2 class="section-title">EXPERIENCE & TRACK RECORD</h2>
+            <div class="timeline-drag-hint">
+              <span>← DRAG HORIZONTALLY TO EXPLORE →</span>
+            </div>
+          </div>
+
+          <!-- Horizontal Draggable Scroll Container -->
+          <div id="timeline-scroll-track" class="timeline-scroll-track">
+            
+            <!-- Timeline Item 1 -->
+            <div class="timeline-card">
+              <div class="card-timeline-node">
+                <span class="node-ring"></span>
+                <span class="node-dot"></span>
+              </div>
+              <div class="card-timeline-content">
+                <div class="timeline-period">2024 — PRESENT</div>
+                <h3 class="timeline-role">Lead Systems Architect</h3>
+                <div class="timeline-company">Roblox Tycoon & Simulation Systems</div>
+                <p class="timeline-desc">
+                  Architected end-to-end game frameworks including BossService encounter state machines,
+                  delta-compressed gem/cash economy, dynamic trail particle physics, and asynchronous save serialization.
+                </p>
+                <div class="timeline-tags">
+                  <span>Luau Strict</span>
+                  <span>OOP Framework</span>
+                  <span>Network Sync</span>
+                  <span>Rojo</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="timeline-card">
+              <div class="card-timeline-node">
+                <span class="node-ring"></span>
+                <span class="node-dot"></span>
+              </div>
+              <div class="card-timeline-content">
+                <div class="timeline-period">2022 — 2024</div>
+                <h3 class="timeline-role">Full-Stack Web & Tooling Engineer</h3>
+                <div class="timeline-company">Independent & Client Projects</div>
+                <p class="timeline-desc">
+                  Engineered custom developer dashboards, interactive portfolios, and automated CI/CD deployment pipelines.
+                  Delivered pixel-perfect interfaces with top-tier Lighthouse performance scores.
+                </p>
+                <div class="timeline-tags">
+                  <span>TypeScript</span>
+                  <span>React</span>
+                  <span>Tailwind</span>
+                  <span>Node.js</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="timeline-card">
+              <div class="card-timeline-node">
+                <span class="node-ring"></span>
+                <span class="node-dot"></span>
+              </div>
+              <div class="card-timeline-content">
+                <div class="timeline-period">2020 — 2022</div>
+                <h3 class="timeline-role">Game Developer & Scripting Specialist</h3>
+                <div class="timeline-company">Community Collaborations</div>
+                <p class="timeline-desc">
+                  Designed modular mechanics for multiplayer gameplay: custom camera controllers, raycast weapon handling,
+                  spatial inventory systems, and UI animations for responsive cross-platform play.
+                </p>
+                <div class="timeline-tags">
+                  <span>Game Design</span>
+                  <span>Physics</span>
+                  <span>Spatial Audio</span>
+                  <span>UI Tweening</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline Item 4 -->
+            <div class="timeline-card">
+              <div class="card-timeline-node">
+                <span class="node-ring"></span>
+                <span class="node-dot"></span>
+              </div>
+              <div class="card-timeline-content">
+                <div class="timeline-period">2018 — 2020</div>
+                <h3 class="timeline-role">Open Source & Self-Taught Exploration</h3>
+                <div class="timeline-company">The Formative Years</div>
+                <p class="timeline-desc">
+                  Immersed into computer science fundamentals, algorithm analysis, Linux system customization,
+                  and low-level script development. Created early web utilities and algorithms visualizers.
+                </p>
+                <div class="timeline-tags">
+                  <span>Arch Linux</span>
+                  <span>Bash</span>
+                  <span>Python</span>
+                  <span>C</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="code-bracket-tag close">
+          <span class="bracket">]</span>;
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7. INTERSTITIAL QUOTE BANNER (Linus Torvalds tribute from ddaniel.dev) -->
+    <section class="quote-banner">
+      <div class="quote-container">
+        <div class="quote-mark">“</div>
+        <blockquote class="quote-text">
+          TALK IS CHEAP. SHOW ME THE CODE.
+        </blockquote>
+        <div class="quote-author">— Linus Torvalds</div>
+      </div>
+    </section>
+
+    <!-- 8. PROJECTS SECTION -->
+    <section id="projects" class="section code-block-section">
+      <div class="section-container">
+        
+        <div class="code-bracket-tag">
+          <span class="code-keyword">const</span> <span class="code-var">FEATURED_PROJECTS</span> = <span class="bracket">[</span>
+        </div>
+
+        <div class="code-block-inner">
+          <div class="projects-header">
+            <h2 class="section-title">SELECTED WORKS & ARCHITECTURE</h2>
+            <div class="filter-tabs" id="project-filters">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="game">Games & Simulation</button>
+              <button class="filter-btn" data-filter="web">Web & Full Stack</button>
+              <button class="filter-btn" data-filter="systems">Systems & Tools</button>
+            </div>
+          </div>
+
+          <!-- Projects Grid -->
+          <div class="projects-grid" id="projects-grid">
+            
+            <!-- Project 1: Roblox Tycoon Simulator -->
+            <div class="project-card" data-category="game systems">
+              <div class="card-glow"></div>
+              <div class="project-header">
+                <span class="project-category">Roblox Engine • Systems</span>
+                <span class="project-status live">● LIVE FRAMEWORK</span>
+              </div>
+              <h3 class="project-name">Roblox Tycoon Simulator Engine</h3>
+              <p class="project-desc">
+                High-performance tycoon framework featuring dynamic drop rates, BossService encounter state machines,
+                procedural trail emitters, and custom currency multipliers engineered in Luau Strict.
+              </p>
+              <div class="project-tech-stack">
+                <span class="tech-tag">Luau</span>
+                <span class="tech-tag">Rojo / Wally</span>
+                <span class="tech-tag">Server Replication</span>
+                <span class="tech-tag">State Machine</span>
+              </div>
+              <div class="project-actions">
+                <a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="project-link">
+                  <span>Source Repo</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+                <button class="project-demo-btn" onclick="cliExecute('skills')">Inspect Tech &gt;</button>
+              </div>
+            </div>
+
+            <!-- Project 2: Interactive Dev Portfolio -->
+            <div class="project-card" data-category="web">
+              <div class="card-glow"></div>
+              <div class="project-header">
+                <span class="project-category">Web Experience</span>
+                <span class="project-status">● DEPLOYED</span>
+              </div>
+              <h3 class="project-name">jophyyy.github.io Cyber Portfolio</h3>
+              <p class="project-desc">
+                A terminal-inspired developer portfolio featuring an authentic boot sequence, dynamic spotlight cursor tracking,
+                custom CSS code bracket architecture, and an interactive Easter-egg CLI console.
+              </p>
+              <div class="project-tech-stack">
+                <span class="tech-tag">Vanilla JS</span>
+                <span class="tech-tag">CSS Custom Properties</span>
+                <span class="tech-tag">Canvas API</span>
+                <span class="tech-tag">GitHub Pages</span>
+              </div>
+              <div class="project-actions">
+                <a href="https://github.com/jophyyy/jophyyy.github.io" target="_blank" rel="noopener" class="project-link">
+                  <span>GitHub</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+                <a href="#hero" class="project-link">
+                  <span>Current Site</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Project 3: Real-Time Algorithm Visualizer -->
+            <div class="project-card" data-category="web systems">
+              <div class="card-glow"></div>
+              <div class="project-header">
+                <span class="project-category">Algorithms & Audio</span>
+                <span class="project-status">● DEMO</span>
+              </div>
+              <h3 class="project-name">Audio-Synthesized Sort & Path Visualizer</h3>
+              <p class="project-desc">
+                Interactive real-time visualization of sorting algorithms (QuickSort, MergeSort, Radix) and pathfinding
+                heuristics (A*, Dijkstra) synchronized with procedural Web Audio frequencies.
+              </p>
+              <div class="project-tech-stack">
+                <span class="tech-tag">TypeScript</span>
+                <span class="tech-tag">Web Audio API</span>
+                <span class="tech-tag">HTML5 Canvas</span>
+                <span class="tech-tag">Data Structures</span>
+              </div>
+              <div class="project-actions">
+                <a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="project-link">
+                  <span>GitHub</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+                <button class="project-demo-btn" onclick="cliExecute('projects')">Run Simulation &gt;</button>
+              </div>
+            </div>
+
+            <!-- Project 4: Delta-Compression Network Sync -->
+            <div class="project-card" data-category="systems game">
+              <div class="card-glow"></div>
+              <div class="project-header">
+                <span class="project-category">Low-Latency Networking</span>
+                <span class="project-status">● OPTIMIZATION</span>
+              </div>
+              <h3 class="project-name">Low-Bandwidth State Replication Buffer</h3>
+              <p class="project-desc">
+                Binary serialization protocol utilizing bit-packing and delta compression to sync over 2,000 spatial entities
+                at 60 updates/sec within a strict 50KB/s network envelope.
+              </p>
+              <div class="project-tech-stack">
+                <span class="tech-tag">Bit-Packing</span>
+                <span class="tech-tag">Buffer Library</span>
+                <span class="tech-tag">Networking</span>
+                <span class="tech-tag">Delta Sync</span>
+              </div>
+              <div class="project-actions">
+                <a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="project-link">
+                  <span>Architecture Docs</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="code-bracket-tag close">
+          <span class="bracket">]</span>;
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 9. CONTACT SECTION -->
+    <section id="contact" class="section code-block-section">
+      <div class="section-container">
+        
+        <div class="code-bracket-tag">
+          <span class="code-keyword">async function</span> <span class="code-var">sendMessage</span><span class="bracket">(</span>payload: <span class="code-type">MessagePacket</span><span class="bracket">) {</span>
+        </div>
+
+        <div class="code-block-inner">
+          <div class="contact-layout">
+            <div class="contact-info">
+              <h2 class="section-title">INITIATE CONNECTION</h2>
+              <p class="contact-desc">
+                Have an ambitious game project, high-performance web platform, or role that requires someone
+                who solves hard problems with velocity? Let's talk.
+              </p>
+
+              <div class="contact-channels">
+                <div class="channel-card">
+                  <div class="channel-icon">📫</div>
+                  <div class="channel-details">
+                    <div class="channel-title">Direct Mail</div>
+                    <a href="mailto:jophychen.dev@gmail.com" class="channel-value">jophychen.dev@gmail.com</a>
+                  </div>
+                </div>
+
+                <div class="channel-card">
+                  <div class="channel-icon">🐙</div>
+                  <div class="channel-details">
+                    <div class="channel-title">GitHub Profile</div>
+                    <a href="https://github.com/jophyyy" target="_blank" rel="noopener" class="channel-value">github.com/jophyyy</a>
+                  </div>
+                </div>
+
+                <div class="channel-card">
+                  <div class="channel-icon">⚡</div>
+                  <div class="channel-details">
+                    <div class="channel-title">Available For</div>
+                    <div class="channel-value">Full-Time, Contract & Game Architecture</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Cyber Contact Form -->
+            <div class="contact-form-col">
+              <form id="contact-form" class="cyber-form">
+                <div class="form-group">
+                  <label for="contact-name">
+                    <span class="label-prefix">&gt;</span> const senderName =
+                  </label>
+                  <input type="text" id="contact-name" name="name" required placeholder='"Your Name or Studio"' autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-email">
+                    <span class="label-prefix">&gt;</span> const senderEmail =
+                  </label>
+                  <input type="email" id="contact-email" name="email" required placeholder='"contact@example.com"' autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-subject">
+                    <span class="label-prefix">&gt;</span> const projectSubject =
+                  </label>
+                  <input type="text" id="contact-subject" name="subject" required placeholder='"Game Systems / Web Development / Inquiries"'>
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-message">
+                    <span class="label-prefix">&gt;</span> const messagePayload =
+                  </label>
+                  <textarea id="contact-message" name="message" rows="5" required placeholder='"Details about your vision, tech stack, or inquiry..."'></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="form-submit-btn">
+                  <span>Dispatch Transmission</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+
+                <div id="form-feedback" class="form-feedback"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-bracket-tag close">
+          <span class="bracket">}</span>;
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 10. SITE FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="footer-brand">jophyyy.github.io</div>
+          <div class="footer-sub">Engineered with modern vanilla web standards • Zero bloat</div>
+        </div>
+        
+        <div class="footer-center">
+          <div class="footer-quote">Designed with the hacker ethos inspired by ddaniel.dev</div>
+        </div>
+
+        <div class="footer-right">
+          <a href="#hero" class="back-to-top" title="Return to Top">
+            <span>TOP</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 11. FLOATING EASTER EGG TERMINAL DRAWER (CLI)                             -->
+  <!-- ========================================================================= -->
+  <div id="cli-drawer" class="cli-drawer closed">
+    <div class="cli-header" id="cli-drag-handle">
+      <div class="cli-title-wrap">
+        <span class="cli-indicator"></span>
+        <span class="cli-title">jophy@arch-terminal: ~ (Type 'help')</span>
+      </div>
+      <div class="cli-btns">
+        <button id="cli-minimize-btn" title="Toggle Terminal" aria-label="Minimize Terminal">—</button>
+      </div>
+    </div>
+    
+    <div class="cli-content" id="cli-content">
+      <div class="cli-history" id="cli-history">
+        <div class="cli-line intro-line">Interactive Terminal v2.4 initialized. Type <span class="cmd-highlight">help</span> for available commands.</div>
+      </div>
+      <div class="cli-input-line">
+        <span class="cli-prompt">guest@jophy.dev:~$</span>
+        <input type="text" id="cli-input" class="cli-input" autocomplete="off" spellcheck="false" placeholder="type 'help', 'neofetch', 'skills'...">
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating CLI Toggle Button (Bottom Right) -->
+  <button id="cli-toggle-btn" class="cli-toggle-btn" title="Open Interactive CLI Console">
+    <span class="cli-icon">&gt;_</span>
+    <span class="cli-btn-label">CLI</span>
+  </button>
+
+  <!-- Modular Scripts -->
+  <script src="main.js"></script>
+</body>
+</html>
