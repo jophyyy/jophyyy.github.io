@@ -1,14 +1,6 @@
 /* ==========================================================================
-   jophyyy.github.io — MAIN JAVASCRIPT
-   Interactive Behaviors:
-   1. Terminal Boot Sequence & Skip Logic
-   2. Dynamic Spotlight Tracker & Mouse Coordinates
-   3. Dynamic Typewriter Role Cycler
-   4. Draggable Horizontal Timeline
-   5. Projects Filtering Engine
-   6. Fullscreen Navigation Menu
-   7. Interactive Easter-Egg Developer CLI
-   8. Contact Form Dispatcher
+   Jophy Test Website — MAIN JAVASCRIPT
+   Minimal animation & UI tests
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   1. TERMINAL BOOT SEQUENCE (Inspired by ddaniel.dev)
+   1. TERMINAL BOOT SEQUENCE
    ========================================================================== */
 function initBootSequence() {
   const bootTerminal = document.getElementById("boot-terminal");
@@ -33,11 +25,10 @@ function initBootSequence() {
 
   if (!bootTerminal) return;
 
-  // If user already visited in this session, provide swift boot or instant entrance
   const hasVisited = sessionStorage.getItem("boot_complete");
   if (hasVisited === "true") {
     bootTerminal.classList.add("finished");
-    setTimeout(() => { bootTerminal.style.display = "none"; }, 400);
+    setTimeout(() => { bootTerminal.style.display = "none"; }, 300);
     return;
   }
 
@@ -50,22 +41,17 @@ function initBootSequence() {
     bootTerminal.classList.add("finished");
     setTimeout(() => {
       bootTerminal.style.display = "none";
-    }, 600);
+    }, 400);
   }
 
   skipBtn?.addEventListener("click", finishBoot);
 
   const scriptSteps = [
-    { type: "cmd", text: "pwd", delayAfter: 350 },
-    { type: "output", text: "/home/jophy/Developer", delayAfter: 300 },
-    { type: "cmd", text: "cd portfolio && ls -la", delayAfter: 450 },
-    { type: "output", text: "drwxr-xr-x . .. public/ src/ index.html style.css package.json vite.config.ts", delayAfter: 400 },
-    { type: "cmd", text: "npm run dev", delayAfter: 500 },
-    { type: "info", text: "> jophy-portfolio@2.0.0 dev", delayAfter: 250 },
-    { type: "info", text: "> vite", delayAfter: 300 },
-    { type: "success", text: "  VITE v5.4.2 ready in 164 ms", delayAfter: 200 },
-    { type: "output", text: "  ➜ Local:   http://localhost:5173/", delayAfter: 200 },
-    { type: "output", text: "  ➜ Network: use --host to expose", delayAfter: 500 }
+    { type: "cmd", text: "test --init", delayAfter: 300 },
+    { type: "output", text: "Initializing testing server...", delayAfter: 250 },
+    { type: "cmd", text: "test --status", delayAfter: 300 },
+    { type: "output", text: "Testing server active (60 FPS)", delayAfter: 200 },
+    { type: "success", text: "Testing ready.", delayAfter: 300 }
   ];
 
   let stepIdx = 0;
@@ -74,7 +60,7 @@ function initBootSequence() {
     if (isSkipped) return;
 
     if (stepIdx >= scriptSteps.length) {
-      setTimeout(finishBoot, 600);
+      setTimeout(finishBoot, 400);
       return;
     }
 
@@ -86,7 +72,7 @@ function initBootSequence() {
         if (isSkipped) return;
         const line = document.createElement("div");
         line.className = "boot-line command";
-        line.innerHTML = `<span class="prompt-user">jophyyy@archlinux</span>:<span class="prompt-dir">~/portfolio</span>$ ${step.text}`;
+        line.innerHTML = `<span class="prompt-user">test</span>:<span class="prompt-dir">~/testing</span>$ ${step.text}`;
         bootLinesContainer.appendChild(line);
         currentTyping.textContent = "";
         setTimeout(runNextStep, step.delayAfter || 200);
@@ -111,16 +97,15 @@ function initBootSequence() {
       if (charIdx < text.length) {
         currentTyping.textContent += text.charAt(charIdx);
         charIdx++;
-        setTimeout(typeChar, 35 + Math.random() * 25);
+        setTimeout(typeChar, 30);
       } else {
-        setTimeout(callback, 100);
+        setTimeout(callback, 80);
       }
     }
     typeChar();
   }
 
-  // Start after subtle pause
-  setTimeout(runNextStep, 400);
+  setTimeout(runNextStep, 250);
 }
 
 /* ==========================================================================
@@ -140,7 +125,7 @@ function initSpotlightAndCoordinates() {
     }
 
     if (coordsDisplay) {
-      coordsDisplay.textContent = `[X: ${x}, Y: ${y}]`;
+      coordsDisplay.textContent = `[${x}, ${y}]`;
     }
   });
 }
@@ -153,11 +138,10 @@ function initRoleCycler() {
   if (!roleCycler) return;
 
   const roles = [
-    "FULL STACK DEVELOPER",
-    "ROBLOX SYSTEMS ARCHITECT",
-    "GAMEPLAY ENGINE SPECIALIST",
-    "DISTRIBUTED NETWORK ENGINEER",
-    "LINUX & OPEN SOURCE DEV"
+    "TESTING",
+    "ANIMATION TESTING",
+    "TESTING SERVER",
+    "UI TESTING"
   ];
 
   let roleIdx = 0;
@@ -178,12 +162,12 @@ function initRoleCycler() {
     let typeSpeed = isDeleting ? 30 : 60;
 
     if (!isDeleting && charIdx === currentRole.length) {
-      typeSpeed = 2200; // Pause at end of word
+      typeSpeed = 2000;
       isDeleting = true;
     } else if (isDeleting && charIdx === 0) {
       isDeleting = false;
       roleIdx = (roleIdx + 1) % roles.length;
-      typeSpeed = 400; // Pause before typing next word
+      typeSpeed = 350;
     }
 
     setTimeout(typeLoop, typeSpeed);
@@ -221,13 +205,13 @@ function initTimelineDrag() {
     if (!isDown) return;
     e.preventDefault();
     const x = e.pageX - slider.offsetLeft;
-    const walk = (x - startX) * 1.5; // Drag speed multiplier
+    const walk = (x - startX) * 1.5;
     slider.scrollLeft = scrollLeft - walk;
   });
 }
 
 /* ==========================================================================
-   5. PROJECTS FILTERING ENGINE
+   5. MODULES FILTERING ENGINE
    ========================================================================== */
 function initProjectFilters() {
   const filterBtns = document.querySelectorAll(".filter-btn");
@@ -247,13 +231,13 @@ function initProjectFilters() {
           setTimeout(() => {
             card.style.opacity = "1";
             card.style.transform = "translateY(0)";
-          }, 50);
+          }, 30);
         } else {
           card.style.opacity = "0";
-          card.style.transform = "translateY(10px)";
+          card.style.transform = "translateY(6px)";
           setTimeout(() => {
             card.style.display = "none";
-          }, 200);
+          }, 150);
         }
       });
     });
@@ -261,7 +245,7 @@ function initProjectFilters() {
 }
 
 /* ==========================================================================
-   6. FULLSCREEN NAVIGATION MENU
+   6. NAVIGATION MENU
    ========================================================================== */
 function initNavigation() {
   const menuToggle = document.getElementById("menu-toggle");
@@ -295,7 +279,7 @@ function initNavigation() {
 }
 
 /* ==========================================================================
-   7. INTERACTIVE EASTER-EGG DEVELOPER CLI (ddaniel.dev signature feature)
+   7. CLI DRAWER
    ========================================================================== */
 function initInteractiveCLI() {
   const cliDrawer = document.getElementById("cli-drawer");
@@ -327,7 +311,6 @@ function initInteractiveCLI() {
   cliMinimizeBtn?.addEventListener("click", () => toggleDrawer(false));
   quickCliTrigger?.addEventListener("click", () => toggleDrawer(true));
 
-  // Command History Navigation
   const cmdHistoryList = [];
   let historyPointer = -1;
 
@@ -339,11 +322,9 @@ function initInteractiveCLI() {
       cmdHistoryList.push(rawCmd);
       historyPointer = cmdHistoryList.length;
 
-      // Echo command
-      appendHistoryLine(`guest@jophy.dev:~$ ${rawCmd}`, "cmd-echo");
+      appendHistoryLine(`test:~$ ${rawCmd}`, "cmd-echo");
       cliInput.value = "";
 
-      // Process command
       processCLICommand(rawCmd.toLowerCase());
     } else if (e.key === "ArrowUp") {
       if (historyPointer > 0) {
@@ -363,7 +344,7 @@ function initInteractiveCLI() {
 
   window.cliExecute = function(cmd) {
     toggleDrawer(true);
-    appendHistoryLine(`guest@jophy.dev:~$ ${cmd}`, "cmd-echo");
+    appendHistoryLine(`test:~$ ${cmd}`, "cmd-echo");
     processCLICommand(cmd.toLowerCase());
   };
 
@@ -379,77 +360,34 @@ function initInteractiveCLI() {
     switch (cmd) {
       case "help":
         appendHistoryLine(`
-          Available Commands:<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">neofetch</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Print system specifications & ASCII badge<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">whoami</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Developer bio & identity<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">skills</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Overview of core tech stack<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">projects</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- List featured projects<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">matrix</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Initialize digital rain effect<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">contact</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Show email and communication endpoints<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">clear</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Clear the console history<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">exit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Close the terminal drawer
+          Commands:<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">test</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Run test check<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Testing server status<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">clear</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Clear console<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">exit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Close drawer
         `);
         break;
 
-      case "neofetch":
+      case "test":
         appendHistoryLine(`
-<pre style="color: #00f0ff; line-height: 1.2; font-size: 0.75rem;">
-       /\\         <span style="color:#d4ff32;">jophyyy@archlinux</span>
-      /  \\        -----------------
-     /\\   \\       <span style="color:#8be9fd;">OS:</span> Arch Linux x86_64
-    /      \\      <span style="color:#8be9fd;">Host:</span> Developer Rig (Custom Kernel)
-   /   ,,   \\     <span style="color:#8be9fd;">Kernel:</span> 6.10.9-arch1-1
-  /   |  |  -\\    <span style="color:#8be9fd;">Uptime:</span> 7+ years coding
- /_-''    ''-_\\   <span style="color:#8be9fd;">Packages:</span> 1240 (pacman), 42 (wally)
-                  <span style="color:#8be9fd;">Shell:</span> zsh 5.9
-                  <span style="color:#8be9fd;">Terminal:</span> Alacritty / Web CLI
-                  <span style="color:#8be9fd;">Editor:</span> Neovim & VS Code
-                  <span style="color:#8be9fd;">Theme:</span> Cyber Obsidian Neon
-</pre>
+          <strong>Testing Status:</strong><br>
+          • Boot animation: OK<br>
+          • Cursor spotlight: OK<br>
+          • Drag scroll: OK<br>
+          • Drawer: OK
         `);
         break;
 
-      case "whoami":
+      case "status":
         appendHistoryLine(`
-          <strong>Jophy Chen</strong> — Full Stack & Game Systems Engineer.<br>
-          Passionate about low-latency network architectures, custom game engines (Roblox/Luau),
-          and modern high-performance web applications.
-        `);
-        break;
-
-      case "skills":
-        appendHistoryLine(`
-          <strong>⚡ Core Languages:</strong> Luau/Lua, TypeScript, JavaScript, Python, C/C++, HTML/CSS, SQL.<br>
-          <strong>🛠️ Technologies:</strong> Roblox Studio, React, Next.js, Node.js, Git, Linux (Arch), Wally/Rojo.
-        `);
-        break;
-
-      case "projects":
-        appendHistoryLine(`
-          1. <a href="https://github.com/jophyyy" target="_blank" style="color: #d4ff32;">Roblox Tycoon Simulator Engine</a> (Luau, BossService, Drops)<br>
-          2. <a href="#projects" style="color: #00f0ff;">Personal Developer Portfolio</a> (Interactive Cyber UI)<br>
-          3. <a href="https://github.com/jophyyy" target="_blank" style="color: #d4ff32;">Audio Sort Visualizer</a> (TypeScript, Web Audio)<br>
-          4. <a href="https://github.com/jophyyy" target="_blank" style="color: #00f0ff;">Delta-Compression Buffer Sync</a> (Spatial entity replication)
-        `);
-        break;
-
-      case "matrix":
-        appendHistoryLine(`<span style="color: #89ff69;">Wake up, Neo... The Matrix has you. Follow the white rabbit. 🐇</span>`);
-        break;
-
-      case "contact":
-        appendHistoryLine(`
-          📫 Email: <a href="mailto:jophychen.dev@gmail.com" style="color: #d4ff32;">jophychen.dev@gmail.com</a><br>
-          🐙 GitHub: <a href="https://github.com/jophyyy" target="_blank" style="color: #00f0ff;">github.com/jophyyy</a>
+          Testing server: Active<br>
+          Environment: Local sandbox<br>
+          Framerate: 60 FPS
         `);
         break;
 
       case "clear":
         cliHistory.innerHTML = "";
-        break;
-
-      case "sudo":
-        appendHistoryLine(`<span style="color: #ff5555;">guest is not in the sudoers file. This incident will be reported.</span>`);
         break;
 
       case "exit":
@@ -458,7 +396,7 @@ function initInteractiveCLI() {
         break;
 
       default:
-        appendHistoryLine(`zsh: command not found: ${cmd}. Type <span class="cmd-highlight">help</span> for a list of valid commands.`, "cmd-error");
+        appendHistoryLine(`Command not found: ${cmd}. Type <span class="cmd-highlight">help</span> for commands.`, "cmd-error");
         break;
     }
   }
@@ -477,26 +415,21 @@ function initContactForm() {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("contact-name").value;
-    const email = document.getElementById("contact-email").value;
-    const subject = document.getElementById("contact-subject").value;
-    const message = document.getElementById("contact-message").value;
-
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span>Transmitting Packet...</span>`;
+    submitBtn.innerHTML = `<span>Testing...</span>`;
 
     setTimeout(() => {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = `<span>Dispatch Transmission</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>`;
+      submitBtn.innerHTML = `<span>Submit Test</span>`;
       
       feedback.className = "form-feedback success";
-      feedback.innerHTML = `✓ TRANSMISSION CONFIRMED: Thank you, ${name}! Your packet has been received. I'll get back to you at ${email} shortly.`;
+      feedback.innerHTML = `Testing submit successful.`;
       
       form.reset();
 
       setTimeout(() => {
         feedback.innerHTML = "";
-      }, 7000);
-    }, 900);
+      }, 5000);
+    }, 600);
   });
 }
