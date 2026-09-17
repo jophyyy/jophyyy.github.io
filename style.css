@@ -151,30 +151,37 @@ body.depth-body {
 .site-header {
   position: relative;
   z-index: 20;
-  max-width: 1360px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 40px 16px;
+  padding: 40px 48px 16px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .brand-block {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .brand-link {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   text-decoration: none;
   color: var(--text-pixel);
   font-family: var(--font-pixel);
-  font-size: 1.25rem;
+  font-size: 1.65rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  line-height: 1;
   transition: opacity var(--transition-fast);
+  margin: 0;
+  padding: 0;
 }
 
 .brand-link:hover {
@@ -183,10 +190,10 @@ body.depth-body {
 
 .amber-square {
   display: inline-block;
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   background-color: var(--amber);
-  box-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.4);
 }
 
 .brand-sub {
@@ -252,13 +259,16 @@ body.depth-body {
 }
 
 .hero-section {
-  max-width: 1460px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 44px 56px;
+  padding: 32px 48px 56px;
+  min-height: calc(100vh - 190px);
   display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.25fr);
+  grid-template-columns: minmax(320px, 0.95fr) minmax(520px, 1.25fr);
   align-items: center;
   gap: 40px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 /* Hero Left */
@@ -830,9 +840,9 @@ body.depth-body {
    6. SITE FOOTER
    ========================================================================== */
 .site-footer {
-  max-width: 1360px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 40px;
+  padding: 32px 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -840,6 +850,8 @@ body.depth-body {
   letter-spacing: 0.15em;
   color: var(--text-dim);
   border-top: 1px solid var(--border-line);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .footer-left, .footer-right {

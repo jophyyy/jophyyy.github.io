@@ -239,12 +239,6 @@
     </div>
   </div>
 
-  <!-- Ambient Coordinates Display -->
-  <div class="ambient-cue">
-    <span class="pulse-dot"></span>
-    <span class="cue-label">LAYER 03</span>
-    <span id="coords-display" class="coords-display">[X: 000, Y: 000]</span>
-  </div>
 
   <!-- ========================================================================= -->
   <!-- 3. TOP NAVIGATION BAR                                                     -->
@@ -258,9 +252,7 @@
     </div>
 
     <nav class="desktop-nav">
-      <a href="#hero" class="nav-item active"><span class="prompt-arrow">&gt;</span> home</a>
       <a href="#dorm" class="nav-item">dorm room</a>
-      <a href="#modules" class="nav-item">projects</a>
       <button id="nav-cli-toggle" class="nav-item nav-btn">cli</button>
     </nav>
   </header>
@@ -281,13 +273,11 @@
           student at upenn • exploring software systems, game design, and living interfaces.
         </p>
 
-        <div class="hero-actions">
-          <button id="start-sequence-btn" class="btn btn-depth">
-            <span class="btn-prefix">&gt;</span> start sequence
-          </button>
-          <a href="#queue" class="btn-link">
-            watch signal <span class="triangle-sym">&#x25B8;</span>
-          </a>
+        <div class="hero-tags">
+          <span class="hero-tag">UPENN</span>
+          <span class="hero-tag">CIS 1600 &amp; 1200</span>
+          <span class="hero-tag">ROBLOX</span>
+          <span class="hero-tag">CODER DORM</span>
         </div>
       </div>
 
@@ -487,87 +477,16 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 6. TESTING MODULES & BENCHMARKS                                           -->
-    <!-- ========================================================================= -->
-    <section id="modules" class="hud-modules-section">
-      <div class="modules-header">
-        <div class="hud-col-header">ANIMATION BENCHMARKS & PROTOCOLS</div>
-        <div class="filter-pills" id="project-filters">
-          <button class="pill-btn active" data-filter="all">ALL</button>
-          <button class="pill-btn" data-filter="particles">PARTICLES</button>
-          <button class="pill-btn" data-filter="momentum">MOMENTUM</button>
-          <button class="pill-btn" data-filter="terminal">TERMINAL</button>
-        </div>
-      </div>
-
-      <div class="modules-grid" id="projects-grid">
-        
-        <div class="module-card" data-category="particles">
-          <div class="card-head">
-            <span class="mod-id">MOD_01</span>
-            <span class="mod-state">ACTIVE</span>
-          </div>
-          <h3 class="mod-title">Dotted Wave Particle Cloud</h3>
-          <p class="mod-desc">Interactive 2.5D point cloud with undulating sine-cosine wave vectors rendered on HTML5 canvas at 60 FPS.</p>
-          <div class="mod-footer">
-            <span>CANVAS API</span>
-            <button class="btn-micro" onclick="window.pulseWave && window.pulseWave()">PULSE WAVE</button>
-          </div>
-        </div>
-
-        <div class="module-card" data-category="terminal">
-          <div class="card-head">
-            <span class="mod-id">MOD_02</span>
-            <span class="mod-state">ACTIVE</span>
-          </div>
-          <h3 class="mod-title">Interactive Sequence Bootloader</h3>
-          <p class="mod-desc">Typewriter terminal simulation featuring interactive developer questions, simulated input delays, and smooth skip state.</p>
-          <div class="mod-footer">
-            <span>DOM QUEUE</span>
-            <button class="btn-micro" onclick="window.rebootSequence && window.rebootSequence()">RUN BOOT</button>
-          </div>
-        </div>
-
-        <div class="module-card" data-category="momentum">
-          <div class="card-head">
-            <span class="mod-id">MOD_03</span>
-            <span class="mod-state">ACTIVE</span>
-          </div>
-          <h3 class="mod-title">Signal Feed Streaming Buffer</h3>
-          <p class="mod-desc">Continuous telemetry event stream with timestamp sorting, node updates, and live log updates.</p>
-          <div class="mod-footer">
-            <span>STREAM LOG</span>
-            <button class="btn-micro" onclick="window.pushSignal && window.pushSignal()">INJECT SIGNAL</button>
-          </div>
-        </div>
-
-        <div class="module-card" data-category="terminal">
-          <div class="card-head">
-            <span class="mod-id">MOD_04</span>
-            <span class="mod-state">ACTIVE</span>
-          </div>
-          <h3 class="mod-title">Slide-Up Terminal HUD Drawer</h3>
-          <p class="mod-desc">Expandable diagnostic console with history navigation buffer, help menus, and direct command execution.</p>
-          <div class="mod-footer">
-            <span>CLI CONSOLE</span>
-            <button class="btn-micro" onclick="cliExecute('help')">LAUNCH CLI</button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- 7. SITE FOOTER                                                            -->
+    <!-- 5. SITE FOOTER                                                            -->
     <!-- ========================================================================= -->
     <footer class="site-footer">
       <div class="footer-left">
-        <span>JOPHY'S PERSONAL // PORTFOLIO</span>
+        <span>JOPHY CHEN</span>
         <span class="sep">•</span>
-        <span>UPENN &amp; PROJECTS</span>
+        <span>UPENN</span>
       </div>
       <div class="footer-right">
-        <span>LAYER ARCHITECTURE V4.3</span>
+        <span>PHILADELPHIA, PA</span>
         <span class="sep">•</span>
         <a href="#hero" class="back-top">TOP &#x25B4;</a>
       </div>
