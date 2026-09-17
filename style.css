@@ -934,23 +934,25 @@ body.depth-body {
    ========================================================================== */
 .track-section-wrap {
   position: relative;
-  height: 350vh;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   background-color: var(--bg-void);
   border-top: 1px dashed rgba(28, 25, 23, 0.18);
   box-sizing: border-box;
-}
-
-.track-sticky-wrap {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.track-sticky-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   background-color: var(--bg-void);
 }
 
@@ -968,7 +970,7 @@ body.depth-body {
   box-sizing: border-box;
   user-select: none;
   cursor: grab;
-  transform: scale(0.78);
+  transform: scale(0.80);
   transform-origin: center center;
   will-change: transform, border-radius, box-shadow;
 }
@@ -1757,11 +1759,11 @@ body.booting {
 
   /* 3-Track Vertical Showcase Mobile Overrides */
   .track-section-wrap {
-    height: 280vh;
-  }
-  .track-sticky-wrap {
     height: 100vh;
     height: 100dvh;
+  }
+  .track-sticky-wrap {
+    height: 100%;
   }
   .track-stage {
     transform: scale(0.86);

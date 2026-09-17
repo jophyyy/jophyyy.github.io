@@ -1053,7 +1053,7 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SLIDING IMAGE TRACK (Scroll Pin, Zoom-In, 3 Tracks, Zoom-Out)
+   VERTICAL SLIDING IMAGE TRACK (Controlled Zoom-In, 3 Tracks, Zoom-Out)
    ========================================================================== */
 function initVerticalImageTrack() {
   const sectionWrap = document.getElementById("vertical-showcase");
@@ -1069,9 +1069,15 @@ function initVerticalImageTrack() {
   const imagesRight = trackRight ? Array.from(trackRight.getElementsByClassName("image")) : [];
   const imagesSides = [...imagesLeft, ...imagesRight];
 
-  let targetP = 0;
-  let currentP = 0;
-  let isTicking = false;
+  let targetProgress = 0; // 0.0 to 1.0
+  let currentProgress = 0; // 0.0 to 1.0
+  let isAnimating = false;
+  let lastFrameTime = performance.now();
+
+  // Speed governor: Maximum progress change per second
+  // ~0.35 progress/sec means full travel takes at least ~2.8 seconds,
+  // making it physically impossible to scroll too fast!
+  const MAX_VELOCITY_PER_SEC = 0.35;
 
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -1080,7 +1086,7 @@ function initVerticalImageTrack() {
   function getDimensions() {
     const isMobile = window.innerWidth <= 768;
     return {
-      minScale: isMobile ? 0.86 : 0.78,
+      minScale: isMobile ? 0.86 : 0.80,
       maxRadius: isMobile ? 18 : 28,
       maxShadow: 0.25,
     };
@@ -1099,23 +1105,23 @@ function initVerticalImageTrack() {
       radius = maxRadius;
       shadow = maxShadow;
       colProgress = 0;
-    } else if (p < 0.18) {
+    } else if (p < 0.22) {
       // Phase 1: Zoom In from minScale to 1.0 (Expands so that's all you can see)
-      const t = p / 0.18;
+      const t = p / 0.22;
       const s = easeInOutCubic(t);
       scale = minScale + (1.0 - minScale) * s;
       radius = maxRadius * (1 - s);
       shadow = maxShadow * (1 - s);
       colProgress = 0;
-    } else if (p <= 0.82) {
-      // Phase 2: Full Screen (all you can see) & Scrub 3 Columns
+    } else if (p <= 0.78) {
+      // Phase 2: Full Screen & Scrub 3 Columns
       scale = 1.0;
       radius = 0;
       shadow = 0;
-      colProgress = (p - 0.18) / (0.82 - 0.18);
+      colProgress = (p - 0.22) / (0.78 - 0.22);
     } else if (p < 1.0) {
-      // Phase 3: Zoom Out from 1.0 to minScale (contracts back before exiting)
-      const t = (p - 0.82) / (1.0 - 0.82);
+      // Phase 3: Zoom Out from 1.0 to minScale (Contracts back before exiting)
+      const t = (p - 0.78) / (1.0 - 0.78);
       const s = easeInOutCubic(t);
       scale = 1.0 - (1.0 - minScale) * s;
       radius = maxRadius * s;
@@ -1158,69 +1164,158 @@ function initVerticalImageTrack() {
     }
   }
 
-  function renderLoop() {
-    currentP += (targetP - currentP) * 0.12;
+  function animationLoop(now) {
+    const dt = Math.max(1, Math.min(100, now - lastFrameTime));
+    lastFrameTime = now;
 
-    if (Math.abs(targetP - currentP) < 0.0003) {
-      currentP = targetP;
-    }
+    const diff = targetProgress - currentProgress;
 
-    renderFrame(currentP);
-
-    if (currentP !== targetP) {
-      requestAnimationFrame(renderLoop);
-    } else {
-      isTicking = false;
-    }
-  }
-
-  function updateProgress(instant = false) {
-    const rect = sectionWrap.getBoundingClientRect();
-    const totalDist = sectionWrap.offsetHeight - window.innerHeight;
-    if (totalDist <= 0) return;
-
-    const scrollOffset = -rect.top;
-    targetP = Math.max(0, Math.min(1, scrollOffset / totalDist));
-
-    if (instant) {
-      currentP = targetP;
-      renderFrame(currentP);
+    if (Math.abs(diff) < 0.0001) {
+      currentProgress = targetProgress;
+      renderFrame(currentProgress);
+      isAnimating = false;
       return;
     }
 
-    if (!isTicking) {
-      isTicking = true;
-      requestAnimationFrame(renderLoop);
+    // Speed limiter: Can NEVER scroll faster than MAX_VELOCITY_PER_SEC
+    const maxStep = MAX_VELOCITY_PER_SEC * (dt / 1000);
+    let step = diff * 0.09;
+    if (Math.abs(step) > maxStep) {
+      step = Math.sign(step) * maxStep;
+    }
+
+    currentProgress += step;
+    renderFrame(currentProgress);
+
+    requestAnimationFrame(animationLoop);
+  }
+
+  function startAnimationLoop() {
+    lastFrameTime = performance.now();
+    if (!isAnimating) {
+      isAnimating = true;
+      requestAnimationFrame(animationLoop);
     }
   }
 
-  // Initial render on load
-  updateProgress(true);
+  // Initial render (shows initial framed grid)
+  renderFrame(0);
 
-  // Window scroll & resize listeners
-  window.addEventListener("scroll", () => updateProgress(false), { passive: true });
-  window.addEventListener("resize", () => updateProgress(true), { passive: true });
+  // Wheel listener with speed control and boundary release
+  stage.addEventListener(
+    "wheel",
+    (e) => {
+      const rect = sectionWrap.getBoundingClientRect();
+      const isAligned = rect.top >= -80 && rect.top <= 80;
+
+      // If the section is not yet aligned in view, allow normal page scroll
+      if (!isAligned) {
+        return;
+      }
+
+      const isAtStart = currentProgress <= 0.001;
+      const isAtEnd = currentProgress >= 0.999;
+      const isScrollingDown = e.deltaY > 0;
+      const isScrollingUp = e.deltaY < 0;
+
+      // When at start and scrolling UP -> release to previous section
+      if (isAtStart && isScrollingUp) {
+        return;
+      }
+
+      // When at end and scrolling DOWN -> release to footer
+      if (isAtEnd && isScrollingDown) {
+        return;
+      }
+
+      // Inside showcase: prevent default window scroll and scrub at controlled speed
+      e.preventDefault();
+
+      // Smoothly snap section to top if slightly offset
+      if (Math.abs(rect.top) > 4 && currentProgress < 0.08 && isScrollingDown) {
+        window.scrollTo({ top: sectionWrap.offsetTop, behavior: "smooth" });
+      }
+
+      // Clamp raw delta per tick so massive wheel flicks are bounded
+      const rawDelta = e.deltaY;
+      const clampedDelta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 45);
+
+      // Add to target progress
+      const sensitivity = 0.00065;
+      targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * sensitivity));
+
+      startAnimationLoop();
+    },
+    { passive: false }
+  );
+
+  // Mobile Touch listener
+  let touchStartY = 0;
+
+  stage.addEventListener(
+    "touchstart",
+    (e) => {
+      touchStartY = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+
+  stage.addEventListener(
+    "touchmove",
+    (e) => {
+      const rect = sectionWrap.getBoundingClientRect();
+      const isAligned = rect.top >= -80 && rect.top <= 80;
+      if (!isAligned) return;
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY;
+      touchStartY = touchY;
+
+      const isAtStart = currentProgress <= 0.001;
+      const isAtEnd = currentProgress >= 0.999;
+      const isSwipingUp = deltaY > 0;
+      const isSwipingDown = deltaY < 0;
+
+      if ((isAtStart && isSwipingDown) || (isAtEnd && isSwipingUp)) {
+        return;
+      }
+
+      if (e.cancelable) e.preventDefault();
+
+      const clampedDelta = Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40);
+      targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * 0.001));
+      startAnimationLoop();
+    },
+    { passive: false }
+  );
 
   // Mouse Drag on Stage
-  let isDragging = false;
-  let dragStartY = 0;
+  let isMouseDown = false;
+  let mouseStartY = 0;
 
   stage.addEventListener("mousedown", (e) => {
     e.preventDefault();
-    isDragging = true;
-    dragStartY = e.clientY;
+    isMouseDown = true;
+    mouseStartY = e.clientY;
   });
 
   window.addEventListener("mouseup", () => {
-    isDragging = false;
+    isMouseDown = false;
   });
 
   window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    const deltaY = dragStartY - e.clientY;
-    dragStartY = e.clientY;
-    window.scrollBy({ top: deltaY * 1.5, behavior: "instant" });
+    if (!isMouseDown) return;
+    const deltaY = mouseStartY - e.clientY;
+    mouseStartY = e.clientY;
+
+    const clampedDelta = Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40);
+    targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * 0.001));
+    startAnimationLoop();
   });
+
+  window.addEventListener("resize", () => {
+    renderFrame(currentProgress);
+  }, { passive: true });
 }
 
 
