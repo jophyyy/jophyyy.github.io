@@ -5,6 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   initParticleWave();
+  initLivingInkWallpaper();
   initBootSequence();
   initCoordinatesTracker();
   initQueueAndFeedInteractions();
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   1. PARTICLE WAVE CANVAS (Signature Depththread 2.5D Point Cloud Ribbon)
+   1. PARTICLE WAVE CANVAS & LIVING INK SUMINAGASHI (Inspired by Suimen)
    ========================================================================== */
 function initParticleWave() {
   const canvas = document.getElementById("particle-canvas");
@@ -89,8 +90,31 @@ function initParticleWave() {
 
     time += 0.012 + wavePulse * 0.025;
 
+    // --- Subtle Suminagashi Living Ink Streamlines (Background Texture) ---
+    const inkLines = 18;
+    for (let k = 0; k < inkLines; k++) {
+      const lineNorm = k / inkLines;
+      const baseLineY = height * 0.2 + lineNorm * height * 0.6;
+      ctx.beginPath();
+      ctx.lineWidth = 0.8 + (k % 3 === 0 ? 0.8 : 0);
+      ctx.strokeStyle = k % 2 === 0 ? "rgba(10, 26, 51, 0.065)" : "rgba(20, 28, 38, 0.05)";
+
+      const segments = 40;
+      for (let s = 0; s <= segments; s++) {
+        const u = s / segments;
+        const px = u * width;
+        const undulation = Math.sin(u * 4.2 - time * 0.7 + lineNorm * 3.5) * 38
+                         + Math.cos(u * 8.5 + time * 0.4) * 16;
+        const py = baseLineY + undulation + mouseOffsetY * 0.3;
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
     const horizonY = height * 0.46;
 
+    // --- Carbon Particle Ribbon Cloud ---
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const p = particles[i];
       p.u += p.speed + wavePulse * 0.001;
@@ -127,6 +151,136 @@ function initParticleWave() {
 
       ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(size)), Math.max(1, Math.round(size)));
     }
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+}
+
+/* ==========================================================================
+   1B. SUMINAGASHI LIVING INK WALLPAPER (Suimen Organic Marbled Ink Flow)
+   ========================================================================== */
+function initLivingInkWallpaper() {
+  const canvas = document.getElementById("mac-wallpaper-canvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  let width = 0;
+  let height = 0;
+  let dpr = window.devicePixelRatio || 1;
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.scale(dpr, dpr);
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  let time = 0;
+  const STREAM_COUNT = 48;
+
+  function render() {
+    ctx.clearRect(0, 0, width, height);
+
+    time += 0.008;
+
+    // Vortex center on the right (inspired by Suimen sinkhole)
+    const vx = width * 0.82;
+    const vy = height * 0.42;
+
+    // Draw Suminagashi living ink streamlines
+    for (let i = 0; i < STREAM_COUNT; i++) {
+      const norm = i / STREAM_COUNT;
+      const baseStartY = height * 0.05 + norm * height * 0.92;
+      const strokeAlpha = 0.08 + Math.sin(norm * Math.PI) * 0.28;
+
+      ctx.beginPath();
+      ctx.lineWidth = 1.0 + (i % 4 === 0 ? 1.4 : (i % 2 === 0 ? 0.8 : 0.4));
+
+      // Alternate indigo depth and carbon dye
+      if (i % 3 === 0) {
+        ctx.strokeStyle = `rgba(10, 26, 51, ${strokeAlpha})`;
+      } else if (i % 3 === 1) {
+        ctx.strokeStyle = `rgba(28, 36, 48, ${strokeAlpha * 0.9})`;
+      } else {
+        ctx.strokeStyle = `rgba(75, 85, 99, ${strokeAlpha * 0.6})`;
+      }
+
+      const steps = 60;
+      for (let s = 0; s <= steps; s++) {
+        const u = s / steps;
+        let px = u * (width * 1.1) - width * 0.05;
+
+        // Base undulating waves
+        const wave1 = Math.sin(u * 4.5 - time * 0.8 + norm * 4.2) * 45;
+        const wave2 = Math.cos(u * 9.0 + time * 0.5 + norm * 2.0) * 22;
+        const wave3 = Math.sin(u * 16.0 - time * 1.2) * 8;
+
+        let py = baseStartY + wave1 + wave2 + wave3;
+
+        // Vortex whirlpool pull towards (vx, vy)
+        const dx = px - vx;
+        const dy = py - vy;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 340) {
+          const influence = Math.pow((340 - dist) / 340, 2.0);
+          const angle = Math.atan2(dy, dx);
+          
+          // Spiral curvature force
+          const spiralAngle = angle + influence * 2.8 + time * 0.8;
+          px -= Math.cos(spiralAngle) * influence * 60;
+          py -= Math.sin(spiralAngle) * influence * 60;
+          
+          // Radial suction into center
+          px += (vx - px) * influence * 0.4;
+          py += (vy - py) * influence * 0.4;
+        }
+
+        if (s === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+      ctx.stroke();
+    }
+
+    // Draw living ink sinkhole vortex core on the right
+    const vortexGrad = ctx.createRadialGradient(vx, vy, 0, vx, vy, 48);
+    vortexGrad.addColorStop(0, "rgba(10, 26, 51, 0.88)");
+    vortexGrad.addColorStop(0.3, "rgba(10, 26, 51, 0.65)");
+    vortexGrad.addColorStop(0.7, "rgba(10, 26, 51, 0.2)");
+    vortexGrad.addColorStop(1, "rgba(10, 26, 51, 0)");
+
+    ctx.fillStyle = vortexGrad;
+    ctx.beginPath();
+    ctx.arc(vx, vy, 48, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dark core droplet
+    ctx.fillStyle = "#071120";
+    ctx.beginPath();
+    ctx.arc(vx, vy, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Subtle swirling filament ring around the vortex
+    ctx.save();
+    ctx.translate(vx, vy);
+    ctx.rotate(time * 0.9);
+    ctx.strokeStyle = "rgba(10, 26, 51, 0.45)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 22, 0, Math.PI * 1.5);
+    ctx.stroke();
+    ctx.restore();
 
     requestAnimationFrame(render);
   }

@@ -966,6 +966,86 @@ body.depth-body {
   padding-bottom: 40px;
 }
 
+/* Animated Suminagashi Living Ink Wallpaper Canvas */
+.mac-wallpaper-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.95;
+}
+
+/* macOS Desktop Files on the Right */
+.mac-desktop-files {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: center;
+  z-index: 20;
+  user-select: none;
+}
+
+.desktop-file-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 104px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.desktop-file-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.file-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.16));
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.desktop-file-item:hover .file-icon-wrap {
+  transform: scale(1.08);
+}
+
+.file-name {
+  margin-top: 5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1c1c1e;
+  text-align: center;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 114px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+}
+
+.desktop-file-item:hover .file-name {
+  background: #007aff;
+  color: #ffffff;
+  border-color: #007aff;
+}
+
 /* Simulated macOS Mouse Cursor */
 .mac-cursor {
   position: absolute;
