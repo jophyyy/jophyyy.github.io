@@ -261,11 +261,11 @@ body.depth-body {
 .hero-section {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 40px 48px 64px;
-  min-height: calc(100vh - 190px);
+  padding: 32px 48px 28px;
+  min-height: 75vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   box-sizing: border-box;
   width: 100%;
 }
@@ -273,7 +273,7 @@ body.depth-body {
 /* Hero Content */
 .hero-content {
   max-width: 920px;
-  margin: 0;
+  margin: auto 0;
   padding: 0;
 }
 
@@ -288,7 +288,7 @@ body.depth-body {
   margin: 0;
   padding: 0;
   user-select: none;
-  min-height: 2.3em;
+  min-height: 3.5em;
 }
 
 .hero-type-caret {
@@ -328,6 +328,223 @@ body.depth-body {
   line-height: 1.65;
   color: var(--text-muted);
   max-width: 580px;
+}
+
+/* Scroll Cue */
+.hero-scroll-cue {
+  padding-bottom: 8px;
+}
+
+.scroll-cue-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  transition: color var(--transition-fast);
+}
+
+.scroll-cue-link:hover {
+  color: var(--text-pixel);
+}
+
+.scroll-cue-icon {
+  color: var(--amber);
+  font-size: 0.95rem;
+  display: inline-block;
+  animation: cueBounce 2s ease-in-out infinite;
+}
+
+@keyframes cueBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* ==========================================================================
+   4. SECTION: WHAT AM I WORKING ON RIGHT NOW?
+   ========================================================================== */
+.working-section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 80px 48px 120px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.working-header {
+  margin-bottom: 40px;
+}
+
+.working-headline {
+  font-family: var(--font-pixel);
+  font-size: clamp(2rem, 3.8vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--text-pixel);
+  text-transform: lowercase;
+  margin: 0;
+  padding: 0;
+  min-height: 1.3em;
+}
+
+.working-type-caret {
+  display: inline-block;
+  width: 0.28em;
+  height: 0.65em;
+  background-color: var(--amber);
+  vertical-align: baseline;
+  margin-left: 6px;
+  animation: heroCaretBlink 0.9s step-end infinite;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.45);
+}
+
+.working-type-caret.finished {
+  animation: heroCaretBlink 1.4s step-end infinite;
+}
+
+/* 3 Pop-up Boxes */
+.working-boxes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.working-box {
+  min-height: 180px;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(28px) scale(0.94);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.25),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+}
+
+/* Pop-up staggered spring effect */
+.working-boxes.boxes-revealed .working-box:nth-child(1) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.05s;
+}
+
+.working-boxes.boxes-revealed .working-box:nth-child(2) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.18s;
+}
+
+.working-boxes.boxes-revealed .working-box:nth-child(3) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.31s;
+}
+
+/* Box 1: My Roblox Game */
+.working-box.box-active {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(215, 208, 195, 0.8);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.working-box.box-active:hover {
+  transform: translateY(-5px) scale(1.015);
+  border-color: var(--amber);
+  box-shadow: 
+    0 20px 44px rgba(217, 119, 6, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.box-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.box-icon-wrap {
+  display: inline-flex;
+}
+
+.box-corner-arrow {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.working-box.box-active:hover .box-corner-arrow {
+  transform: translate(2px, -2px);
+  color: var(--amber);
+}
+
+.box-details {
+  margin-top: 18px;
+}
+
+.box-title {
+  font-family: var(--font-pixel);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-pixel);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.box-status {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.04em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--amber);
+  box-shadow: 0 0 6px rgba(217, 119, 6, 0.6);
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+/* Boxes 2 & 3: Blank Boxes */
+.working-box.box-blank {
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px dashed rgba(200, 192, 180, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.working-box.box-blank:hover {
+  border-color: rgba(180, 170, 155, 0.9);
+  background: rgba(255, 255, 255, 0.38);
 }
 
 /* ==========================================================================
@@ -1340,26 +1557,18 @@ body.depth-body {
    9. RESPONSIVE BREAKPOINTS
    ========================================================================== */
 @media (max-width: 1024px) {
+  .site-header {
+    padding: 32px 36px 16px;
+  }
   .hero-section {
-    padding: 36px 36px 48px;
+    padding: 28px 36px 32px;
+    min-height: 72vh;
   }
-  .hero-telemetry {
-    align-items: flex-start;
-    text-align: left;
-    min-width: unset;
+  .working-section {
+    padding: 64px 36px 100px;
   }
-  .telemetry-card {
-    align-items: flex-start;
-  }
-  .telemetry-value-row {
-    justify-content: flex-start;
-  }
-  .telemetry-value-large {
-    justify-content: flex-start;
-  }
-  .hud-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
+  .working-boxes {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1368,7 +1577,15 @@ body.depth-body {
     padding: 24px 20px 12px;
   }
   .hero-section {
-    padding: 32px 20px 48px;
+    padding: 24px 20px 32px;
+    min-height: 70vh;
+  }
+  .working-section {
+    padding: 48px 20px 80px;
+  }
+  .working-boxes {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
   .hud-data-section {
     padding: 20px 20px 48px;

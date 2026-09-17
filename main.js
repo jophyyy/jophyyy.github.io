@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLivingInkWallpaper();
   initBootSequence();
   initHeroTypewriter();
+  initWorkingSection();
   initCoordinatesTracker();
   initQueueAndFeedInteractions();
   initProjectFilters();
@@ -810,8 +811,9 @@ function initHeroTypewriter() {
   if (!target) return;
 
   const textSegments = [
-    { text: "hello!", pauseAfter: 520, newline: true },
-    { text: "welcome to jophy's home...", pauseAfter: 0, newline: false }
+    { text: "hello", pauseAfter: 420, newline: true },
+    { text: "welcome to", pauseAfter: 380, newline: true },
+    { text: "jophy's home...", pauseAfter: 0, newline: false }
   ];
 
   let segmentIdx = 0;
@@ -860,8 +862,87 @@ function initHeroTypewriter() {
     startTyping();
   };
 
-  const macDesktop = document.getElementById("mac-boot-desktop");
+  const macDesktop = document.getElementById("macbook-desktop-boot");
   if (!macDesktop || macDesktop.style.display === "none" || macDesktop.classList.contains("finished")) {
     startTyping();
   }
+}
+
+/* ==========================================================================
+   9. WORKING ON SECTION TYPEWRITER & POP-UP BOXES
+   ========================================================================== */
+function initWorkingSection() {
+  const section = document.getElementById("working-on");
+  const target = document.getElementById("working-type-target");
+  const caret = document.querySelector(".working-type-caret");
+  const boxesContainer = document.getElementById("working-boxes");
+  if (!section || !target) return;
+
+  let hasTriggered = false;
+
+  function typeWorkingText() {
+    if (hasTriggered) return;
+    hasTriggered = true;
+
+    const text = "what am i working on right now?";
+    let charIdx = 0;
+    target.textContent = "";
+    if (caret) caret.classList.remove("finished");
+
+    function typeNext() {
+      if (charIdx < text.length) {
+        target.textContent = text.slice(0, charIdx + 1);
+        charIdx++;
+        setTimeout(typeNext, 34 + Math.random() * 24);
+      } else {
+        if (caret) caret.classList.add("finished");
+        setTimeout(() => {
+          if (boxesContainer) {
+            boxesContainer.classList.add("boxes-revealed");
+          }
+        }, 180);
+      }
+    }
+    setTimeout(typeNext, 180);
+  }
+
+  function handleScrollCheck() {
+    if (hasTriggered) return;
+    const rect = section.getBoundingClientRect();
+    // When the top of the working-on section has scrolled comfortably into the viewport
+    if (rect.top <= window.innerHeight * 0.82 && window.scrollY > 30) {
+      typeWorkingText();
+      window.removeEventListener("scroll", handleScrollCheck);
+    }
+  }
+
+  window.addEventListener("scroll", handleScrollCheck, { passive: true });
+
+  // IntersectionObserver as backup (e.g. hash anchor jumps or rapid scrolling)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !hasTriggered && window.scrollY > 30) {
+        typeWorkingText();
+      }
+    });
+  }, { rootMargin: "0px 0px -80px 0px", threshold: 0.15 });
+
+  observer.observe(section);
+
+  // If user clicks the scroll down cue directly, trigger typing
+  const scrollCue = document.querySelector(".hero-scroll-cue a");
+  if (scrollCue) {
+    scrollCue.addEventListener("click", () => {
+      setTimeout(() => {
+        if (!hasTriggered) typeWorkingText();
+      }, 350);
+    });
+  }
+
+  window.resetWorkingSection = function() {
+    hasTriggered = false;
+    target.textContent = "";
+    if (boxesContainer) boxesContainer.classList.remove("boxes-revealed");
+    window.addEventListener("scroll", handleScrollCheck, { passive: true });
+  };
 }
