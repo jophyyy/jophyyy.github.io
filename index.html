@@ -350,53 +350,79 @@
       </div>
 
       <!-- ========================================================================= -->
-      <!-- 4b. 3x4 COLOR GRID SHOWCASE                                               -->
+      <!-- 4b. 3-COLUMN COUNTER-SCROLL COLOR GRID SHOWCASE                           -->
       <!-- ========================================================================= -->
       <section id="grid-showcase" class="grid-showcase-section" aria-label="Selected Color Grid Showcase">
-        <div class="grid-showcase-container" id="grid-container">
-          <div class="color-grid" id="color-grid">
-            <!-- Row 1 (3 items) -->
-            <div class="color-card" data-index="0" style="--card-color: #191B22; --accent-glow: rgba(25, 27, 34, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="1" style="--card-color: #E25537; --accent-glow: rgba(226, 85, 55, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="2" style="--card-color: #225946; --accent-glow: rgba(34, 89, 70, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
+        <div class="grid-sticky-stage" id="grid-stage">
+          <div class="grid-viewport" id="grid-viewport">
+            <div class="grid-columns" id="grid-columns">
 
-            <!-- Row 2 (3 items) -->
-            <div class="color-card" data-index="3" style="--card-color: #D97706; --accent-glow: rgba(217, 119, 6, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="4" style="--card-color: #2563EB; --accent-glow: rgba(37, 99, 235, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="5" style="--card-color: #A32D58; --accent-glow: rgba(163, 45, 88, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
+              <!-- Left Column: slides DOWN as scrolling down -->
+              <div class="grid-column col-side col-left" id="col-left">
+                <div class="color-card" style="--card-color: #181A20; --accent-glow: rgba(24, 26, 32, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #D97706; --accent-glow: rgba(217, 119, 6, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #1B4D3E; --accent-glow: rgba(27, 77, 62, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #2563EB; --accent-glow: rgba(37, 99, 235, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #C2410C; --accent-glow: rgba(194, 65, 12, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #4338CA; --accent-glow: rgba(67, 56, 202, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+              </div>
 
-            <!-- Row 3 (3 items) -->
-            <div class="color-card" data-index="6" style="--card-color: #556B2F; --accent-glow: rgba(85, 107, 47, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="7" style="--card-color: #6D28D9; --accent-glow: rgba(109, 40, 217, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="8" style="--card-color: #8C4318; --accent-glow: rgba(140, 67, 24, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
+              <!-- Middle Column: slides UP as scrolling down -->
+              <div class="grid-column col-mid" id="col-mid">
+                <div class="color-card" style="--card-color: #E25537; --accent-glow: rgba(226, 85, 55, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #6D28D9; --accent-glow: rgba(109, 40, 217, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #0E7490; --accent-glow: rgba(14, 116, 144, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #BE123C; --accent-glow: rgba(190, 18, 60, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #059669; --accent-glow: rgba(5, 150, 105, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #854D0E; --accent-glow: rgba(133, 77, 14, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+              </div>
 
-            <!-- Row 4 (3 items) -->
-            <div class="color-card" data-index="9" style="--card-color: #0E7490; --accent-glow: rgba(14, 116, 144, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="10" style="--card-color: #DC2626; --accent-glow: rgba(220, 38, 38, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
-            </div>
-            <div class="color-card" data-index="11" style="--card-color: #334155; --accent-glow: rgba(51, 65, 85, 0.45);" tabindex="0">
-              <div class="color-card-surface"></div>
+              <!-- Right Column: slides DOWN as scrolling down -->
+              <div class="grid-column col-side col-right" id="col-right">
+                <div class="color-card" style="--card-color: #4D6638; --accent-glow: rgba(77, 102, 56, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #9F1239; --accent-glow: rgba(159, 18, 57, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #334155; --accent-glow: rgba(51, 65, 85, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #B45309; --accent-glow: rgba(180, 83, 9, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #1E1B4B; --accent-glow: rgba(30, 27, 75, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+                <div class="color-card" style="--card-color: #0284C7; --accent-glow: rgba(2, 132, 199, 0.45);" tabindex="0">
+                  <div class="color-card-surface"></div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -441,7 +467,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=5.8"></script>
+  <script src="main.js?v=5.9"></script>
 </body>
 
 </html>

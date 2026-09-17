@@ -1053,62 +1053,98 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   3x4 COLOR GRID SHOWCASE
+   3-COLUMN COUNTER-SCROLL COLOR GRID SHOWCASE
+   Middle column goes UP, Side columns go DOWN.
+   Max of 3 cards shown vertically per column at a time; cards fade in/out.
    ========================================================================== */
 function initColorGridShowcase() {
   const section = document.getElementById("grid-showcase");
-  const container = document.getElementById("grid-container");
-  const grid = document.getElementById("color-grid");
-  const cards = Array.from(document.querySelectorAll(".color-card"));
+  const stage = document.getElementById("grid-stage");
+  const viewport = document.getElementById("grid-viewport");
+  const colLeft = document.getElementById("col-left");
+  const colMid = document.getElementById("col-mid");
+  const colRight = document.getElementById("col-right");
+  const allCards = Array.from(section ? section.querySelectorAll(".color-card") : []);
 
-  if (!section || !grid || cards.length === 0) return;
+  if (!section || !stage || !viewport || !colLeft || !colMid || !colRight || allCards.length === 0) return;
 
-  // 1. Staggered slide-down entrance via IntersectionObserver
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            grid.classList.add("in-view");
-          }
-        });
-      },
-      {
-        threshold: 0.12,
-        rootMargin: "0px 0px -40px 0px",
-      }
-    );
-    observer.observe(section);
-  } else {
-    grid.classList.add("in-view");
-  }
+  let targetProgress = 0;
+  let currentProgress = 0;
 
-  // 2. Smooth downward slide parallax as user scrolls
-  let targetSlide = 0;
-  let currentSlide = 0;
-
+  // Scroll listener to compute progress [0, 1] through the sticky section
   function onScroll() {
     const rect = section.getBoundingClientRect();
-    const windowH = window.innerHeight;
-    if (rect.top < windowH && rect.bottom > 0) {
-      const progress = Math.max(0, Math.min(1, (windowH - rect.top) / (windowH + rect.height)));
-      targetSlide = progress * 55;
-    }
+    const totalScrollable = section.offsetHeight - window.innerHeight;
+    if (totalScrollable <= 0) return;
+    const scrolled = -rect.top;
+    targetProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  function animateGridSlide() {
-    if (container) {
-      const rect = section.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        currentSlide += (targetSlide - currentSlide) * 0.1;
-        container.style.transform = `translate3d(0, ${currentSlide.toFixed(2)}px, 0)`;
+  // Animation Loop with lerp physics and card fade logic
+  function animateCounterScroll() {
+    const rect = section.getBoundingClientRect();
+    const isInView = rect.bottom > -100 && rect.top < window.innerHeight + 100;
+
+    if (isInView) {
+      // Smooth lerp inertia
+      currentProgress += (targetProgress - currentProgress) * 0.1;
+
+      // Measure card pitch (height + gap) from a sample card in left column
+      const sampleCard = colLeft.querySelector(".color-card");
+      if (sampleCard) {
+        const cardHeight = sampleCard.offsetHeight;
+        const nextCard = sampleCard.nextElementSibling;
+        const gap = nextCard ? (nextCard.offsetTop - sampleCard.offsetTop - cardHeight) : 24;
+        const pitch = cardHeight + gap;
+
+        // With 6 cards per column and 3 visible cards in the viewport:
+        // Travel range to smoothly transition through all cards:
+        const maxTravel = 3 * pitch;
+
+        // Scrolling DOWN:
+        // - colLeft & colRight go DOWN: from -maxTravel/2 to +maxTravel/2
+        // - colMid goes UP: from +maxTravel/2 to -maxTravel/2
+        const sideY = (currentProgress - 0.5) * maxTravel;
+        const midY = (0.5 - currentProgress) * maxTravel;
+
+        colLeft.style.transform = `translate3d(0, ${sideY.toFixed(2)}px, 0)`;
+        colRight.style.transform = `translate3d(0, ${sideY.toFixed(2)}px, 0)`;
+        colMid.style.transform = `translate3d(0, ${midY.toFixed(2)}px, 0)`;
+
+        // Calculate card opacity based on distance from viewport center:
+        // "theres like a max of 3 shown vertically per column at a time so when it goes past that a new one like fades in that row"
+        const viewportRect = viewport.getBoundingClientRect();
+        const vCenter = viewportRect.top + viewportRect.height / 2;
+
+        const innerBoundary = 1.12 * pitch;
+        const outerBoundary = 1.52 * pitch;
+
+        for (let i = 0; i < allCards.length; i++) {
+          const card = allCards[i];
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.top + cardRect.height / 2;
+          const dist = Math.abs(cardCenter - vCenter);
+
+          let opacity = 0;
+          if (dist <= innerBoundary) {
+            opacity = 1;
+          } else if (dist < outerBoundary) {
+            opacity = (outerBoundary - dist) / (outerBoundary - innerBoundary);
+          } else {
+            opacity = 0;
+          }
+
+          card.style.opacity = opacity.toFixed(3);
+        }
       }
     }
-    requestAnimationFrame(animateGridSlide);
+
+    requestAnimationFrame(animateCounterScroll);
   }
-  requestAnimationFrame(animateGridSlide);
+
+  requestAnimationFrame(animateCounterScroll);
 }
 
 
