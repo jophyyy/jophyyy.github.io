@@ -1,34 +1,34 @@
 /* ==========================================================================
-   DEPTHTHREAD WORKFLOW OS — STYLESHEET
-   Aesthetic: Depththread Industrial Pixel Telemetry HUD
+   DEPTHTHREAD WORKFLOW OS — STYLESHEET (Cream White Inverted Edition)
+   Aesthetic: Depththread Industrial Pixel Telemetry HUD on Warm Cream Paper
    Inspired by Impeccable Design
    ========================================================================== */
 
 :root {
-  /* Core Void Palette */
-  --bg-void: #050505;
-  --bg-surface: #0a0a0d;
-  --bg-panel: #0e0e12;
-  --bg-card: #131318;
-  --bg-card-hover: #1a1a22;
+  /* Core Cream White Inverted Palette */
+  --bg-void: #f7f4ed;
+  --bg-surface: #ede8dc;
+  --bg-panel: #e4ded0;
+  --bg-card: #ece7db;
+  --bg-card-hover: #e2dcce;
 
   /* Accent & Typography Tokens */
-  --text-pixel: #ebe8e1;
-  --text-bright: #f4f4f5;
-  --text-muted: #a1a1aa;
+  --text-pixel: #111115;
+  --text-bright: #1a1a20;
+  --text-muted: #52525b;
   --text-dim: #71717a;
-  --text-denied: #52525b;
+  --text-denied: #a1a1aa;
 
-  /* Industrial Amber Accents */
-  --amber: #f59e0b;
-  --amber-hover: #fbbf24;
-  --amber-dim: rgba(245, 158, 11, 0.25);
-  --amber-glow: rgba(245, 158, 11, 0.15);
+  /* Industrial Amber Accents (Deep Warm Cadmium Amber) */
+  --amber: #d97706;
+  --amber-hover: #b45309;
+  --amber-dim: rgba(217, 119, 6, 0.18);
+  --amber-glow: rgba(217, 119, 6, 0.12);
 
   /* Lines & Wireframes */
-  --border-line: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.14);
-  --border-amber: rgba(245, 158, 11, 0.45);
+  --border-line: rgba(0, 0, 0, 0.09);
+  --border-subtle: rgba(0, 0, 0, 0.16);
+  --border-amber: rgba(217, 119, 6, 0.5);
 
   /* Typography Stacks */
   --font-pixel: 'Pixelify Sans', 'Silkscreen', ui-monospace, monospace;
@@ -68,7 +68,7 @@ body.depth-body {
 /* Custom Selection & Scrollbars */
 ::selection {
   background: var(--amber);
-  color: var(--bg-void);
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
@@ -79,7 +79,7 @@ body.depth-body {
   background: var(--bg-void);
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #d4cebe;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -87,7 +87,7 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   1. PARTICLE WAVE CANVAS (Undulating 2.5D Ribbon)
+   1. PARTICLE WAVE CANVAS (Carbon Ink Point Cloud Ribbon)
    ========================================================================== */
 .particle-canvas {
   position: fixed;
@@ -113,12 +113,13 @@ body.depth-body {
   color: var(--text-dim);
   z-index: 5;
   pointer-events: none;
-  background: rgba(5, 5, 5, 0.7);
+  background: rgba(247, 244, 237, 0.88);
   padding: 4px 10px;
   border: 1px solid var(--border-line);
   border-radius: 2px;
   backdrop-filter: blur(6px);
-  opacity: 0.6;
+  opacity: 0.75;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .pulse-dot {
@@ -126,7 +127,7 @@ body.depth-body {
   height: 6px;
   border-radius: 50%;
   background: var(--amber);
-  box-shadow: 0 0 8px var(--amber);
+  box-shadow: 0 0 6px var(--amber);
   animation: pulseDotAnim 2s infinite ease-in-out;
 }
 
@@ -185,7 +186,7 @@ body.depth-body {
   width: 9px;
   height: 9px;
   background-color: var(--amber);
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
 }
 
 .brand-sub {
@@ -230,10 +231,10 @@ body.depth-body {
 }
 
 .nav-btn {
-  border: 1px solid var(--border-line);
+  border: 1px solid var(--border-subtle);
   padding: 4px 10px;
   border-radius: 2px;
-  color: var(--text-dim);
+  color: var(--text-muted);
   font-size: 0.75rem;
 }
 
@@ -243,7 +244,7 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   3. HERO SECTION (Pixel Typography + Telemetry HUD)
+   3. HERO SECTION (Carbon Pixel Typography + Telemetry HUD)
    ========================================================================== */
 .main-container {
   position: relative;
@@ -284,7 +285,7 @@ body.depth-body {
   background-color: var(--amber);
   margin-left: 0.06em;
   vertical-align: baseline;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.35);
 }
 
 .hero-lead {
@@ -317,7 +318,7 @@ body.depth-body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.06);
   transition: all var(--transition-fast);
   position: relative;
 }
@@ -342,8 +343,8 @@ body.depth-body {
 }
 
 .btn-depth:hover {
-  background: rgba(245, 158, 11, 0.12);
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.28);
+  background: rgba(217, 119, 6, 0.08);
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
   transform: translateY(-1px);
 }
 
@@ -424,14 +425,14 @@ body.depth-body {
 
 .signal-bars .bar {
   width: 3px;
-  background-color: var(--text-dim);
+  background-color: rgba(0, 0, 0, 0.16);
   border-radius: 1px;
 }
 
-.signal-bars .bar-1 { height: 4px; background-color: var(--text-bright); }
-.signal-bars .bar-2 { height: 7px; background-color: var(--text-bright); }
-.signal-bars .bar-3 { height: 10px; background-color: var(--text-bright); }
-.signal-bars .bar-4 { height: 13px; background-color: var(--text-bright); }
+.signal-bars .bar-1 { height: 4px; background-color: var(--text-pixel); }
+.signal-bars .bar-2 { height: 7px; background-color: var(--text-pixel); }
+.signal-bars .bar-3 { height: 10px; background-color: var(--text-pixel); }
+.signal-bars .bar-4 { height: 13px; background-color: var(--text-pixel); }
 .signal-bars .bar-5.active {
   height: 16px;
   background-color: var(--amber);
@@ -440,7 +441,7 @@ body.depth-body {
 
 .telemetry-divider {
   width: 100%;
-  border-top: 1px dotted rgba(255, 255, 255, 0.18);
+  border-top: 1px dotted var(--border-subtle);
   margin: 20px 0 16px;
 }
 
@@ -509,7 +510,7 @@ body.depth-body {
 }
 
 .queue-row:hover {
-  background-color: rgba(255, 255, 255, 0.025);
+  background-color: rgba(0, 0, 0, 0.025);
 }
 
 .queue-id-title {
@@ -586,7 +587,7 @@ body.depth-body {
   font-style: normal;
   font-size: 7px;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(0, 0, 0, 0.16);
 }
 
 .sig-dots.active-amber i {
@@ -624,7 +625,7 @@ body.depth-body {
 
 .f-user {
   color: var(--text-pixel);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .f-id {
@@ -672,7 +673,7 @@ body.depth-body {
   font-size: 0.68rem;
   letter-spacing: 0.2em;
   color: var(--text-dim);
-  background: rgba(14, 14, 18, 0.4);
+  background: rgba(237, 232, 222, 0.55);
   backdrop-filter: blur(4px);
 }
 
@@ -726,7 +727,7 @@ body.depth-body {
 .pill-btn.active {
   border-color: var(--amber);
   color: var(--amber);
-  background: rgba(245, 158, 11, 0.06);
+  background: rgba(217, 119, 6, 0.08);
 }
 
 .modules-grid {
@@ -746,7 +747,7 @@ body.depth-body {
 }
 
 .module-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 0, 0, 0.22);
   transform: translateY(-2px);
 }
 
@@ -812,7 +813,7 @@ body.depth-body {
 
 .btn-micro:hover {
   border-color: var(--amber);
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(217, 119, 6, 0.1);
 }
 
 /* ==========================================================================
@@ -852,12 +853,12 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   7. TERMINAL STARTUP INTRO SEQUENCE
+   7. TERMINAL STARTUP INTRO SEQUENCE (Inverted Paper Terminal)
    ========================================================================== */
 .boot-terminal {
   position: fixed;
   inset: 0;
-  background-color: #030303;
+  background-color: rgba(247, 244, 237, 0.98);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -876,8 +877,8 @@ body.depth-body {
 .boot-terminal .boot-header {
   width: 100%;
   max-width: 760px;
-  background-color: #0e0e12;
-  border: 1px solid var(--border-line);
+  background-color: #ede8dc;
+  border: 1px solid var(--border-subtle);
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   padding: 10px 16px;
@@ -909,7 +910,7 @@ body.depth-body {
 
 .skip-btn {
   background: transparent;
-  border: 1px solid var(--border-line);
+  border: 1px solid var(--border-subtle);
   color: var(--text-dim);
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -931,8 +932,8 @@ body.depth-body {
   width: 100%;
   max-width: 760px;
   height: 420px;
-  background-color: #08080a;
-  border: 1px solid var(--border-line);
+  background-color: #fbf9f4;
+  border: 1px solid var(--border-subtle);
   border-radius: 0 0 4px 4px;
   padding: 20px;
   overflow-y: auto;
@@ -960,7 +961,7 @@ body.depth-body {
 }
 .boot-line.success {
   color: var(--amber);
-  font-weight: 500;
+  font-weight: 600;
 }
 .boot-line.question {
   color: var(--text-pixel);
@@ -1009,12 +1010,12 @@ body.depth-body {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  background-color: #0b0b0f;
-  border: 1px solid var(--border-line);
+  background-color: #f5f1e8;
+  border: 1px solid var(--border-subtle);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   z-index: 100;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
   transition: transform 0.3s var(--ease-smooth);
 }
 
@@ -1024,7 +1025,7 @@ body.depth-body {
 
 .cli-header {
   padding: 10px 18px;
-  background-color: #121217;
+  background-color: #ede8dc;
   border-bottom: 1px solid var(--border-line);
   border-radius: 6px 6px 0 0;
   display: flex;
@@ -1084,10 +1085,11 @@ body.depth-body {
 
 .cli-line.cmd-echo {
   color: var(--text-pixel);
+  font-weight: 500;
 }
 
 .cli-line.cmd-error {
-  color: #f87171;
+  color: #dc2626;
 }
 
 .cmd-highlight {
@@ -1127,8 +1129,8 @@ body.depth-body {
   width: 44px;
   height: 44px;
   border-radius: 4px;
-  background-color: #0f0f14;
-  border: 1px solid var(--border-line);
+  background-color: #ede8dc;
+  border: 1px solid var(--border-subtle);
   color: var(--amber);
   display: flex;
   align-items: center;
@@ -1136,12 +1138,12 @@ body.depth-body {
   cursor: pointer;
   z-index: 90;
   transition: all var(--transition-fast);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .cli-toggle-btn:hover {
   border-color: var(--amber);
-  background-color: rgba(245, 158, 11, 0.12);
+  background-color: rgba(217, 119, 6, 0.12);
   transform: translateY(-2px);
 }
 

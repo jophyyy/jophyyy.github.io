@@ -120,9 +120,9 @@ function initParticleWave() {
       const alpha = Math.min(0.88, coreDensity * p.alphaMultiplier * (0.35 + p.layer * 0.65));
 
       if (p.amberProb && p.layer > 0.5) {
-        ctx.fillStyle = `rgba(245, 158, 11, ${alpha * 0.95})`;
+        ctx.fillStyle = `rgba(217, 119, 6, ${alpha * 0.95})`;
       } else {
-        ctx.fillStyle = `rgba(235, 232, 225, ${alpha})`;
+        ctx.fillStyle = `rgba(17, 17, 21, ${alpha * 0.75})`;
       }
 
       ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(size)), Math.max(1, Math.round(size)));

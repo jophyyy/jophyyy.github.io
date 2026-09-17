@@ -1,19 +1,24 @@
 ---
-name: Depththread Workflow OS Design System
-description: Industrial pixel telemetry HUD with undulating particle wave canvas
+name: Depththread Workflow OS Design System (Inverted Cream White Edition)
+description: Industrial pixel telemetry HUD with undulating carbon particle wave canvas on cream white paper
 colors:
-  bg-void: "#050505"
-  bg-surface: "#0c0c0e"
-  bg-panel: "#121215"
-  text-pixel: "#ebe8e1"
-  text-bright: "#f4f4f5"
-  text-muted: "#a1a1aa"
+  bg-void: "#f7f4ed"
+  bg-surface: "#ede8dc"
+  bg-panel: "#e4ded0"
+  bg-card: "#ece7db"
+  bg-card-hover: "#e2dcce"
+  text-pixel: "#111115"
+  text-bright: "#1a1a20"
+  text-muted: "#52525b"
   text-dim: "#71717a"
-  amber: "#f59e0b"
-  amber-dim: "rgba(245, 158, 11, 0.25)"
-  amber-glow: "rgba(245, 158, 11, 0.15)"
-  border-line: "rgba(255, 255, 255, 0.08)"
-  border-subtle: "#1f1f23"
+  text-denied: "#a1a1aa"
+  amber: "#d97706"
+  amber-hover: "#b45309"
+  amber-dim: "rgba(217, 119, 6, 0.18)"
+  amber-glow: "rgba(217, 119, 6, 0.12)"
+  border-line: "rgba(0, 0, 0, 0.09)"
+  border-subtle: "rgba(0, 0, 0, 0.16)"
+  border-amber: "rgba(217, 119, 6, 0.5)"
 typography:
   pixel:
     fontFamily: "'Pixelify Sans', 'Silkscreen', monospace"
@@ -31,27 +36,26 @@ rounded:
   md: "6px"
 ---
 
-# Depththread Workflow OS Design System
+# Depththread Workflow OS Design System (Cream White Inverted)
 
 ## 1. Aesthetic Identity
-- **Visual Tone**: Deep pitch black void with technical telemetry HUD, crisp chunky bitmap pixel typography, amber square accents, and an organic undulating particle wave canvas.
-- **Reference**: Depththread Workflow OS interface created with Impeccable.
+- **Visual Tone**: Warm tactile cream paper (`#f7f4ed`) reminiscent of Swiss editorial printouts, deep carbon black pixel typography (`#111115`), high-contrast amber accents (`#d97706`), and an undulating carbon particle wave ribbon.
+- **Reference**: Depththread Workflow OS inverted specimen.
 
 ## 2. Color Palette
-- **Void Canvas**: `#050505` (Deep absolute pitch black).
-- **Pixel Headline**: `#ebe8e1` (Cream/bone off-white).
-- **Industrial Accent**: `#f59e0b` (Amber / cadmium yellow).
-- **Telemetry Muted**: `#71717a` (Neutral zinc 500 for labels, denominators, and timestamps).
-- **Fine Rules**: `rgba(255, 255, 255, 0.08)` for razor-thin wireframe delimiters.
+- **Cream Void Canvas**: `#f7f4ed` (Warm, textured alabaster cream paper).
+- **Pixel Headline & Ink**: `#111115` (Deep carbon ink black).
+- **Industrial Amber**: `#d97706` (High-contrast rich amber / ochre for periods, signal bars, and interactive highlights).
+- **Telemetry Muted**: `#52525b` and `#71717a` (Neutral charcoal zinc for labels, denominators, and timestamps).
+- **Fine Rules**: `rgba(0, 0, 0, 0.09)` for delicate wireframe delimiters.
 
 ## 3. Typography
-- **Hero Display**: `Pixelify Sans` / `Silkscreen` for `ship work with depth.■` (lowercase, tight line height, square amber period).
-- **Telemetry & Interface**: `JetBrains Mono` / `Space Mono` for all data tables, queue rows, signal feeds, navigation links, and terminal logs.
+- **Hero Display**: `Pixelify Sans` / `Silkscreen` in carbon black with inline amber period block.
+- **Telemetry & Interface**: `JetBrains Mono` / `Space Mono` for all data tables, queue rows, signal feeds, and status bars.
 
 ## 4. Key Components
-- **Top Navigation**: `DEPTHTHREAD ■` brand with inline amber block and small `WORKFLOW OS` sub-label; prompt-style navigation links (`> overview`).
-- **Hero Telemetry Card**: Right-aligned status monitor with 5 signal strength bars and large pixel `03 /07` active layer counter.
-- **Live Queue Table**: Monospace task list with `> #0421 align the layers`, metadata `depth 03 owner ryo status moving`, and 6-dot amber signal meters.
-- **Signal Feed**: Continuous live telemetry log stream with timestamp and user status updates.
-- **Particle Wave**: HTML5 Canvas rendering ~1500 points in an undulating sinusoidal ribbon that reacts subtly to cursor position.
-- **CLI Drawer & Bootloader**: Industrial collapsible drawer and initial developer sequence.
+- **Top Navigation**: Carbon `DEPTHTHREAD` brand with inline amber block and prompt navigation (`> overview`).
+- **Hero Telemetry Card**: Right-aligned status monitor with carbon signal strength bars (5th active amber) and large pixel `03 /07` active layer counter.
+- **Live Queue Table**: Tabular task list with `> #0421 align the layers`, metadata in charcoal, and 6-dot amber signal meters.
+- **Signal Feed**: Monospace live telemetry stream with timestamps and streaming pulse.
+- **Carbon Particle Wave**: HTML5 Canvas rendering ~1,600 flowing carbon ink particles with warm amber crest highlights.
