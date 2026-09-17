@@ -1112,6 +1112,8 @@ function initVerticalImageTrack() {
   const trackRight = document.getElementById("image-track-right");
   const stage = document.getElementById("track-stage");
 
+  const trackColumns = document.getElementById("track-columns") || (stage ? stage.querySelector(".track-columns") : null);
+
   if (!trackMid || !stage) return;
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
@@ -1124,14 +1126,30 @@ function initVerticalImageTrack() {
   let startY = 0;
   let prevPercentage = 0;
 
+  // Responsive scale bounds: scales from a compact centered grid at start (0%)
+  // to an expansive grid filling near the margins at the end (-100%)
+  function getTrackScaleRange() {
+    const width = window.innerWidth;
+    if (width <= 640) {
+      return { min: 0.82, max: 1.05 };
+    } else if (width <= 1024) {
+      return { min: 0.78, max: 1.12 };
+    } else if (width <= 1440) {
+      return { min: 0.75, max: 1.18 };
+    } else {
+      return { min: 0.74, max: 1.24 };
+    }
+  }
+
   // Track position formula:
   // Percentage ranges from 0 to -100:
   // - When percentage = 0: Middle is at top (Image 1 centered), Sides are at bottom (Image 8 centered).
   // - When percentage = -100: Middle is at bottom (Image 8 centered), Sides are at top (Image 1 centered).
   // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2% (span 88.4%).
-  function applyTrackPosition(percentage) {
+  function applyTrackPosition(percentage, immediate = false) {
     currentPercentage = Math.max(Math.min(percentage, 0), -100);
     const sidePercentage = -100 - currentPercentage;
+    const animDuration = immediate ? 0 : 1200;
 
     trackMid.dataset.percentage = currentPercentage;
     if (trackLeft) trackLeft.dataset.percentage = sidePercentage;
@@ -1145,7 +1163,7 @@ function initVerticalImageTrack() {
       {
         transform: `translate(-50%, ${trackY_mid.toFixed(3)}%)`,
       },
-      { duration: 1200, fill: "forwards" }
+      { duration: animDuration, fill: "forwards" }
     );
 
     for (const image of imagesMid) {
@@ -1153,7 +1171,7 @@ function initVerticalImageTrack() {
         {
           objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
         },
-        { duration: 1200, fill: "forwards" }
+        { duration: animDuration, fill: "forwards" }
       );
     }
 
@@ -1163,7 +1181,7 @@ function initVerticalImageTrack() {
         {
           transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
         },
-        { duration: 1200, fill: "forwards" }
+        { duration: animDuration, fill: "forwards" }
       );
     }
 
@@ -1172,7 +1190,7 @@ function initVerticalImageTrack() {
         {
           transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
         },
-        { duration: 1200, fill: "forwards" }
+        { duration: animDuration, fill: "forwards" }
       );
     }
 
@@ -1181,13 +1199,27 @@ function initVerticalImageTrack() {
         {
           objectPosition: `center ${(100 + sidePercentage).toFixed(2)}%`,
         },
-        { duration: 1200, fill: "forwards" }
+        { duration: animDuration, fill: "forwards" }
+      );
+    }
+
+    // 3. Dynamic Grid Scale (Expands outwards to margins as you scroll further down, shrinks in reverse)
+    if (trackColumns) {
+      const { min: minScale, max: maxScale } = getTrackScaleRange();
+      const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
+      const currentScale = minScale + progress * (maxScale - minScale);
+
+      trackColumns.animate(
+        {
+          transform: `scale(${currentScale.toFixed(4)})`,
+        },
+        { duration: animDuration, fill: "forwards" }
       );
     }
   }
 
-  // Initial setup: Mid centered at Image 1, Sides centered at Image 8
-  applyTrackPosition(0);
+  // Initial setup: Mid centered at Image 1, Sides centered at Image 8, grid at initial scale
+  applyTrackPosition(0, true);
 
   // 1. Mouse & Touch Dragging (Vertical Y)
   const handleOnDown = (e) => {
@@ -1246,6 +1278,15 @@ function initVerticalImageTrack() {
       }
     },
     { passive: false }
+  );
+
+  // 3. Keep layout in sync across window resize
+  window.addEventListener(
+    "resize",
+    () => {
+      applyTrackPosition(currentPercentage, true);
+    },
+    { passive: true }
   );
 }
 

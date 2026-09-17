@@ -957,8 +957,8 @@ body.depth-body {
   position: relative;
   height: 100vh;
   width: 100%;
-  background-color: #eae3d2;
-  border-top: 1px dashed rgba(28, 25, 23, 0.18);
+  background: transparent;
+  border: none;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -974,8 +974,6 @@ body.depth-body {
   box-sizing: border-box;
   user-select: none;
   cursor: grab;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 
 .track-stage:active {
@@ -993,6 +991,9 @@ body.depth-body {
   padding: 0 clamp(12px, 2.5vw, 40px);
   box-sizing: border-box;
   position: relative;
+  transform-origin: center center;
+  will-change: transform;
+  transform: scale(0.75);
 }
 
 .track-col-wrap {
