@@ -252,13 +252,13 @@ body.depth-body {
 }
 
 .hero-section {
-  max-width: 1440px;
+  max-width: 1460px;
   margin: 0 auto;
-  padding: 40px 44px 64px;
+  padding: 36px 44px 56px;
   display: grid;
-  grid-template-columns: minmax(360px, 1fr) minmax(460px, 1.15fr);
+  grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.25fr);
   align-items: center;
-  gap: 44px;
+  gap: 40px;
 }
 
 /* Hero Left */
@@ -403,68 +403,21 @@ body.depth-body {
 /* Hero Right: Modern Isometric Coder Dorm Room Diorama */
 .hero-dorm-container {
   position: relative;
-  background: rgba(255, 255, 255, 0.52);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(220, 214, 202, 0.65);
-  border-radius: 12px;
-  padding: 16px 18px 14px;
-  box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.05),
-    0 2px 8px rgba(0, 0, 0, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.hero-dorm-container:hover {
-  box-shadow: 
-    0 22px 52px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-}
-
-.dorm-badge-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 6px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(200, 192, 180, 0.6);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-}
-
-.dorm-badge-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-pixel);
-  font-weight: 600;
-}
-
-.dorm-indicator-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--amber);
-  box-shadow: 0 0 6px rgba(217, 119, 6, 0.6);
-  animation: dormPulse 2s ease-in-out infinite;
-}
-
-@keyframes dormPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.65; }
-}
-
-.dorm-badge-right {
-  color: var(--text-dim);
-  font-size: 10px;
+  justify-self: end;
+  width: 100%;
+  max-width: 660px;
+  margin-left: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .dorm-svg-wrap {
   width: 100%;
-  max-height: 440px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -473,8 +426,14 @@ body.depth-body {
 .dorm-isometric-svg {
   width: 100%;
   height: auto;
+  max-width: 640px;
   overflow: visible;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.06));
+  filter: drop-shadow(0 14px 36px rgba(180, 165, 140, 0.22));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dorm-isometric-svg:hover {
+  transform: translateY(-4px) scale(1.015);
 }
 
 /* Micro Animations */
@@ -496,86 +455,6 @@ body.depth-body {
   0% { transform: translateY(0) scaleY(1); opacity: 0.35; }
   100% { transform: translateY(-4px) scaleY(1.15); opacity: 0.8; }
 }
-
-/* Hotspots & Tooltips */
-.dorm-hotspot {
-  cursor: pointer;
-  outline: none;
-}
-
-.hotspot-pulse {
-  fill: rgba(217, 119, 6, 0.25);
-  animation: hotspotPulseAnim 2.2s ease-in-out infinite;
-  transform-origin: center;
-}
-
-@keyframes hotspotPulseAnim {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.6); opacity: 0.15; }
-}
-
-.hotspot-core {
-  fill: var(--amber);
-  filter: drop-shadow(0 0 3px rgba(217, 119, 6, 0.8));
-}
-
-.hotspot-tooltip {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  transform: translateY(4px);
-}
-
-.dorm-hotspot:hover .hotspot-tooltip,
-.dorm-hotspot:focus .hotspot-tooltip {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.tooltip-bg {
-  fill: rgba(24, 26, 32, 0.92);
-  stroke: rgba(255, 255, 255, 0.18);
-  stroke-width: 1;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
-}
-
-.tooltip-text {
-  fill: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  text-anchor: middle;
-}
-
-.dorm-legend-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(220, 214, 202, 0.45);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.legend-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-.dot-amber { background: var(--amber); }
-.dot-blue { background: #3b82f6; }
-.dot-green { background: #22c55e; }
-.dot-slate { background: #64748b; }
 
 /* Hero tag pills */
 .hero-tags {
@@ -1607,6 +1486,11 @@ body.depth-body {
   .hero-section {
     grid-template-columns: 1fr;
     gap: 36px;
+  }
+  .hero-dorm-container {
+    justify-self: center;
+    margin: 0 auto;
+    max-width: 560px;
   }
   .hero-telemetry {
     align-items: flex-start;
