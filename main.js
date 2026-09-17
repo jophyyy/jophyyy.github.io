@@ -1053,149 +1053,174 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SLIDING IMAGE TRACK (3 Simultaneous Counter-Scrolling Columns)
+   VERTICAL SLIDING IMAGE TRACK (Scroll Pin, Zoom-In, 3 Tracks, Zoom-Out)
    ========================================================================== */
 function initVerticalImageTrack() {
+  const sectionWrap = document.getElementById("vertical-showcase");
+  const stage = document.getElementById("track-stage");
   const trackMid = document.getElementById("image-track-mid");
   const trackLeft = document.getElementById("image-track-left");
   const trackRight = document.getElementById("image-track-right");
-  const stage = document.getElementById("track-stage");
 
-  if (!trackMid || !stage) return;
+  if (!sectionWrap || !stage || !trackMid) return;
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
   const imagesRight = trackRight ? Array.from(trackRight.getElementsByClassName("image")) : [];
   const imagesSides = [...imagesLeft, ...imagesRight];
 
-  let currentPercentage = 0;
-  let isDragging = false;
-  let startY = 0;
-  let prevPercentage = 0;
+  let targetP = 0;
+  let currentP = 0;
+  let isTicking = false;
 
-  // Track position formula:
-  // Percentage ranges from 0 to -100:
-  // - When percentage = 0: Middle is at top (Image 1 centered), Sides are at bottom (Image 8 centered).
-  // - When percentage = -100: Middle is at bottom (Image 8 centered), Sides are at top (Image 1 centered).
-  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2% (span 88.4%).
-  function applyTrackPosition(percentage) {
-    currentPercentage = Math.max(Math.min(percentage, 0), -100);
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function getDimensions() {
+    const isMobile = window.innerWidth <= 768;
+    return {
+      minScale: isMobile ? 0.86 : 0.78,
+      maxRadius: isMobile ? 18 : 28,
+      maxShadow: 0.25,
+    };
+  }
+
+  function renderFrame(p) {
+    const { minScale, maxRadius, maxShadow } = getDimensions();
+
+    let scale = 1.0;
+    let radius = 0;
+    let shadow = 0;
+    let colProgress = 0;
+
+    if (p <= 0) {
+      scale = minScale;
+      radius = maxRadius;
+      shadow = maxShadow;
+      colProgress = 0;
+    } else if (p < 0.18) {
+      // Phase 1: Zoom In from minScale to 1.0 (Expands so that's all you can see)
+      const t = p / 0.18;
+      const s = easeInOutCubic(t);
+      scale = minScale + (1.0 - minScale) * s;
+      radius = maxRadius * (1 - s);
+      shadow = maxShadow * (1 - s);
+      colProgress = 0;
+    } else if (p <= 0.82) {
+      // Phase 2: Full Screen (all you can see) & Scrub 3 Columns
+      scale = 1.0;
+      radius = 0;
+      shadow = 0;
+      colProgress = (p - 0.18) / (0.82 - 0.18);
+    } else if (p < 1.0) {
+      // Phase 3: Zoom Out from 1.0 to minScale (contracts back before exiting)
+      const t = (p - 0.82) / (1.0 - 0.82);
+      const s = easeInOutCubic(t);
+      scale = 1.0 - (1.0 - minScale) * s;
+      radius = maxRadius * s;
+      shadow = maxShadow * s;
+      colProgress = 1.0;
+    } else {
+      scale = minScale;
+      radius = maxRadius;
+      shadow = maxShadow;
+      colProgress = 1.0;
+    }
+
+    // Apply stage zoom and framing
+    stage.style.transform = `scale(${scale.toFixed(4)})`;
+    stage.style.borderRadius = `${radius.toFixed(1)}px`;
+    stage.style.boxShadow = shadow > 0.005 
+      ? `0 30px 80px -15px rgba(28, 25, 23, ${shadow.toFixed(3)})` 
+      : "none";
+
+    // Apply column travel
+    const currentPercentage = colProgress * -100;
     const sidePercentage = -100 - currentPercentage;
-
-    trackMid.dataset.percentage = currentPercentage;
-    if (trackLeft) trackLeft.dataset.percentage = sidePercentage;
-    if (trackRight) trackRight.dataset.percentage = sidePercentage;
 
     const trackY_mid = -5.8 + (currentPercentage * 0.884);
     const trackY_side = -5.8 + (sidePercentage * 0.884);
 
-    // 1. Middle Track (Slides UP as percentage goes from 0 to -100)
-    trackMid.animate(
-      {
-        transform: `translate(-50%, ${trackY_mid.toFixed(3)}%)`,
-      },
-      { duration: 1200, fill: "forwards" }
-    );
+    trackMid.style.transform = `translate(-50%, ${trackY_mid.toFixed(3)}%)`;
+    if (trackLeft) trackLeft.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
+    if (trackRight) trackRight.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
 
-    for (const image of imagesMid) {
-      image.animate(
-        {
-          objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
-        },
-        { duration: 1200, fill: "forwards" }
-      );
+    // Parallax inside images
+    const objPosMid = (100 + currentPercentage).toFixed(2);
+    for (let i = 0; i < imagesMid.length; i++) {
+      imagesMid[i].style.objectPosition = `center ${objPosMid}%`;
     }
 
-    // 2. Side Tracks (Slide DOWN in counter-motion as percentage goes from 0 to -100)
-    if (trackLeft) {
-      trackLeft.animate(
-        {
-          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
-        },
-        { duration: 1200, fill: "forwards" }
-      );
-    }
-
-    if (trackRight) {
-      trackRight.animate(
-        {
-          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
-        },
-        { duration: 1200, fill: "forwards" }
-      );
-    }
-
-    for (const image of imagesSides) {
-      image.animate(
-        {
-          objectPosition: `center ${(100 + sidePercentage).toFixed(2)}%`,
-        },
-        { duration: 1200, fill: "forwards" }
-      );
+    const objPosSide = (100 + sidePercentage).toFixed(2);
+    for (let i = 0; i < imagesSides.length; i++) {
+      imagesSides[i].style.objectPosition = `center ${objPosSide}%`;
     }
   }
 
-  // Initial setup: Mid centered at Image 1, Sides centered at Image 8
-  applyTrackPosition(0);
+  function renderLoop() {
+    currentP += (targetP - currentP) * 0.12;
 
-  // 1. Mouse & Touch Dragging (Vertical Y)
-  const handleOnDown = (e) => {
-    isDragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    prevPercentage = currentPercentage;
-  };
-
-  const handleOnUp = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    prevPercentage = currentPercentage;
-  };
-
-  const handleOnMove = (e) => {
-    if (!isDragging) return;
-
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const mouseDelta = startY - clientY;
-    const maxDelta = window.innerHeight * 0.65;
-
-    const percentage = (mouseDelta / maxDelta) * -100;
-    const nextPercentage = prevPercentage + percentage;
-
-    // Prevent default touch pull/scroll on mobile during active track scrubbing
-    if (e.touches && e.cancelable) {
-      e.preventDefault();
+    if (Math.abs(targetP - currentP) < 0.0003) {
+      currentP = targetP;
     }
 
-    applyTrackPosition(nextPercentage);
-  };
+    renderFrame(currentP);
+
+    if (currentP !== targetP) {
+      requestAnimationFrame(renderLoop);
+    } else {
+      isTicking = false;
+    }
+  }
+
+  function updateProgress(instant = false) {
+    const rect = sectionWrap.getBoundingClientRect();
+    const totalDist = sectionWrap.offsetHeight - window.innerHeight;
+    if (totalDist <= 0) return;
+
+    const scrollOffset = -rect.top;
+    targetP = Math.max(0, Math.min(1, scrollOffset / totalDist));
+
+    if (instant) {
+      currentP = targetP;
+      renderFrame(currentP);
+      return;
+    }
+
+    if (!isTicking) {
+      isTicking = true;
+      requestAnimationFrame(renderLoop);
+    }
+  }
+
+  // Initial render on load
+  updateProgress(true);
+
+  // Window scroll & resize listeners
+  window.addEventListener("scroll", () => updateProgress(false), { passive: true });
+  window.addEventListener("resize", () => updateProgress(true), { passive: true });
+
+  // Mouse Drag on Stage
+  let isDragging = false;
+  let dragStartY = 0;
 
   stage.addEventListener("mousedown", (e) => {
     e.preventDefault();
-    handleOnDown(e);
+    isDragging = true;
+    dragStartY = e.clientY;
   });
-  stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
 
-  window.addEventListener("mouseup", handleOnUp);
-  window.addEventListener("touchend", handleOnUp);
-  window.addEventListener("mousemove", handleOnMove);
-  window.addEventListener("touchmove", handleOnMove, { passive: false });
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
 
-  // 2. Mouse Wheel / Trackpad Scroll on Stage
-  stage.addEventListener(
-    "wheel",
-    (e) => {
-      const delta = -e.deltaY * 0.08;
-      const target = currentPercentage + delta;
-
-      // When within bounds, scroll moves the tracks smoothly
-      if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
-        e.preventDefault();
-        applyTrackPosition(target);
-        prevPercentage = currentPercentage;
-      }
-    },
-    { passive: false }
-  );
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const deltaY = dragStartY - e.clientY;
+    dragStartY = e.clientY;
+    window.scrollBy({ top: deltaY * 1.5, behavior: "instant" });
+  });
 }
 
 
