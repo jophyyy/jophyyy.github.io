@@ -16,7 +16,7 @@
   
   <!-- Stylesheet -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f59e0b%22/></svg>">
-  <link rel="stylesheet" href="style.css?v=3.3">
+  <link rel="stylesheet" href="style.css?v=3.4">
 </head>
 <body class="depth-body">
 
@@ -28,27 +28,157 @@
   <!-- ========================================================================= -->
   <!-- 2. TERMINAL STARTUP INTRO SEQUENCE                                        -->
   <!-- ========================================================================= -->
-  <div id="boot-terminal" class="boot-terminal">
-    <div class="boot-header">
-      <div class="window-controls">
-        <span class="control close"></span>
-        <span class="control minimize"></span>
-        <span class="control maximize"></span>
+  <!-- ========================================================================= -->
+  <!-- 2. MACBOOK DESKTOP & TERMINAL STARTUP INTRO SEQUENCE                      -->
+  <!-- ========================================================================= -->
+  <div id="macbook-desktop-boot" class="mac-desktop-screen">
+    <!-- Top macOS Menu Bar -->
+    <div class="mac-menubar">
+      <div class="mac-menu-left">
+        <span class="apple-logo"></span>
+        <span class="menu-app-name">Terminal</span>
+        <span class="menu-item hide-mobile">File</span>
+        <span class="menu-item hide-mobile">Edit</span>
+        <span class="menu-item hide-mobile">View</span>
+        <span class="menu-item hide-mobile">Window</span>
+        <span class="menu-item hide-mobile">Help</span>
       </div>
-      <div class="terminal-title">depththread@workflow-os: ~ (boot)</div>
-      <button id="skip-boot-btn" class="skip-btn" title="Skip Sequence">
-        <span>Skip Sequence</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="13 17 18 12 13 7"></polyline>
-          <polyline points="6 17 11 12 6 7"></polyline>
-        </svg>
-      </button>
+      <div class="mac-menu-right">
+        <button id="skip-boot-btn" class="mac-skip-btn" title="Skip to Website (Esc)">
+          <span>Skip [Esc]</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+        <span class="mac-status-icon wifi-icon" title="Wi-Fi">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <circle cx="12" cy="20" r="1" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <span class="mac-status-icon battery-icon" title="Battery 100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect>
+            <line x1="22" y1="11" x2="22" y2="13"></line>
+            <rect x="4" y="9" width="11" height="6" fill="currentColor"></rect>
+          </svg>
+        </span>
+        <span id="mac-clock" class="mac-clock">Wed 10:14 PM</span>
+      </div>
     </div>
 
-    <div class="boot-body" id="boot-console">
-      <div id="boot-lines" class="boot-lines"></div>
-      <div class="boot-prompt-active" id="boot-prompt-active">
-        <span id="prompt-prefix"><span class="prompt-user">depth</span>:<span class="prompt-dir">~/workflow</span>$&nbsp;</span><span id="current-typing" class="current-typing"></span><span class="blinking-caret">█</span>
+    <!-- Desktop Area -->
+    <div class="mac-desktop-viewport">
+      <!-- Simulated Mouse Cursor -->
+      <div id="mac-cursor" class="mac-cursor">
+        <svg width="22" height="26" viewBox="0 0 24 28" fill="none">
+          <path d="M2 2L9.5 24L13.5 16.5L20.5 15.5L2 2Z" fill="#000000" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <div id="cursor-click-ripple" class="cursor-ripple"></div>
+      </div>
+
+      <!-- macOS Terminal Window (Initially collapsed to dock) -->
+      <div id="mac-terminal-window" class="mac-terminal-window dock-collapsed">
+        <div class="mac-terminal-titlebar" id="terminal-drag-bar">
+          <div class="traffic-lights">
+            <span class="traffic-btn red" title="Close"></span>
+            <span class="traffic-btn yellow" title="Minimize"></span>
+            <span class="traffic-btn green" title="Maximize"></span>
+          </div>
+          <div class="terminal-tab-title">
+            <span class="folder-icon">📁</span>
+            <span>jophy — zsh — 80×24</span>
+          </div>
+          <div class="titlebar-placeholder"></div>
+        </div>
+
+        <div class="mac-terminal-body" id="boot-console">
+          <div class="terminal-session-info">Last login: Wed Sep 16 22:12:00 on ttys003</div>
+          <div id="boot-lines" class="boot-lines"></div>
+          <div class="boot-prompt-active" id="boot-prompt-active">
+            <span id="prompt-prefix"><span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/workflow-os</span>$&nbsp;</span><span id="current-typing" class="current-typing"></span><span class="blinking-caret">█</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- macOS Bottom Dock -->
+      <div class="mac-dock-container">
+        <div class="mac-dock" id="mac-dock">
+          <!-- Finder -->
+          <div class="dock-item" data-name="Finder">
+            <div class="dock-icon-box icon-finder">
+              <svg width="34" height="34" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="22" fill="#2980b9"/>
+                <path d="M50 20 C65 20 78 32 78 48 C78 68 62 82 50 82 C38 82 22 68 22 48 C22 32 35 20 50 20 Z" fill="#ecf0f1"/>
+                <path d="M40 38 Q45 42 50 42 Q55 42 60 38" stroke="#2c3e50" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <circle cx="38" cy="48" r="4" fill="#2c3e50"/>
+                <circle cx="62" cy="48" r="4" fill="#2c3e50"/>
+                <path d="M38 62 Q50 72 62 62" stroke="#2c3e50" stroke-width="4" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <span class="dock-dot"></span>
+          </div>
+
+          <!-- Safari -->
+          <div class="dock-item" data-name="Safari">
+            <div class="dock-icon-box icon-safari">
+              <svg width="34" height="34" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="22" fill="#ffffff"/>
+                <circle cx="50" cy="50" r="40" fill="#007aff"/>
+                <polygon points="50,18 57,43 50,50 43,43" fill="#ff3b30"/>
+                <polygon points="50,82 57,57 50,50 43,57" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- VS Code -->
+          <div class="dock-item" data-name="VS Code">
+            <div class="dock-icon-box icon-vscode">
+              <svg width="34" height="34" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="22" fill="#1e1e1e"/>
+                <path d="M72 18 L32 50 L72 82 L88 74 L88 26 Z" fill="#0065a9"/>
+                <path d="M72 18 L16 48 L28 58 L72 18 Z" fill="#007acc"/>
+                <path d="M72 82 L16 52 L28 42 L72 82 Z" fill="#1f9cf0"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Terminal (TARGET APP) -->
+          <div class="dock-item target-dock-app active-app" id="dock-terminal-app" data-name="Terminal">
+            <div class="dock-icon-box icon-terminal" id="dock-terminal-icon">
+              <div class="terminal-icon-inner">
+                <span class="icon-prompt">&gt;_</span>
+              </div>
+            </div>
+            <span class="dock-dot active-dot"></span>
+          </div>
+
+          <!-- Settings -->
+          <div class="dock-item" data-name="System Settings">
+            <div class="dock-icon-box icon-settings">
+              <svg width="34" height="34" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="22" fill="#8e8e93"/>
+                <circle cx="50" cy="50" r="18" fill="#e5e5ea"/>
+                <circle cx="50" cy="50" r="8" fill="#8e8e93"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="dock-separator"></div>
+
+          <!-- Trash -->
+          <div class="dock-item" data-name="Trash">
+            <div class="dock-icon-box icon-trash">
+              <svg width="34" height="34" viewBox="0 0 100 100">
+                <rect width="100" height="100" rx="22" fill="#e5e5ea"/>
+                <rect x="30" y="32" width="40" height="48" rx="6" fill="#c7c7cc"/>
+                <line x1="26" y1="28" x2="74" y2="28" stroke="#8e8e93" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -404,6 +534,6 @@
     <span class="cli-icon">&gt;_</span>
   </button>
 
-  <script src="main.js?v=3.3"></script>
+  <script src="main.js?v=3.4"></script>
 </body>
 </html>

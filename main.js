@@ -135,30 +135,59 @@ function initParticleWave() {
 }
 
 /* ==========================================================================
-   2. TERMINAL BOOT SEQUENCE
+   2. MACBOOK DESKTOP & TERMINAL STARTUP SEQUENCE
    ========================================================================== */
 function initBootSequence() {
-  const bootTerminal = document.getElementById("boot-terminal");
+  const macDesktop = document.getElementById("macbook-desktop-boot");
+  const macCursor = document.getElementById("mac-cursor");
+  const cursorRipple = document.getElementById("cursor-click-ripple");
+  const macTerminalWindow = document.getElementById("mac-terminal-window");
+  const dockTerminalApp = document.getElementById("dock-terminal-app");
+  const macClock = document.getElementById("mac-clock");
   const skipBtn = document.getElementById("skip-boot-btn");
   const bootLinesContainer = document.getElementById("boot-lines");
   const currentTyping = document.getElementById("current-typing");
   const promptPrefix = document.getElementById("prompt-prefix");
   const bootConsole = document.getElementById("boot-console");
 
-  if (!bootTerminal) return;
+  if (!macDesktop) return;
 
-  bootTerminal.style.display = "flex";
-  bootTerminal.classList.remove("finished");
+  // Live macOS Clock updater
+  function updateClock() {
+    if (!macClock) return;
+    const now = new Date();
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const day = days[now.getDay()];
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    macClock.textContent = `${day} ${hours}:${minutes} ${ampm}`;
+  }
+  updateClock();
 
   let isSkipped = false;
+  let activeTimeouts = [];
+
+  function safeTimeout(fn, ms) {
+    if (isSkipped) return null;
+    const id = setTimeout(() => {
+      if (!isSkipped) fn();
+    }, ms);
+    activeTimeouts.push(id);
+    return id;
+  }
 
   function finishBoot() {
     if (isSkipped) return;
     isSkipped = true;
-    bootTerminal.classList.add("finished");
+    activeTimeouts.forEach(clearTimeout);
+    activeTimeouts = [];
+
+    macDesktop.classList.add("finished");
     setTimeout(() => {
-      bootTerminal.style.display = "none";
-    }, 400);
+      macDesktop.style.display = "none";
+    }, 550);
   }
 
   skipBtn?.addEventListener("click", finishBoot);
@@ -167,34 +196,25 @@ function initBootSequence() {
     if (e.key === "Escape") finishBoot();
   });
 
-  window.rebootSequence = function() {
-    isSkipped = false;
-    bootTerminal.style.display = "flex";
-    bootTerminal.classList.remove("finished");
-    bootLinesContainer.innerHTML = "";
-    stepIdx = 0;
-    runNextStep();
-  };
-
   const scriptSteps = [
-    { type: "cmd", text: "depththread --init --layer 03", delayAfter: 320 },
-    { type: "output", text: "[kernel] loading workflow primitives: layers, signals, drift buffers... ok", delayAfter: 240 },
-    { type: "cmd", text: "depth status", delayAfter: 350 },
-    { type: "info", text: "> DEPTHTHREAD WORKFLOW OS v4.3.0", delayAfter: 180 },
-    { type: "info", text: "> 03 active layers detected across 07 allocated partitions.", delayAfter: 240 },
-    { type: "prompt-question", prompt: "Initialize telemetry signal feed and queue daemon? (Y/n)", answer: "Y", delayAfter: 320 },
-    { type: "success", text: "✔ Telemetry feed connected at 60 FPS (all systems nominal).", delayAfter: 220 },
-    { type: "prompt-question", prompt: "Stream particle wave point cloud across Layer 03? (Y/n)", answer: "y", delayAfter: 320 },
-    { type: "output", text: "  [wave-compositor] 2100 points calibrated on GPU raster canvas.", delayAfter: 200 },
-    { type: "prompt-question", prompt: "Run layer sync verification sequence? (Y/n)", answer: "y", delayAfter: 300 },
-    { type: "output", text: "  ├── #0421 [depth 03] align the layers ... synced", delayAfter: 160 },
-    { type: "output", text: "  ├── #0417 [depth 02] push the line    ... synced", delayAfter: 160 },
-    { type: "output", text: "  ├── #0412 [depth 01] sync the drift   ... waiting", delayAfter: 160 },
-    { type: "output", text: "  └── #0409 [depth 00] light the signal ... ready", delayAfter: 200 },
-    { type: "prompt-question", prompt: "Ready to mount HUD telemetry interface? (Y/n)", answer: "y", delayAfter: 350 },
+    { type: "cmd", text: "depththread --init --layer 03", delayAfter: 300 },
+    { type: "output", text: "[kernel] loading workflow primitives: layers, signals, drift buffers... ok", delayAfter: 200 },
+    { type: "cmd", text: "depth status", delayAfter: 320 },
+    { type: "info", text: "> DEPTHTHREAD WORKFLOW OS v4.3.0", delayAfter: 160 },
+    { type: "info", text: "> 03 active layers detected across 07 allocated partitions.", delayAfter: 200 },
+    { type: "prompt-question", prompt: "Initialize telemetry signal feed and queue daemon? (Y/n)", answer: "Y", delayAfter: 300 },
+    { type: "success", text: "✔ Telemetry feed connected at 60 FPS (all systems nominal).", delayAfter: 200 },
+    { type: "prompt-question", prompt: "Stream particle wave point cloud across Layer 03? (Y/n)", answer: "y", delayAfter: 300 },
+    { type: "output", text: "  [wave-compositor] 1600 carbon points calibrated on GPU raster canvas.", delayAfter: 180 },
+    { type: "prompt-question", prompt: "Run layer sync verification sequence? (Y/n)", answer: "y", delayAfter: 280 },
+    { type: "output", text: "  ├── #0421 [depth 03] align the layers ... synced", delayAfter: 140 },
+    { type: "output", text: "  ├── #0417 [depth 02] push the line    ... synced", delayAfter: 140 },
+    { type: "output", text: "  ├── #0412 [depth 01] sync the drift   ... waiting", delayAfter: 140 },
+    { type: "output", text: "  └── #0409 [depth 00] light the signal ... ready", delayAfter: 180 },
+    { type: "prompt-question", prompt: "Ready to mount HUD telemetry interface? (Y/n)", answer: "y", delayAfter: 320 },
     { type: "success", text: "  DEPTHTHREAD OS online. All systems nominal.", delayAfter: 200 },
     { type: "output", text: "  ➜ Protocol: http://localhost:5173/workflow-os", delayAfter: 150 },
-    { type: "info", text: "  ➜ Entering workspace...", delayAfter: 600 }
+    { type: "info", text: "  ➜ Entering workspace...", delayAfter: 550 }
   ];
 
   let stepIdx = 0;
@@ -209,7 +229,7 @@ function initBootSequence() {
     if (isSkipped) return;
 
     if (stepIdx >= scriptSteps.length) {
-      setTimeout(finishBoot, 350);
+      safeTimeout(finishBoot, 350);
       return;
     }
 
@@ -218,18 +238,18 @@ function initBootSequence() {
 
     if (step.type === "cmd") {
       if (promptPrefix) {
-        promptPrefix.innerHTML = '<span class="prompt-user">depth</span>:<span class="prompt-dir">~/workflow</span>$&nbsp;';
+        promptPrefix.innerHTML = '<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/workflow-os</span>$&nbsp;';
       }
       typeCommand(step.text, () => {
         if (isSkipped) return;
         const line = document.createElement("div");
         line.className = "boot-line command";
-        line.innerHTML = `<span class="prompt-user">depth</span>:<span class="prompt-dir">~/workflow</span>$ ${step.text}`;
+        line.innerHTML = `<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/workflow-os</span>$ ${step.text}`;
         bootLinesContainer.appendChild(line);
         currentTyping.textContent = "";
         scrollConsole();
-        setTimeout(runNextStep, step.delayAfter || 200);
-      }, 22);
+        safeTimeout(runNextStep, step.delayAfter || 200);
+      }, 20);
     } else if (step.type === "prompt-question") {
       if (promptPrefix) {
         promptPrefix.innerHTML = '<span class="q-icon">?</span>&nbsp;';
@@ -237,7 +257,7 @@ function initBootSequence() {
       currentTyping.textContent = step.prompt + " ";
       scrollConsole();
 
-      setTimeout(() => {
+      safeTimeout(() => {
         if (isSkipped) return;
         typeCommand(step.answer, () => {
           if (isSkipped) return;
@@ -247,20 +267,20 @@ function initBootSequence() {
           bootLinesContainer.appendChild(line);
           currentTyping.textContent = "";
           scrollConsole();
-          setTimeout(runNextStep, step.delayAfter || 200);
-        }, 30);
-      }, 180);
+          safeTimeout(runNextStep, step.delayAfter || 200);
+        }, 25);
+      }, 160);
     } else {
       const line = document.createElement("div");
       line.className = `boot-line ${step.type}`;
       line.textContent = step.text;
       bootLinesContainer.appendChild(line);
       scrollConsole();
-      setTimeout(runNextStep, step.delayAfter || 150);
+      safeTimeout(runNextStep, step.delayAfter || 140);
     }
   }
 
-  function typeCommand(text, onComplete, speed = 25) {
+  function typeCommand(text, onComplete, speed = 20) {
     let charIdx = 0;
     function nextChar() {
       if (isSkipped) {
@@ -270,15 +290,78 @@ function initBootSequence() {
       if (charIdx < text.length) {
         currentTyping.textContent += text[charIdx];
         charIdx++;
-        setTimeout(nextChar, speed);
+        safeTimeout(nextChar, speed);
       } else {
-        setTimeout(onComplete, 80);
+        safeTimeout(onComplete, 70);
       }
     }
     nextChar();
   }
 
-  setTimeout(runNextStep, 350);
+  function startDesktopSequence() {
+    // Initial desktop state
+    macTerminalWindow?.classList.add("dock-collapsed");
+    dockTerminalApp?.classList.remove("dock-hover", "bounce");
+    cursorRipple?.classList.remove("active");
+    bootLinesContainer.innerHTML = "";
+    if (currentTyping) currentTyping.textContent = "";
+
+    // 1. Position cursor initially near the upper-center
+    if (macCursor) {
+      macCursor.style.opacity = "1";
+      macCursor.style.transform = `translate(${window.innerWidth * 0.48}px, ${window.innerHeight * 0.35}px)`;
+    }
+
+    // 2. Cursor glides smoothly down to the Terminal dock icon
+    safeTimeout(() => {
+      if (!dockTerminalApp || !macCursor) return;
+      const rect = dockTerminalApp.getBoundingClientRect();
+      const targetX = rect.left + rect.width * 0.5 - 6;
+      const targetY = rect.top + rect.height * 0.4;
+      macCursor.style.transform = `translate(${targetX}px, ${targetY}px)`;
+    }, 450);
+
+    // 3. Hover state triggers icon magnification
+    safeTimeout(() => {
+      dockTerminalApp?.classList.add("dock-hover");
+    }, 1550);
+
+    // 4. Mouse click animation (click ripple + dock icon bounce)
+    safeTimeout(() => {
+      cursorRipple?.classList.add("active");
+      dockTerminalApp?.classList.add("bounce");
+    }, 1900);
+
+    // 5. Terminal window launches and zooms open from dock
+    safeTimeout(() => {
+      dockTerminalApp?.classList.remove("dock-hover");
+      macTerminalWindow?.classList.remove("dock-collapsed");
+      
+      // Move cursor aside subtly
+      if (macCursor) {
+        macCursor.style.transform = `translate(${window.innerWidth * 0.76}px, ${window.innerHeight * 0.68}px)`;
+        macCursor.style.opacity = "0.25";
+      }
+    }, 2350);
+
+    // 6. Begin code execution inside the opened Terminal window
+    safeTimeout(() => {
+      stepIdx = 0;
+      runNextStep();
+    }, 2850);
+  }
+
+  // Reboot hook for CLI drawer and buttons
+  window.rebootSequence = function() {
+    isSkipped = false;
+    activeTimeouts.forEach(clearTimeout);
+    activeTimeouts = [];
+    macDesktop.style.display = "flex";
+    macDesktop.classList.remove("finished");
+    startDesktopSequence();
+  };
+
+  startDesktopSequence();
 }
 
 /* ==========================================================================
