@@ -976,16 +976,16 @@ function initWorkingSection() {
 
   window.addEventListener("scroll", handleScrollCheck, { passive: true });
 
-  // IntersectionObserver as backup (e.g. hash anchor jumps or rapid scrolling)
+  const targetHeadline = document.querySelector(".working-header") || section;
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && !hasTriggered && window.scrollY > 30) {
         typeWorkingText();
       }
     });
-  }, { rootMargin: "0px 0px -80px 0px", threshold: 0.15 });
+  }, { rootMargin: "0px 0px -60px 0px", threshold: 0.15 });
 
-  observer.observe(section);
+  observer.observe(targetHeadline);
 
   // If user clicks the scroll down cue directly, trigger typing
   const scrollCue = document.querySelector(".hero-scroll-cue a");
@@ -997,10 +997,25 @@ function initWorkingSection() {
     });
   }
 
+  // Make scroll down cue disappear once scrolled down past the top
+  const heroScrollCue = document.getElementById("hero-scroll-cue") || document.querySelector(".hero-scroll-cue");
+  function handleScrollCueVisibility() {
+    if (!heroScrollCue) return;
+    if (window.scrollY > 35) {
+      heroScrollCue.classList.add("scrolled-hidden");
+    } else {
+      heroScrollCue.classList.remove("scrolled-hidden");
+    }
+  }
+
+  window.addEventListener("scroll", handleScrollCueVisibility, { passive: true });
+  handleScrollCueVisibility();
+
   window.resetWorkingSection = function() {
     hasTriggered = false;
     target.textContent = "";
     if (boxesContainer) boxesContainer.classList.remove("boxes-revealed");
     window.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCueVisibility();
   };
 }
