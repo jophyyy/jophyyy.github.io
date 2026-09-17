@@ -422,12 +422,19 @@ body.depth-body {
   background-color: var(--amber);
   vertical-align: baseline;
   margin-left: 6px;
-  animation: heroCaretBlink 0.9s step-end infinite;
   box-shadow: 0 0 10px rgba(217, 119, 6, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.working-type-caret.typing {
+  opacity: 1;
 }
 
 .working-type-caret.finished {
-  animation: heroCaretBlink 1.4s step-end infinite;
+  opacity: 0;
+  display: none !important;
+  animation: none !important;
 }
 
 /* 3 Pop-up Boxes */

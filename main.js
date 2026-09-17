@@ -948,7 +948,10 @@ function initWorkingSection() {
     const text = "what am i working on right now?";
     let charIdx = 0;
     target.textContent = "";
-    if (caret) caret.classList.remove("finished");
+    if (caret) {
+      caret.classList.remove("finished");
+      caret.classList.add("typing");
+    }
 
     function typeNext() {
       if (charIdx < text.length) {
@@ -956,7 +959,10 @@ function initWorkingSection() {
         charIdx++;
         setTimeout(typeNext, 34 + Math.random() * 24);
       } else {
-        if (caret) caret.classList.add("finished");
+        if (caret) {
+          caret.classList.remove("typing");
+          caret.classList.add("finished");
+        }
         setTimeout(() => {
           if (boxesContainer) {
             boxesContainer.classList.add("boxes-revealed");
@@ -1028,6 +1034,10 @@ function initWorkingSection() {
   window.resetWorkingSection = function() {
     hasTriggered = false;
     target.textContent = "";
+    if (caret) {
+      caret.classList.remove("typing");
+      caret.classList.add("finished");
+    }
     if (boxesContainer) boxesContainer.classList.remove("boxes-revealed");
     window.addEventListener("scroll", handleScrollCheck, { passive: true });
   };
