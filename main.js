@@ -1053,39 +1053,51 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SLIDING IMAGE TRACK (Hyperplexed / Camille Mormal Vertical)
+   VERTICAL SLIDING IMAGE TRACK (3 Simultaneous Counter-Scrolling Columns)
    ========================================================================== */
 function initVerticalImageTrack() {
-  const track = document.getElementById("image-track");
-  const sectionWrap = document.getElementById("vertical-showcase");
+  const trackMid = document.getElementById("image-track-mid");
+  const trackLeft = document.getElementById("image-track-left");
+  const trackRight = document.getElementById("image-track-right");
   const stage = document.getElementById("track-stage");
 
-  if (!track || !sectionWrap || !stage) return;
+  if (!trackMid || !stage) return;
 
-  const images = Array.from(track.getElementsByClassName("image"));
+  const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
+  const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
+  const imagesRight = trackRight ? Array.from(trackRight.getElementsByClassName("image")) : [];
+  const imagesSides = [...imagesLeft, ...imagesRight];
+
   let currentPercentage = 0;
   let isDragging = false;
   let startY = 0;
   let prevPercentage = 0;
 
   // Track position formula:
-  // When percentage = 0: Image 1 is centered in the viewport
-  // When percentage = -100: Image 8 is centered in the viewport
-  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2%
+  // Percentage ranges from 0 to -100:
+  // - When percentage = 0: Middle is at top (Image 1 centered), Sides are at bottom (Image 8 centered).
+  // - When percentage = -100: Middle is at bottom (Image 8 centered), Sides are at top (Image 1 centered).
+  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2% (span 88.4%).
   function applyTrackPosition(percentage) {
     currentPercentage = Math.max(Math.min(percentage, 0), -100);
-    track.dataset.percentage = currentPercentage;
+    const sidePercentage = -100 - currentPercentage;
 
-    const trackY = -5.8 + (currentPercentage * 0.884);
+    trackMid.dataset.percentage = currentPercentage;
+    if (trackLeft) trackLeft.dataset.percentage = sidePercentage;
+    if (trackRight) trackRight.dataset.percentage = sidePercentage;
 
-    track.animate(
+    const trackY_mid = -5.8 + (currentPercentage * 0.884);
+    const trackY_side = -5.8 + (sidePercentage * 0.884);
+
+    // 1. Middle Track (Slides UP as percentage goes from 0 to -100)
+    trackMid.animate(
       {
-        transform: `translate(-50%, ${trackY.toFixed(3)}%)`,
+        transform: `translate(-50%, ${trackY_mid.toFixed(3)}%)`,
       },
       { duration: 1200, fill: "forwards" }
     );
 
-    for (const image of images) {
+    for (const image of imagesMid) {
       image.animate(
         {
           objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
@@ -1093,9 +1105,37 @@ function initVerticalImageTrack() {
         { duration: 1200, fill: "forwards" }
       );
     }
+
+    // 2. Side Tracks (Slide DOWN in counter-motion as percentage goes from 0 to -100)
+    if (trackLeft) {
+      trackLeft.animate(
+        {
+          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
+
+    if (trackRight) {
+      trackRight.animate(
+        {
+          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
+
+    for (const image of imagesSides) {
+      image.animate(
+        {
+          objectPosition: `center ${(100 + sidePercentage).toFixed(2)}%`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
   }
 
-  // Initial call so Image 1 is centered on load
+  // Initial setup: Mid centered at Image 1, Sides centered at Image 8
   applyTrackPosition(0);
 
   // 1. Mouse & Touch Dragging (Vertical Y)
@@ -1116,10 +1156,15 @@ function initVerticalImageTrack() {
 
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     const mouseDelta = startY - clientY;
-    const maxDelta = window.innerHeight * 0.6;
+    const maxDelta = window.innerHeight * 0.65;
 
     const percentage = (mouseDelta / maxDelta) * -100;
     const nextPercentage = prevPercentage + percentage;
+
+    // Prevent default touch pull/scroll on mobile during active track scrubbing
+    if (e.touches && e.cancelable) {
+      e.preventDefault();
+    }
 
     applyTrackPosition(nextPercentage);
   };
@@ -1133,7 +1178,7 @@ function initVerticalImageTrack() {
   window.addEventListener("mouseup", handleOnUp);
   window.addEventListener("touchend", handleOnUp);
   window.addEventListener("mousemove", handleOnMove);
-  window.addEventListener("touchmove", (e) => handleOnMove(e), { passive: true });
+  window.addEventListener("touchmove", handleOnMove, { passive: false });
 
   // 2. Mouse Wheel / Trackpad Scroll on Stage
   stage.addEventListener(
@@ -1142,7 +1187,7 @@ function initVerticalImageTrack() {
       const delta = -e.deltaY * 0.08;
       const target = currentPercentage + delta;
 
-      // When within bounds, scroll moves the track smoothly
+      // When within bounds, scroll moves the tracks smoothly
       if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
         e.preventDefault();
         applyTrackPosition(target);
