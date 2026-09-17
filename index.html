@@ -3,25 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jophy Test Website — Testing Server</title>
+  <title>DEPTHTHREAD — WORKFLOW OS</title>
   
-  <!-- SEO Meta -->
-  <meta name="description" content="Testing server. Simple test website for animation testing and UI experiments.">
+  <!-- SEO & Social Meta -->
+  <meta name="description" content="A workflow OS for teams who move work across layers, not lists. Testing server and animation lab.">
   <meta name="robots" content="noindex, nofollow">
 
-  <!-- Google Fonts: Inter (Modern clean sans) & JetBrains Mono (for terminal only) -->
+  <!-- Google Fonts: Pixelify Sans (Chunky Pixel Display), Space Mono, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <!-- Styles -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
-  <link rel="stylesheet" href="style.css?v=2.2">
+  <!-- Stylesheet -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f59e0b%22/></svg>">
+  <link rel="stylesheet" href="style.css?v=3.2">
 </head>
-<body class="theme-dark">
+<body class="depth-body">
 
   <!-- ========================================================================= -->
-  <!-- 1. TERMINAL INTRO BOOT SEQUENCE                                           -->
+  <!-- 1. PARTICLE WAVE CANVAS BACKGROUND (Depththread signature visual)         -->
+  <!-- ========================================================================= -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+  <!-- ========================================================================= -->
+  <!-- 2. TERMINAL STARTUP INTRO SEQUENCE                                        -->
   <!-- ========================================================================= -->
   <div id="boot-terminal" class="boot-terminal">
     <div class="boot-header">
@@ -30,10 +35,10 @@
         <span class="control minimize"></span>
         <span class="control maximize"></span>
       </div>
-      <div class="terminal-title">testing-server@local: ~ (test)</div>
-      <button id="skip-boot-btn" class="skip-btn" title="Skip Intro">
-        <span>Skip</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <div class="terminal-title">depththread@workflow-os: ~ (boot)</div>
+      <button id="skip-boot-btn" class="skip-btn" title="Skip Sequence">
+        <span>Skip Sequence</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="13 17 18 12 13 7"></polyline>
           <polyline points="6 17 11 12 6 7"></polyline>
         </svg>
@@ -43,470 +48,341 @@
     <div class="boot-body" id="boot-console">
       <div id="boot-lines" class="boot-lines"></div>
       <div class="boot-prompt-active" id="boot-prompt-active">
-        <span id="prompt-prefix"><span class="prompt-user">test</span>:<span class="prompt-dir">~/testing</span>$&nbsp;</span><span id="current-typing" class="current-typing"></span><span class="blinking-caret">█</span>
+        <span id="prompt-prefix"><span class="prompt-user">depth</span>:<span class="prompt-dir">~/workflow</span>$&nbsp;</span><span id="current-typing" class="current-typing"></span><span class="blinking-caret">█</span>
       </div>
     </div>
   </div>
 
-  <!-- Dynamic Spotlight Effect -->
-  <div id="spotlight-overlay" class="spotlight-overlay"></div>
-  <div id="grid-background" class="grid-background"></div>
-
-  <!-- Ambient Coordinate Display -->
+  <!-- Ambient Coordinates Display -->
   <div class="ambient-cue">
     <span class="pulse-dot"></span>
-    <span class="cue-text">Testing</span>
-    <span id="coords-display" class="coords-display">[0, 0]</span>
+    <span class="cue-label">LAYER 03</span>
+    <span id="coords-display" class="coords-display">[X: 000, Y: 000]</span>
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 2. NAVIGATION BAR                                                         -->
+  <!-- 3. TOP NAVIGATION BAR                                                     -->
   <!-- ========================================================================= -->
   <header class="site-header">
-    <a href="#hero" class="brand-logo">
-      <span class="logo-name">Jophy Test Website</span>
-      <span class="status-indicator">
-        <span class="status-dot"></span>
-        <span class="status-text">Testing Server</span>
-      </span>
-    </a>
+    <div class="brand-block">
+      <a href="#hero" class="brand-link">
+        <span class="brand-name">DEPTHTHREAD</span>
+        <span class="amber-square"></span>
+      </a>
+      <div class="brand-sub">WORKFLOW OS // JOPHY TESTBED</div>
+    </div>
 
     <nav class="desktop-nav">
-      <a href="#about" class="nav-item">Testing</a>
-      <a href="#skills" class="nav-item">Motion</a>
-      <a href="#work" class="nav-item">Timeline</a>
-      <a href="#projects" class="nav-item">Modules</a>
-      <a href="#contact" class="nav-item">Form</a>
-      <a href="https://github.com/jophyyy/jophyyy.github.io" target="_blank" rel="noopener" class="nav-cta">GitHub</a>
+      <a href="#overview" class="nav-item active"><span class="prompt-arrow">&gt;</span> overview</a>
+      <a href="#docs" class="nav-item">docs</a>
+      <a href="#queue" class="nav-item">protocols</a>
+      <a href="#status" class="nav-item">status</a>
+      <button id="nav-cli-toggle" class="nav-item nav-btn">log in</button>
     </nav>
-
-    <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
-      <span class="bar bar-1"></span>
-      <span class="bar bar-2"></span>
-      <span class="bar bar-3"></span>
-    </button>
   </header>
 
-  <!-- Fullscreen Navigation Overlay -->
-  <div id="nav-overlay" class="nav-overlay">
-    <div class="nav-overlay-content">
-      <div class="overlay-title">Menu</div>
-      <ul class="overlay-nav-list">
-        <li><a href="#about" class="overlay-nav-link">Testing</a></li>
-        <li><a href="#skills" class="overlay-nav-link">Animation Testing</a></li>
-        <li><a href="#work" class="overlay-nav-link">Test Timeline</a></li>
-        <li><a href="#projects" class="overlay-nav-link">Testing Modules</a></li>
-        <li><a href="#contact" class="overlay-nav-link">Testing Form</a></li>
-        <li><a href="https://github.com/jophyyy/jophyyy.github.io" target="_blank" rel="noopener" class="overlay-nav-link">GitHub</a></li>
-      </ul>
-      <div class="overlay-footer">
-        <div>Jophy Test Website • Testing Server</div>
-      </div>
-    </div>
-  </div>
-
   <!-- ========================================================================= -->
-  <!-- MAIN CONTENT CONTAINER                                                    -->
+  <!-- 4. HERO SECTION                                                           -->
   <!-- ========================================================================= -->
-  <main id="main-content" class="main-content">
-
-    <!-- 3. HERO SECTION -->
-    <section id="hero" class="section hero-section">
-      <div class="section-container">
-        
-        <div class="terminal-tag">// TESTING SERVER</div>
-        
-        <h1 class="hero-name">
-          Jophy Test Website
+  <main class="main-container">
+    <section id="hero" class="hero-section">
+      
+      <!-- Hero Left: Giant Pixel Display Headline -->
+      <div class="hero-content">
+        <h1 class="pixel-headline">
+          ship work<br>
+          with depth<span class="amber-period"></span>
         </h1>
 
-        <div class="hero-typing-wrapper">
-          <span class="prompt-sym">&gt;</span>
-          <span id="role-cycler" class="role-cycler">TESTING</span>
-          <span class="type-cursor">_</span>
-        </div>
-
-        <p class="hero-bio">
-          Testing server. Simple test website for animation testing and UI experiments.
+        <p class="hero-lead">
+          A workflow OS for teams who move work across layers, not lists.
         </p>
 
-        <div class="tech-pills-row">
-          <span class="badge">Testing Server</span>
-          <span class="badge">Animation Test</span>
-          <span class="badge">Sandbox</span>
-          <span class="badge">60 FPS</span>
-        </div>
-
         <div class="hero-actions">
-          <a href="#projects" class="btn btn-primary">
-            <span>Testing Modules</span>
-          </a>
-          <a href="#work" class="btn btn-outline">
-            <span>Test Cases</span>
-          </a>
-          <button id="quick-cli-trigger" class="btn btn-ghost" title="Open Test CLI">
-            <span>&gt;_ Test CLI</span>
+          <button id="start-sequence-btn" class="btn btn-depth">
+            <span class="btn-prefix">&gt;</span> start sequence
           </button>
+          <a href="#queue" class="btn-link">
+            watch signal <span class="triangle-sym">&#x25B8;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero Right: Real-time Telemetry HUD -->
+      <div class="hero-telemetry">
+        <div class="telemetry-card">
+          <div class="telemetry-label">SYSTEM STATUS</div>
+          <div class="telemetry-value-row">
+            <span class="telemetry-status-text">all systems nominal</span>
+            <div class="signal-bars">
+              <span class="bar bar-1"></span>
+              <span class="bar bar-2"></span>
+              <span class="bar bar-3"></span>
+              <span class="bar bar-4"></span>
+              <span class="bar bar-5 active"></span>
+            </div>
+          </div>
         </div>
 
+        <div class="telemetry-divider"></div>
+
+        <div class="telemetry-card">
+          <div class="telemetry-label">ACTIVE LAYERS</div>
+          <div class="telemetry-value-large">
+            <span class="large-pixel-num">03</span>
+            <span class="total-denom">/07</span>
+          </div>
+        </div>
       </div>
+
     </section>
 
-    <!-- 4. ABOUT / OVERVIEW SECTION -->
-    <section id="about" class="section">
-      <div class="section-container">
+    <!-- ========================================================================= -->
+    <!-- 5. LOWER HUD: LIVE QUEUE & SIGNAL FEED                                    -->
+    <!-- ========================================================================= -->
+    <section id="queue" class="hud-data-section">
+      <div class="hud-grid">
         
-        <div class="section-header">
-          <div class="section-tag">// OVERVIEW</div>
-          <h2 class="section-title">Testing</h2>
-          <p class="section-subtitle">Testing server for UI animations and layout testing.</p>
-        </div>
-
-        <div class="about-grid">
-          <div class="about-card">
-            <h3 class="card-heading">Server Testing</h3>
-            <p class="card-text">
-              Testing server environment. All content on this site is basic testing text used to test layout, typography, and animations.
-            </p>
-            <div class="stats-row">
-              <div class="stat-card">
-                <div class="stat-number">60 FPS</div>
-                <div class="stat-label">Testing Framerate</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">Local</div>
-                <div class="stat-label">Testing Server</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">Sandbox</div>
-                <div class="stat-label">Testing Environment</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">Active</div>
-                <div class="stat-label">Testing Status</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mini-terminal-card">
-            <div class="mini-term-header">
-              <div class="term-dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-              </div>
-              <span class="mini-term-name">test.json</span>
-            </div>
-            <pre class="code-display"><code>{
-  "name": "Jophy Test Website",
-  "status": "Testing server",
-  "mode": "Testing",
-  "purpose": "Animation testing"
-}</code></pre>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 5. ANIMATION TESTING SECTION -->
-    <section id="skills" class="section">
-      <div class="section-container">
-        
-        <div class="section-header">
-          <div class="section-tag">// ANIMATION</div>
-          <h2 class="section-title">Animation Testing</h2>
-          <p class="section-subtitle">Testing motion effects and transitions.</p>
-        </div>
-
-        <div class="skills-grid">
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Keyframe Animation Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 90%;"></div></div>
-          </div>
-
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Cursor Spotlight Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 85%;"></div></div>
-          </div>
-
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Typewriter Animation Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 95%;"></div></div>
-          </div>
-
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Scroll Motion Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 88%;"></div></div>
-          </div>
-
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Drawer Transition Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 92%;"></div></div>
-          </div>
-
-          <div class="skill-card">
-            <div class="skill-meta">
-              <span class="skill-name">Component Testing</span>
-              <span class="skill-level">Testing</span>
-            </div>
-            <div class="skill-bar"><div class="bar-fill" style="--percent: 90%;"></div></div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 6. TEST CASES & TIMELINE -->
-    <section id="work" class="section">
-      <div class="section-container">
-        
-        <div class="section-header-wrap">
-          <div>
-            <div class="section-tag">// TIMELINE</div>
-            <h2 class="section-title">Test Timeline</h2>
-          </div>
-          <div class="timeline-drag-hint">
-            <span>← Drag to test scroll →</span>
-          </div>
-        </div>
-
-        <div id="timeline-scroll-track" class="timeline-scroll-track">
+        <!-- Column 1: Live Queue -->
+        <div class="hud-col queue-col">
+          <div class="hud-col-header">LIVE QUEUE</div>
           
-          <div class="timeline-card">
-            <div class="timeline-period">TEST 01</div>
-            <h3 class="timeline-role">Boot Animation</h3>
-            <div class="timeline-company">Testing</div>
-            <p class="timeline-desc">Testing terminal boot typewriter animation and skip state.</p>
-            <div class="timeline-tags">
-              <span>Testing</span>
-              <span>Animation</span>
+          <div class="queue-list" id="queue-list">
+            
+            <div class="queue-row" data-depth="03">
+              <div class="queue-id-title">
+                <span class="queue-arrow">&gt;</span>
+                <span class="queue-id">#0421</span>
+                <span class="queue-title">align the layers</span>
+              </div>
+              <div class="queue-meta">
+                <span class="q-depth">depth 03</span>
+                <span class="q-owner">owner ryo</span>
+                <span class="q-status status-moving">status moving</span>
+              </div>
+              <div class="queue-signals">
+                <div class="sig-group">
+                  <span class="sig-label">signal</span>
+                  <span class="sig-dots active-amber">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-group">
+                  <span class="sig-label">ghost</span>
+                  <span class="sig-dots">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-log">log 03</div>
+              </div>
             </div>
-          </div>
 
-          <div class="timeline-card">
-            <div class="timeline-period">TEST 02</div>
-            <h3 class="timeline-role">Cursor Spotlight</h3>
-            <div class="timeline-company">Testing</div>
-            <p class="timeline-desc">Testing pointer coordinate tracking and subtle illumination.</p>
-            <div class="timeline-tags">
-              <span>Testing</span>
-              <span>Coordinates</span>
+            <div class="queue-row" data-depth="02">
+              <div class="queue-id-title">
+                <span class="queue-arrow">&gt;</span>
+                <span class="queue-id">#0417</span>
+                <span class="queue-title">push the line</span>
+              </div>
+              <div class="queue-meta">
+                <span class="q-depth">depth 02</span>
+                <span class="q-owner">owner ina</span>
+                <span class="q-status status-moving">status moving</span>
+              </div>
+              <div class="queue-signals">
+                <div class="sig-group">
+                  <span class="sig-label">signal</span>
+                  <span class="sig-dots active-amber">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-group">
+                  <span class="sig-label">ghost</span>
+                  <span class="sig-dots">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-log">log 02</div>
+              </div>
             </div>
-          </div>
 
-          <div class="timeline-card">
-            <div class="timeline-period">TEST 03</div>
-            <h3 class="timeline-role">Drag Scroll</h3>
-            <div class="timeline-company">Testing</div>
-            <p class="timeline-desc">Testing mouse horizontal drag velocity and momentum scroll.</p>
-            <div class="timeline-tags">
-              <span>Testing</span>
-              <span>Scroll</span>
+            <div class="queue-row" data-depth="01">
+              <div class="queue-id-title">
+                <span class="queue-arrow">&gt;</span>
+                <span class="queue-id">#0412</span>
+                <span class="queue-title">sync the drift</span>
+              </div>
+              <div class="queue-meta">
+                <span class="q-depth">depth 01</span>
+                <span class="q-owner">owner kai</span>
+                <span class="q-status status-waiting">status waiting</span>
+              </div>
+              <div class="queue-signals">
+                <div class="sig-group">
+                  <span class="sig-label">signal</span>
+                  <span class="sig-dots active-amber">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-group">
+                  <span class="sig-label">ghost</span>
+                  <span class="sig-dots">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-log">log 01</div>
+              </div>
             </div>
-          </div>
 
-          <div class="timeline-card">
-            <div class="timeline-period">TEST 04</div>
-            <h3 class="timeline-role">Drawer Motion</h3>
-            <div class="timeline-company">Testing</div>
-            <p class="timeline-desc">Testing slide drawer transitions and command inputs.</p>
-            <div class="timeline-tags">
-              <span>Testing</span>
-              <span>Drawer</span>
+            <div class="queue-row" data-depth="00">
+              <div class="queue-id-title">
+                <span class="queue-arrow">&gt;</span>
+                <span class="queue-id">#0409</span>
+                <span class="queue-title">light the signal</span>
+              </div>
+              <div class="queue-meta">
+                <span class="q-depth">depth 00</span>
+                <span class="q-owner">owner mo</span>
+                <span class="q-status status-waiting">status waiting</span>
+              </div>
+              <div class="queue-signals">
+                <div class="sig-group">
+                  <span class="sig-label">signal</span>
+                  <span class="sig-dots active-amber">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-group">
+                  <span class="sig-label">ghost</span>
+                  <span class="sig-dots">
+                    <i>●</i><i>●</i><i>●</i><i>●</i><i>●</i><i>●</i>
+                  </span>
+                </div>
+                <div class="sig-log">log 00</div>
+              </div>
             </div>
-          </div>
 
+          </div>
         </div>
 
-      </div>
-    </section>
-
-    <!-- 7. TESTING MODULES SECTION -->
-    <section id="projects" class="section">
-      <div class="section-container">
-        
-        <div class="projects-header">
-          <div>
-            <div class="section-tag">// MODULES</div>
-            <h2 class="section-title">Testing Modules</h2>
-          </div>
-          <div class="filter-tabs" id="project-filters">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="terminal">Terminal</button>
-            <button class="filter-btn" data-filter="motion">Motion</button>
-            <button class="filter-btn" data-filter="interactive">Interactive</button>
-          </div>
-        </div>
-
-        <div class="projects-grid" id="projects-grid">
+        <!-- Column 2: Signal Feed -->
+        <div id="feed" class="hud-col feed-col">
+          <div class="hud-col-header">SIGNAL FEED</div>
           
-          <div class="project-card" data-category="terminal motion">
-            <div class="project-header">
-              <span class="project-category">Testing</span>
-              <span class="project-status">Testing</span>
-            </div>
-            <h3 class="project-name">Testing Module 01</h3>
-            <p class="project-desc">Testing typewriter sequence and terminal output rendering.</p>
-            <div class="project-tech-stack">
-              <span class="tech-tag">Testing</span>
-              <span class="tech-tag">Typewriter</span>
-            </div>
-            <div class="project-actions">
-              <a href="#hero" class="project-link">View</a>
-              <button class="project-demo-btn" onclick="cliExecute('test')">Test</button>
-            </div>
+          <div class="feed-list" id="feed-list">
+            <div class="feed-row"><span class="f-time">02:17:39</span> <span class="f-user">ryo</span> moved <span class="f-id">#0421</span> to <span class="f-target">depth 03</span></div>
+            <div class="feed-row"><span class="f-time">02:16:02</span> <span class="f-user">ina</span> moved <span class="f-id">#0417</span> to <span class="f-target">depth 02</span></div>
+            <div class="feed-row"><span class="f-time">02:14:48</span> <span class="f-user">kai</span> updated <span class="f-id">#0412</span> status</div>
+            <div class="feed-row"><span class="f-time">02:13:11</span> <span class="f-user">mo</span> lit <span class="f-id">#0409</span> signal</div>
+            <div class="feed-row"><span class="f-time">02:12:03</span> <span class="f-sys">sys</span> drift nominal</div>
+            <div class="feed-row feed-streaming"><span class="f-dots">...</span> streaming</div>
           </div>
-
-          <div class="project-card" data-category="motion">
-            <div class="project-header">
-              <span class="project-category">Testing</span>
-              <span class="project-status">Testing</span>
-            </div>
-            <h3 class="project-name">Testing Module 02</h3>
-            <p class="project-desc">Testing cursor spotlight and radial gradient positioning.</p>
-            <div class="project-tech-stack">
-              <span class="tech-tag">Testing</span>
-              <span class="tech-tag">Spotlight</span>
-            </div>
-            <div class="project-actions">
-              <a href="#hero" class="project-link">View</a>
-              <button class="project-demo-btn" onclick="cliExecute('test')">Test</button>
-            </div>
-          </div>
-
-          <div class="project-card" data-category="motion interactive">
-            <div class="project-header">
-              <span class="project-category">Testing</span>
-              <span class="project-status">Testing</span>
-            </div>
-            <h3 class="project-name">Testing Module 03</h3>
-            <p class="project-desc">Testing draggable horizontal track and grab cursor cues.</p>
-            <div class="project-tech-stack">
-              <span class="tech-tag">Testing</span>
-              <span class="tech-tag">Drag</span>
-            </div>
-            <div class="project-actions">
-              <a href="#work" class="project-link">View</a>
-              <button class="project-demo-btn" onclick="cliExecute('test')">Test</button>
-            </div>
-          </div>
-
-          <div class="project-card" data-category="terminal interactive">
-            <div class="project-header">
-              <span class="project-category">Testing</span>
-              <span class="project-status">Testing</span>
-            </div>
-            <h3 class="project-name">Testing Module 04</h3>
-            <p class="project-desc">Testing slide console drawer and interactive command execution.</p>
-            <div class="project-tech-stack">
-              <span class="tech-tag">Testing</span>
-              <span class="tech-tag">CLI</span>
-            </div>
-            <div class="project-actions">
-              <a href="javascript:void(0)" onclick="cliExecute('help')" class="project-link">Open</a>
-              <button class="project-demo-btn" onclick="cliExecute('test')">Test</button>
-            </div>
-          </div>
-
         </div>
 
       </div>
+
+      <!-- Bottom Wireframe Bar: Layer Map -->
+      <div class="layer-map-strip">
+        <div class="layer-map-tag">LAYER MAP</div>
+        <div class="layer-map-depth">DEPTH 03</div>
+      </div>
     </section>
 
-    <!-- 8. TESTING FORM SECTION -->
-    <section id="contact" class="section">
-      <div class="section-container">
+    <!-- ========================================================================= -->
+    <!-- 6. TESTING MODULES & BENCHMARKS                                           -->
+    <!-- ========================================================================= -->
+    <section id="modules" class="hud-modules-section">
+      <div class="modules-header">
+        <div class="hud-col-header">ANIMATION BENCHMARKS & PROTOCOLS</div>
+        <div class="filter-pills" id="project-filters">
+          <button class="pill-btn active" data-filter="all">ALL</button>
+          <button class="pill-btn" data-filter="particles">PARTICLES</button>
+          <button class="pill-btn" data-filter="momentum">MOMENTUM</button>
+          <button class="pill-btn" data-filter="terminal">TERMINAL</button>
+        </div>
+      </div>
+
+      <div class="modules-grid" id="projects-grid">
         
-        <div class="section-header">
-          <div class="section-tag">// FORM</div>
-          <h2 class="section-title">Testing Form</h2>
-          <p class="section-subtitle">Testing input and submit animations.</p>
+        <div class="module-card" data-category="particles">
+          <div class="card-head">
+            <span class="mod-id">MOD_01</span>
+            <span class="mod-state">ACTIVE</span>
+          </div>
+          <h3 class="mod-title">Dotted Wave Particle Cloud</h3>
+          <p class="mod-desc">Interactive 2.5D point cloud with undulating sine-cosine wave vectors rendered on HTML5 canvas at 60 FPS.</p>
+          <div class="mod-footer">
+            <span>CANVAS API</span>
+            <button class="btn-micro" onclick="window.pulseWave && window.pulseWave()">PULSE WAVE</button>
+          </div>
         </div>
 
-        <div class="contact-layout">
-          <div class="contact-info">
-            <div class="contact-card">
-              <div class="contact-title">Testing Server</div>
-              <div class="contact-value">Jophy Test Website</div>
-            </div>
-            <div class="contact-card">
-              <div class="contact-title">Purpose</div>
-              <div class="contact-value">Testing animations and UI components</div>
-            </div>
-            <div class="contact-card">
-              <div class="contact-title">Status</div>
-              <div class="contact-value">Testing active</div>
-            </div>
+        <div class="module-card" data-category="terminal">
+          <div class="card-head">
+            <span class="mod-id">MOD_02</span>
+            <span class="mod-state">ACTIVE</span>
           </div>
+          <h3 class="mod-title">Interactive Sequence Bootloader</h3>
+          <p class="mod-desc">Typewriter terminal simulation featuring interactive developer questions, simulated input delays, and smooth skip state.</p>
+          <div class="mod-footer">
+            <span>DOM QUEUE</span>
+            <button class="btn-micro" onclick="window.rebootSequence && window.rebootSequence()">RUN BOOT</button>
+          </div>
+        </div>
 
-          <div class="contact-form-col">
-            <form id="contact-form" class="cyber-form">
-              <div class="form-group">
-                <label for="contact-name">Testing Input 1</label>
-                <input type="text" id="contact-name" name="name" required placeholder="Testing name">
-              </div>
+        <div class="module-card" data-category="momentum">
+          <div class="card-head">
+            <span class="mod-id">MOD_03</span>
+            <span class="mod-state">ACTIVE</span>
+          </div>
+          <h3 class="mod-title">Signal Feed Streaming Buffer</h3>
+          <p class="mod-desc">Continuous telemetry event stream with timestamp sorting, node updates, and live log updates.</p>
+          <div class="mod-footer">
+            <span>STREAM LOG</span>
+            <button class="btn-micro" onclick="window.pushSignal && window.pushSignal()">INJECT SIGNAL</button>
+          </div>
+        </div>
 
-              <div class="form-group">
-                <label for="contact-email">Testing Input 2</label>
-                <input type="email" id="contact-email" name="email" required placeholder="testing@example.com">
-              </div>
-
-              <div class="form-group">
-                <label for="contact-subject">Testing Input 3</label>
-                <input type="text" id="contact-subject" name="subject" required placeholder="Testing subject">
-              </div>
-
-              <div class="form-group">
-                <label for="contact-message">Testing Message</label>
-                <textarea id="contact-message" name="message" rows="4" required placeholder="Testing..."></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary" id="form-submit-btn">
-                <span>Submit Test</span>
-              </button>
-
-              <div id="form-feedback" class="form-feedback"></div>
-            </form>
+        <div class="module-card" data-category="terminal">
+          <div class="card-head">
+            <span class="mod-id">MOD_04</span>
+            <span class="mod-state">ACTIVE</span>
+          </div>
+          <h3 class="mod-title">Slide-Up Terminal HUD Drawer</h3>
+          <p class="mod-desc">Expandable diagnostic console with history navigation buffer, help menus, and direct command execution.</p>
+          <div class="mod-footer">
+            <span>CLI CONSOLE</span>
+            <button class="btn-micro" onclick="cliExecute('help')">LAUNCH CLI</button>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- 9. SITE FOOTER -->
+    <!-- ========================================================================= -->
+    <!-- 7. SITE FOOTER                                                            -->
+    <!-- ========================================================================= -->
     <footer class="site-footer">
-      <div class="footer-inner">
-        <div>Jophy Test Website • Testing Server</div>
-        <div>Testing animations</div>
+      <div class="footer-left">
+        <span>DEPTHTHREAD // JOPHY TESTBED</span>
+        <span class="sep">•</span>
+        <span>WORKFLOW OS</span>
+      </div>
+      <div class="footer-right">
+        <span>LAYER ARCHITECTURE V4.3</span>
+        <span class="sep">•</span>
+        <a href="#hero" class="back-top">TOP &#x25B4;</a>
       </div>
     </footer>
-
   </main>
 
   <!-- ========================================================================= -->
-  <!-- 10. CLI DRAWER                                                            -->
+  <!-- 8. FLOATING CLI DRAWER                                                    -->
   <!-- ========================================================================= -->
   <div id="cli-drawer" class="cli-drawer closed">
     <div class="cli-header" id="cli-drag-handle">
       <div class="cli-title-wrap">
         <span class="cli-indicator"></span>
-        <span class="cli-title">test: ~ (Type 'help')</span>
+        <span class="cli-title">depththread: ~ (Type 'help')</span>
       </div>
       <div class="cli-btns">
         <button id="cli-minimize-btn" title="Toggle Terminal" aria-label="Minimize">—</button>
@@ -515,19 +391,19 @@
     
     <div class="cli-content" id="cli-content">
       <div class="cli-history" id="cli-history">
-        <div class="cli-line intro-line">Jophy Test Website CLI. Type <span class="cmd-highlight">help</span> for commands.</div>
+        <div class="cli-line intro-line">Depththread Workflow OS Console v1.0. Type <span class="cmd-highlight">help</span> for available commands.</div>
       </div>
       <div class="cli-input-line">
-        <span class="cli-prompt">test:~$</span>
-        <input type="text" id="cli-input" class="cli-input" autocomplete="off" spellcheck="false" placeholder="type 'help', 'test'...">
+        <span class="cli-prompt">depth:~$</span>
+        <input type="text" id="cli-input" class="cli-input" autocomplete="off" spellcheck="false" placeholder="type 'help', 'test', 'reboot'...">
       </div>
     </div>
   </div>
 
-  <button id="cli-toggle-btn" class="cli-toggle-btn" title="Open Test CLI">
+  <button id="cli-toggle-btn" class="cli-toggle-btn" title="Toggle Depththread Console">
     <span class="cli-icon">&gt;_</span>
   </button>
 
-  <script src="main.js?v=2.2"></script>
+  <script src="main.js?v=3.2"></script>
 </body>
 </html>
