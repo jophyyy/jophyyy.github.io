@@ -1264,30 +1264,26 @@ function initVerticalImageTrack() {
   window.addEventListener("touchmove", handleOnMove, { passive: false });
 
   // 2. Mouse Wheel / Trackpad Scroll on Stage
-  // Only capture wheel scrubbing if the showcase is centered on the webpage.
-  // If most of the screen is still in another section, let the mouse wheel scroll the entire page.
+  // Active scrolling area is enlarged and starts closer to "what am i working on now":
+  // Activates as soon as the showcase enters view (top <= 65% of viewport height).
   const showcaseSection = document.getElementById("vertical-showcase");
   let isCentering = false;
   let centerTimer = null;
 
-  function isShowcaseCentered() {
+  function isShowcaseInScrollZone() {
     if (!showcaseSection) return true;
     const rect = showcaseSection.getBoundingClientRect();
     const vh = window.innerHeight;
 
-    // Center offset between the showcase center and viewport center
-    const sectionCenter = rect.top + rect.height / 2;
-    const viewportCenter = vh / 2;
-    const centerDiff = Math.abs(sectionCenter - viewportCenter);
-
-    // Centered when the section center is within 22% of viewport center (dominates the screen)
-    return centerDiff <= (vh * 0.22);
+    // Active zone: when scrolling down, starts as soon as showcase top is within 65% of viewport
+    // When scrolling up, stays active as long as showcase bottom is within 35% of viewport
+    return rect.top <= (vh * 0.65) && rect.bottom >= (vh * 0.35);
   }
 
   function centerShowcaseOnPage() {
     if (!showcaseSection || isCentering) return;
     const rect = showcaseSection.getBoundingClientRect();
-    if (Math.abs(rect.top) > 4) {
+    if (Math.abs(rect.top) > 6) {
       isCentering = true;
       const targetScroll = (window.pageYOffset !== undefined ? window.pageYOffset : window.scrollY) + rect.top;
       window.scrollTo({
@@ -1297,23 +1293,24 @@ function initVerticalImageTrack() {
       clearTimeout(centerTimer);
       centerTimer = setTimeout(() => {
         isCentering = false;
-      }, 400);
+      }, 450);
     }
   }
 
-  stage.addEventListener(
+  const scrollTarget = showcaseSection || stage;
+
+  scrollTarget.addEventListener(
     "wheel",
     (e) => {
       const delta = -e.deltaY * 0.08;
       const target = currentPercentage + delta;
 
-      // If the showcase is NOT centered on the webpage (i.e. majority of screen is in another section),
-      // do NOT capture wheel: allow the entire page to scroll naturally with the mouse.
-      if (!isShowcaseCentered()) {
+      // If outside the active showcase scroll zone, allow natural page scroll
+      if (!isShowcaseInScrollZone()) {
         return;
       }
 
-      // When centered and within track boundaries, scrub the vertical tracks smoothly
+      // When inside the scroll zone and within track boundaries, scrub the vertical tracks
       if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
         e.preventDefault();
         centerShowcaseOnPage();

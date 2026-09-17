@@ -414,7 +414,7 @@ body.depth-body {
 .working-section {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 72px 48px clamp(180px, 24vh, 280px);
+  padding: 72px 48px clamp(90px, 13vh, 140px);
   box-sizing: border-box;
   width: 100%;
 }
@@ -961,7 +961,6 @@ body.depth-body {
   border: none;
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: clamp(60px, 8vh, 120px);
 }
 
 .track-stage {
@@ -1705,7 +1704,7 @@ body.booting {
     min-height: 72vh;
   }
   .working-section {
-    padding: 56px 36px 140px;
+    padding: 56px 36px 72px;
   }
   .working-boxes {
     grid-template-columns: repeat(2, 1fr);
@@ -1721,7 +1720,7 @@ body.booting {
     min-height: 70vh;
   }
   .working-section {
-    padding: 44px 20px 110px;
+    padding: 44px 20px 56px;
   }
   .working-boxes {
     grid-template-columns: 1fr;
