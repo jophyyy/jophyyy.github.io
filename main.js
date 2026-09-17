@@ -1053,56 +1053,25 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL 8-PICTURE SHOWCASE (Camille Mormal Style Reel)
+   VERTICAL SHOWCASE (Blank Cards Vertical Reel)
    ========================================================================== */
 function initVerticalShowcase() {
   const sectionWrap = document.getElementById("vertical-showcase");
   const stage = document.getElementById("showcase-stage");
   const track = document.getElementById("showcase-track");
   const cards = Array.from(document.querySelectorAll(".showcase-card"));
-  const activeTitle = document.getElementById("showcase-active-title");
-  const activeCategory = document.getElementById("showcase-active-category");
-  const counterCurr = document.getElementById("showcase-counter-curr");
-  const railItems = Array.from(document.querySelectorAll(".rail-item"));
-  const cursorFollower = document.getElementById("showcase-cursor");
-  const modal = document.getElementById("showcase-modal");
-  const modalImg = document.getElementById("modal-img");
-  const modalTag = document.getElementById("modal-tag");
-  const modalTitle = document.getElementById("modal-title");
-  const modalCategory = document.getElementById("modal-category");
-  const modalDesc = document.getElementById("modal-desc");
-  const modalCloseBtn = document.getElementById("modal-close-btn");
-  const modalBackdrop = document.getElementById("modal-backdrop");
 
   if (!sectionWrap || !stage || !track || cards.length === 0) return;
 
   const totalCards = cards.length;
   let targetProgress = 0;
   let currentProgress = 0;
-  let prevActiveIndex = -1;
-
-  // Cursor tracking variables
-  let mouseX = window.innerWidth / 2;
-  let mouseY = window.innerHeight / 2;
-  let curCursorX = mouseX;
-  let curCursorY = mouseY;
-  let isCursorInside = false;
-
-  // Pre-store card metadata
-  const cardData = cards.map((card, idx) => ({
-    index: idx,
-    title: card.getAttribute("data-title") || `Exploration ${idx + 1}`,
-    category: card.getAttribute("data-category") || "CREATIVE SYSTEMS",
-    tag: card.querySelector(".card-corner-tag")?.textContent?.trim() || `0${idx + 1} // TELEMETRY`,
-    imgSrc: card.querySelector("img")?.getAttribute("src") || "",
-  }));
 
   // Measure sizing and card centers
   let cardCenters = [];
   function updateDimensions() {
     cardCenters = cards.map((card) => card.offsetTop + card.offsetHeight / 2);
   }
-  // Initial measure and delayed measure after images render
   updateDimensions();
   window.addEventListener("load", updateDimensions, { passive: true });
   window.addEventListener("resize", updateDimensions, { passive: true });
@@ -1118,125 +1087,6 @@ function initVerticalShowcase() {
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  // Camille Mormal Cursor Follower
-  stage.addEventListener("mouseenter", () => {
-    isCursorInside = true;
-    if (cursorFollower) cursorFollower.classList.add("visible");
-  });
-
-  stage.addEventListener("mouseleave", () => {
-    isCursorInside = false;
-    if (cursorFollower) {
-      cursorFollower.classList.remove("visible");
-      cursorFollower.classList.remove("is-card-hover");
-    }
-  });
-
-  stage.addEventListener("mousemove", (e) => {
-    const rect = stage.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-    if (!isCursorInside) {
-      isCursorInside = true;
-      if (cursorFollower) cursorFollower.classList.add("visible");
-    }
-  });
-
-  cards.forEach((card) => {
-    card.addEventListener("mouseenter", () => {
-      if (cursorFollower) cursorFollower.classList.add("is-card-hover");
-    });
-    card.addEventListener("mouseleave", () => {
-      if (cursorFollower) cursorFollower.classList.remove("is-card-hover");
-    });
-
-    // Lightbox open on card click or Enter key
-    card.addEventListener("click", () => openCardModal(card));
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openCardModal(card);
-      }
-    });
-  });
-
-  // Rail item click navigation
-  railItems.forEach((btn, idx) => {
-    btn.addEventListener("click", () => {
-      const totalScrollable = sectionWrap.offsetHeight - window.innerHeight;
-      const targetScroll = sectionWrap.offsetTop + (idx / (totalCards - 1)) * totalScrollable;
-      window.scrollTo({
-        top: targetScroll,
-        behavior: "smooth"
-      });
-    });
-  });
-
-  // Modal open / close handlers
-  function openCardModal(card) {
-    const idx = parseInt(card.getAttribute("data-index") || "0", 10);
-    const data = cardData[idx] || cardData[0];
-    if (!modal || !modalImg) return;
-
-    modalImg.src = data.imgSrc;
-    modalImg.alt = data.title;
-    if (modalTag) modalTag.textContent = data.tag;
-    if (modalTitle) modalTitle.textContent = data.title;
-    if (modalCategory) modalCategory.textContent = data.category;
-    if (modalDesc) {
-      modalDesc.textContent = `High-resolution render & visual asset for ${data.title}. Developed as part of Jophy's computational media and creative systems portfolio.`;
-    }
-
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-  }
-
-  function closeCardModal() {
-    if (!modal) return;
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-  }
-
-  if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeCardModal);
-  if (modalBackdrop) modalBackdrop.addEventListener("click", closeCardModal);
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal && modal.classList.contains("open")) {
-      closeCardModal();
-    }
-  });
-
-  // Update HUD text on slide change
-  function updateActiveHUD(newIndex) {
-    if (newIndex === prevActiveIndex) return;
-    prevActiveIndex = newIndex;
-    const data = cardData[newIndex];
-    if (!data) return;
-
-    if (counterCurr) {
-      counterCurr.textContent = String(newIndex + 1).padStart(2, "0");
-    }
-
-    if (activeTitle) {
-      activeTitle.classList.add("transitioning");
-      if (activeCategory) activeCategory.classList.add("transitioning");
-
-      setTimeout(() => {
-        if (activeTitle) activeTitle.textContent = data.title;
-        if (activeCategory) activeCategory.textContent = data.category;
-        if (activeTitle) activeTitle.classList.remove("transitioning");
-        if (activeCategory) activeCategory.classList.remove("transitioning");
-      }, 140);
-    }
-
-    railItems.forEach((btn, idx) => {
-      btn.classList.toggle("active", idx === newIndex);
-    });
-
-    cards.forEach((card, idx) => {
-      card.classList.toggle("active", idx === newIndex);
-    });
-  }
-
   // Animation Loop (lerp inertia & transforms)
   function animateShowcase() {
     // Check if section is anywhere near viewport
@@ -1244,7 +1094,6 @@ function initVerticalShowcase() {
     const isInView = rect.bottom > -200 && rect.top < window.innerHeight + 200;
 
     if (isInView) {
-      // Refresh dimensions if empty
       if (cardCenters.length === 0 || cardCenters[0] === 0) {
         updateDimensions();
       }
@@ -1253,7 +1102,6 @@ function initVerticalShowcase() {
       currentProgress += (targetProgress - currentProgress) * 0.12;
 
       // Exact center alignment:
-      // Map progress [0..1] between center of Card 0 and center of Card (totalCards - 1)
       const startCenter = cardCenters[0] || (cards[0].offsetHeight / 2);
       const endCenter = cardCenters[totalCards - 1] || (startCenter + (totalCards - 1) * 460);
       const targetCenter = startCenter + currentProgress * (endCenter - startCenter);
@@ -1262,14 +1110,15 @@ function initVerticalShowcase() {
 
       track.style.transform = `translate3d(-50%, ${trackDisplacement.toFixed(2)}px, 0)`;
 
-      // Active card determination
+      // Active card index
       const exactIndexFloat = currentProgress * (totalCards - 1);
       const computedActiveIdx = Math.max(0, Math.min(totalCards - 1, Math.round(exactIndexFloat)));
-      updateActiveHUD(computedActiveIdx);
 
       // Card transforms: center-focus scaling, opacity, and Camille Mormal scatter convergence
       for (let i = 0; i < totalCards; i++) {
         const card = cards[i];
+        card.classList.toggle("active", i === computedActiveIdx);
+
         const distFromCenter = (i - exactIndexFloat); // 0 when centered, +/-1, +/-2...
         const absDist = Math.abs(distFromCenter);
 
@@ -1288,13 +1137,6 @@ function initVerticalShowcase() {
         card.style.opacity = opacity.toFixed(3);
         card.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : "none";
       }
-
-      // Cursor follower lerp
-      if (cursorFollower && isCursorInside) {
-        curCursorX += (mouseX - curCursorX) * 0.2;
-        curCursorY += (mouseY - curCursorY) * 0.2;
-        cursorFollower.style.transform = `translate3d(${curCursorX.toFixed(1)}px, ${curCursorY.toFixed(1)}px, 0)`;
-      }
     }
 
     requestAnimationFrame(animateShowcase);
@@ -1302,4 +1144,5 @@ function initVerticalShowcase() {
 
   requestAnimationFrame(animateShowcase);
 }
+
 
