@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initBootSequence();
   initHeroTypewriter();
   initWorkingSection();
-  initColorGridShowcase();
+  initVerticalImageTrack();
   initCoordinatesTracker();
   initQueueAndFeedInteractions();
   initProjectFilters();
@@ -1053,99 +1053,104 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   3-COLUMN COUNTER-SCROLL COLOR GRID SHOWCASE
-   Middle column goes UP, Side columns go DOWN.
-   Max of 3 cards shown vertically per column at a time; cards fade in/out.
+   VERTICAL SLIDING IMAGE TRACK (Hyperplexed / Camille Mormal Vertical)
    ========================================================================== */
-function initColorGridShowcase() {
-  const section = document.getElementById("grid-showcase");
-  const stage = document.getElementById("grid-stage");
-  const viewport = document.getElementById("grid-viewport");
-  const colLeft = document.getElementById("col-left");
-  const colMid = document.getElementById("col-mid");
-  const colRight = document.getElementById("col-right");
-  const allCards = Array.from(section ? section.querySelectorAll(".color-card") : []);
+function initVerticalImageTrack() {
+  const track = document.getElementById("image-track");
+  const sectionWrap = document.getElementById("vertical-showcase");
+  const stage = document.getElementById("track-stage");
 
-  if (!section || !stage || !viewport || !colLeft || !colMid || !colRight || allCards.length === 0) return;
+  if (!track || !sectionWrap || !stage) return;
 
-  let targetProgress = 0;
-  let currentProgress = 0;
+  const images = Array.from(track.getElementsByClassName("image"));
 
-  // Scroll listener to compute progress [0, 1] through the sticky section
-  function onScroll() {
-    const rect = section.getBoundingClientRect();
-    const totalScrollable = section.offsetHeight - window.innerHeight;
-    if (totalScrollable <= 0) return;
-    const scrolled = -rect.top;
-    targetProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+  function updateTrackAnimation(nextPercentage) {
+    track.dataset.percentage = nextPercentage;
+
+    track.animate(
+      {
+        transform: `translate(-50%, ${nextPercentage}%)`,
+      },
+      { duration: 1200, fill: "forwards" }
+    );
+
+    for (const image of images) {
+      image.animate(
+        {
+          objectPosition: `center ${100 + nextPercentage}%`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
   }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
 
-  // Animation Loop with lerp physics and card fade logic
-  function animateCounterScroll() {
-    const rect = section.getBoundingClientRect();
-    const isInView = rect.bottom > -100 && rect.top < window.innerHeight + 100;
+  // Hyperplexed Drag Handlers (Vertical Y)
+  const handleOnDown = (e) => {
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    track.dataset.mouseDownAt = clientY;
+  };
 
-    if (isInView) {
-      // Smooth lerp inertia
-      currentProgress += (targetProgress - currentProgress) * 0.1;
+  const handleOnUp = () => {
+    track.dataset.mouseDownAt = "0";
+    track.dataset.prevPercentage = track.dataset.percentage || "0";
+  };
 
-      // Measure card pitch (height + gap) from a sample card in left column
-      const sampleCard = colLeft.querySelector(".color-card");
-      if (sampleCard) {
-        const cardHeight = sampleCard.offsetHeight;
-        const nextCard = sampleCard.nextElementSibling;
-        const gap = nextCard ? (nextCard.offsetTop - sampleCard.offsetTop - cardHeight) : 24;
-        const pitch = cardHeight + gap;
+  const handleOnMove = (e) => {
+    if (!track.dataset.mouseDownAt || track.dataset.mouseDownAt === "0") return;
 
-        // With 6 cards per column and 3 visible cards in the viewport:
-        // Travel range to smoothly transition through all cards:
-        const maxTravel = 3 * pitch;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const mouseDelta = parseFloat(track.dataset.mouseDownAt) - clientY;
+    const maxDelta = window.innerHeight / 2;
 
-        // Scrolling DOWN:
-        // - colLeft & colRight go DOWN: from -maxTravel/2 to +maxTravel/2
-        // - colMid goes UP: from +maxTravel/2 to -maxTravel/2
-        const sideY = (currentProgress - 0.5) * maxTravel;
-        const midY = (0.5 - currentProgress) * maxTravel;
+    const percentage = (mouseDelta / maxDelta) * -100;
+    const nextPercentageUnconstrained =
+      parseFloat(track.dataset.prevPercentage || "0") + percentage;
+    const nextPercentage = Math.max(
+      Math.min(nextPercentageUnconstrained, 0),
+      -100
+    );
 
-        colLeft.style.transform = `translate3d(0, ${sideY.toFixed(2)}px, 0)`;
-        colRight.style.transform = `translate3d(0, ${sideY.toFixed(2)}px, 0)`;
-        colMid.style.transform = `translate3d(0, ${midY.toFixed(2)}px, 0)`;
+    updateTrackAnimation(nextPercentage);
+  };
 
-        // Calculate card opacity based on distance from viewport center:
-        // "theres like a max of 3 shown vertically per column at a time so when it goes past that a new one like fades in that row"
-        const viewportRect = viewport.getBoundingClientRect();
-        const vCenter = viewportRect.top + viewportRect.height / 2;
+  stage.addEventListener("mousedown", handleOnDown);
+  stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
+  window.addEventListener("mouseup", handleOnUp);
+  window.addEventListener("touchend", handleOnUp);
+  window.addEventListener("mousemove", handleOnMove);
+  window.addEventListener("touchmove", (e) => handleOnMove(e), { passive: true });
 
-        const innerBoundary = 1.12 * pitch;
-        const outerBoundary = 1.52 * pitch;
+  // Page Scroll Integration
+  function onScroll() {
+    // If user is currently dragging with mouse, let drag have priority
+    if (track.dataset.mouseDownAt && track.dataset.mouseDownAt !== "0") return;
 
-        for (let i = 0; i < allCards.length; i++) {
-          const card = allCards[i];
-          const cardRect = card.getBoundingClientRect();
-          const cardCenter = cardRect.top + cardRect.height / 2;
-          const dist = Math.abs(cardCenter - vCenter);
+    const rect = sectionWrap.getBoundingClientRect();
+    const totalScrollable = sectionWrap.offsetHeight - window.innerHeight;
+    if (totalScrollable <= 0) return;
 
-          let opacity = 0;
-          if (dist <= innerBoundary) {
-            opacity = 1;
-          } else if (dist < outerBoundary) {
-            opacity = (outerBoundary - dist) / (outerBoundary - innerBoundary);
-          } else {
-            opacity = 0;
-          }
-
-          card.style.opacity = opacity.toFixed(3);
-        }
+    if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
+      const scrollProgress = Math.max(0, Math.min(1, -rect.top / totalScrollable));
+      const nextPercentage = -scrollProgress * 100;
+      track.dataset.prevPercentage = nextPercentage;
+      updateTrackAnimation(nextPercentage);
+    } else if (rect.top > 0) {
+      if (parseFloat(track.dataset.percentage || "0") !== 0) {
+        track.dataset.prevPercentage = "0";
+        updateTrackAnimation(0);
+      }
+    } else if (rect.bottom < window.innerHeight) {
+      if (parseFloat(track.dataset.percentage || "0") !== -100) {
+        track.dataset.prevPercentage = "-100";
+        updateTrackAnimation(-100);
       }
     }
-
-    requestAnimationFrame(animateCounterScroll);
   }
 
-  requestAnimationFrame(animateCounterScroll);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 }
+
 
 
 
