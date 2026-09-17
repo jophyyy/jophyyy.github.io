@@ -351,24 +351,24 @@ function initBootSequence() {
   });
 
   const scriptSteps = [
-    { type: "cmd", text: "depththread --init --layer 03", delayAfter: 300 },
-    { type: "output", text: "[kernel] loading workflow primitives: layers, signals, drift buffers... ok", delayAfter: 200 },
-    { type: "cmd", text: "depth status", delayAfter: 320 },
-    { type: "info", text: "> DEPTHTHREAD WORKFLOW OS v4.3.0", delayAfter: 160 },
-    { type: "info", text: "> 03 active layers detected across 07 allocated partitions.", delayAfter: 200 },
+    { type: "cmd", text: "jophy --init --portfolio", delayAfter: 300 },
+    { type: "output", text: "[kernel] loading portfolio primitives: CIS 1600, CIS 1200, personal projects... ok", delayAfter: 200 },
+    { type: "cmd", text: "jophy status", delayAfter: 320 },
+    { type: "info", text: "> JOPHY'S PERSONAL v4.3.0", delayAfter: 160 },
+    { type: "info", text: "> 03 active layers detected: CIS 1600, CIS 1200, Roblox & Projects.", delayAfter: 200 },
     { type: "prompt-question", prompt: "Initialize telemetry signal feed and queue daemon? (Y/n)", answer: "Y", delayAfter: 300 },
     { type: "success", text: "✔ Telemetry feed connected at 60 FPS (all systems nominal).", delayAfter: 200 },
     { type: "prompt-question", prompt: "Stream particle wave point cloud across Layer 03? (Y/n)", answer: "y", delayAfter: 300 },
     { type: "output", text: "  [wave-compositor] 1600 carbon points calibrated on GPU raster canvas.", delayAfter: 180 },
     { type: "prompt-question", prompt: "Run layer sync verification sequence? (Y/n)", answer: "y", delayAfter: 280 },
-    { type: "output", text: "  ├── #0421 [depth 03] align the layers ... synced", delayAfter: 140 },
-    { type: "output", text: "  ├── #0417 [depth 02] push the line    ... synced", delayAfter: 140 },
-    { type: "output", text: "  ├── #0412 [depth 01] sync the drift   ... waiting", delayAfter: 140 },
-    { type: "output", text: "  └── #0409 [depth 00] light the signal ... ready", delayAfter: 180 },
+    { type: "output", text: "  ├── #0421 [discrete] CIS 1600 algorithms ... synced", delayAfter: 140 },
+    { type: "output", text: "  ├── #0417 [systems]  CIS 1200 runtime    ... synced", delayAfter: 140 },
+    { type: "output", text: "  ├── #0412 [projects] roblox game engine  ... synced", delayAfter: 140 },
+    { type: "output", text: "  └── #0409 [personal] interactive portfolio ... ready", delayAfter: 180 },
     { type: "prompt-question", prompt: "Ready to mount HUD telemetry interface? (Y/n)", answer: "y", delayAfter: 320 },
-    { type: "success", text: "  DEPTHTHREAD OS online. All systems nominal.", delayAfter: 200 },
-    { type: "output", text: "  ➜ Protocol: http://localhost:5173/workflow-os", delayAfter: 150 },
-    { type: "info", text: "  ➜ Entering workspace...", delayAfter: 550 }
+    { type: "success", text: "  JOPHY'S PERSONAL online. All systems nominal.", delayAfter: 200 },
+    { type: "output", text: "  ➜ Protocol: https://jophyyy.github.io", delayAfter: 150 },
+    { type: "info", text: "  ➜ Launching Jophy's Personal...", delayAfter: 550 }
   ];
 
   let stepIdx = 0;
@@ -392,13 +392,13 @@ function initBootSequence() {
 
     if (step.type === "cmd") {
       if (promptPrefix) {
-        promptPrefix.innerHTML = '<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/workflow-os</span>$&nbsp;';
+        promptPrefix.innerHTML = '<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/jophy-personal</span>$&nbsp;';
       }
       typeCommand(step.text, () => {
         if (isSkipped) return;
         const line = document.createElement("div");
         line.className = "boot-line command";
-        line.innerHTML = `<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/workflow-os</span>$ ${step.text}`;
+        line.innerHTML = `<span class="mac-prompt-user">jophy@macbook</span>:<span class="mac-prompt-dir">~/jophy-personal</span>$ ${step.text}`;
         bootLinesContainer.appendChild(line);
         currentTyping.textContent = "";
         scrollConsole();
@@ -724,7 +724,7 @@ function initInteractiveCLI() {
     switch (cmd) {
       case "help":
         appendHistoryLine(`
-          <strong>Depththread Commands:</strong><br>
+          <strong>Jophy's Personal Commands:</strong><br>
           &nbsp;&nbsp;<span class="cmd-highlight">wave</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Trigger particle wave pulse<br>
           &nbsp;&nbsp;<span class="cmd-highlight">signal</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Push live telemetry signal<br>
           &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Print system status<br>
@@ -748,11 +748,11 @@ function initInteractiveCLI() {
 
       case "status":
         appendHistoryLine(`
-          <strong>Depththread Telemetry:</strong><br>
-          • System status: all systems nominal (5/5 bars)<br>
-          • Active layers: 03 / 07<br>
+          <strong>Jophy's Personal Status:</strong><br>
+          • Courses: CIS 1600 (Discrete Math), CIS 1200 (Prog Lang & Data Structures)<br>
+          • Projects: Roblox Game, Interactive Web OS<br>
           • Particle buffer: 2100 points @ 60 FPS<br>
-          • Queue depth: 4 tasks tracking
+          • Status: All systems nominal (5/5 bars)
         `);
         break;
 
