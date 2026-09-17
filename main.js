@@ -1264,15 +1264,59 @@ function initVerticalImageTrack() {
   window.addEventListener("touchmove", handleOnMove, { passive: false });
 
   // 2. Mouse Wheel / Trackpad Scroll on Stage
+  // Only capture wheel scrubbing if the showcase is centered on the webpage.
+  // If most of the screen is still in another section, let the mouse wheel scroll the entire page.
+  const showcaseSection = document.getElementById("vertical-showcase");
+  let isCentering = false;
+  let centerTimer = null;
+
+  function isShowcaseCentered() {
+    if (!showcaseSection) return true;
+    const rect = showcaseSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+
+    // Center offset between the showcase center and viewport center
+    const sectionCenter = rect.top + rect.height / 2;
+    const viewportCenter = vh / 2;
+    const centerDiff = Math.abs(sectionCenter - viewportCenter);
+
+    // Centered when the section center is within 22% of viewport center (dominates the screen)
+    return centerDiff <= (vh * 0.22);
+  }
+
+  function centerShowcaseOnPage() {
+    if (!showcaseSection || isCentering) return;
+    const rect = showcaseSection.getBoundingClientRect();
+    if (Math.abs(rect.top) > 4) {
+      isCentering = true;
+      const targetScroll = (window.pageYOffset !== undefined ? window.pageYOffset : window.scrollY) + rect.top;
+      window.scrollTo({
+        top: targetScroll,
+        behavior: "smooth"
+      });
+      clearTimeout(centerTimer);
+      centerTimer = setTimeout(() => {
+        isCentering = false;
+      }, 400);
+    }
+  }
+
   stage.addEventListener(
     "wheel",
     (e) => {
       const delta = -e.deltaY * 0.08;
       const target = currentPercentage + delta;
 
-      // When within bounds, scroll moves the tracks smoothly
+      // If the showcase is NOT centered on the webpage (i.e. majority of screen is in another section),
+      // do NOT capture wheel: allow the entire page to scroll naturally with the mouse.
+      if (!isShowcaseCentered()) {
+        return;
+      }
+
+      // When centered and within track boundaries, scrub the vertical tracks smoothly
       if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
         e.preventDefault();
+        centerShowcaseOnPage();
         applyTrackPosition(target);
         prevPercentage = currentPercentage;
       }
