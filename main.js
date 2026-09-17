@@ -1063,13 +1063,24 @@ function initVerticalImageTrack() {
   if (!track || !sectionWrap || !stage) return;
 
   const images = Array.from(track.getElementsByClassName("image"));
+  let currentPercentage = 0;
+  let isDragging = false;
+  let startY = 0;
+  let prevPercentage = 0;
 
-  function updateTrackAnimation(nextPercentage) {
-    track.dataset.percentage = nextPercentage;
+  // Track position formula:
+  // When percentage = 0: Image 1 is centered in the viewport
+  // When percentage = -100: Image 8 is centered in the viewport
+  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2%
+  function applyTrackPosition(percentage) {
+    currentPercentage = Math.max(Math.min(percentage, 0), -100);
+    track.dataset.percentage = currentPercentage;
+
+    const trackY = -5.8 + (currentPercentage * 0.884);
 
     track.animate(
       {
-        transform: `translate(-50%, ${nextPercentage}%)`,
+        transform: `translate(-50%, ${trackY.toFixed(3)}%)`,
       },
       { duration: 1200, fill: "forwards" }
     );
@@ -1077,79 +1088,71 @@ function initVerticalImageTrack() {
     for (const image of images) {
       image.animate(
         {
-          objectPosition: `center ${100 + nextPercentage}%`,
+          objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
         },
         { duration: 1200, fill: "forwards" }
       );
     }
   }
 
-  // Hyperplexed Drag Handlers (Vertical Y)
+  // Initial call so Image 1 is centered on load
+  applyTrackPosition(0);
+
+  // 1. Mouse & Touch Dragging (Vertical Y)
   const handleOnDown = (e) => {
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    track.dataset.mouseDownAt = clientY;
+    isDragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    prevPercentage = currentPercentage;
   };
 
   const handleOnUp = () => {
-    track.dataset.mouseDownAt = "0";
-    track.dataset.prevPercentage = track.dataset.percentage || "0";
+    if (!isDragging) return;
+    isDragging = false;
+    prevPercentage = currentPercentage;
   };
 
   const handleOnMove = (e) => {
-    if (!track.dataset.mouseDownAt || track.dataset.mouseDownAt === "0") return;
+    if (!isDragging) return;
 
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const mouseDelta = parseFloat(track.dataset.mouseDownAt) - clientY;
-    const maxDelta = window.innerHeight / 2;
+    const mouseDelta = startY - clientY;
+    const maxDelta = window.innerHeight * 0.6;
 
     const percentage = (mouseDelta / maxDelta) * -100;
-    const nextPercentageUnconstrained =
-      parseFloat(track.dataset.prevPercentage || "0") + percentage;
-    const nextPercentage = Math.max(
-      Math.min(nextPercentageUnconstrained, 0),
-      -100
-    );
+    const nextPercentage = prevPercentage + percentage;
 
-    updateTrackAnimation(nextPercentage);
+    applyTrackPosition(nextPercentage);
   };
 
-  stage.addEventListener("mousedown", handleOnDown);
+  stage.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    handleOnDown(e);
+  });
   stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
+
   window.addEventListener("mouseup", handleOnUp);
   window.addEventListener("touchend", handleOnUp);
   window.addEventListener("mousemove", handleOnMove);
   window.addEventListener("touchmove", (e) => handleOnMove(e), { passive: true });
 
-  // Page Scroll Integration
-  function onScroll() {
-    // If user is currently dragging with mouse, let drag have priority
-    if (track.dataset.mouseDownAt && track.dataset.mouseDownAt !== "0") return;
+  // 2. Mouse Wheel / Trackpad Scroll on Stage
+  stage.addEventListener(
+    "wheel",
+    (e) => {
+      const delta = -e.deltaY * 0.08;
+      const target = currentPercentage + delta;
 
-    const rect = sectionWrap.getBoundingClientRect();
-    const totalScrollable = sectionWrap.offsetHeight - window.innerHeight;
-    if (totalScrollable <= 0) return;
-
-    if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
-      const scrollProgress = Math.max(0, Math.min(1, -rect.top / totalScrollable));
-      const nextPercentage = -scrollProgress * 100;
-      track.dataset.prevPercentage = nextPercentage;
-      updateTrackAnimation(nextPercentage);
-    } else if (rect.top > 0) {
-      if (parseFloat(track.dataset.percentage || "0") !== 0) {
-        track.dataset.prevPercentage = "0";
-        updateTrackAnimation(0);
+      // When within bounds, scroll moves the track smoothly
+      if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
+        e.preventDefault();
+        applyTrackPosition(target);
+        prevPercentage = currentPercentage;
       }
-    } else if (rect.bottom < window.innerHeight) {
-      if (parseFloat(track.dataset.percentage || "0") !== -100) {
-        track.dataset.prevPercentage = "-100";
-        updateTrackAnimation(-100);
-      }
-    }
-  }
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+    },
+    { passive: false }
+  );
 }
+
 
 
 
