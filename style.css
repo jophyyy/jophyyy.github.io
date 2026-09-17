@@ -257,6 +257,18 @@ body {
 .boot-line.info {
   color: #a1a1aa;
 }
+.boot-line.question {
+  color: #f4f4f5;
+  font-weight: 500;
+}
+.boot-line.question .q-icon {
+  color: #10b981;
+  font-weight: 700;
+}
+.boot-line.question .q-ans {
+  color: #ffffff;
+  font-weight: 700;
+}
 
 .prompt-user {
   color: #e4e4e7;

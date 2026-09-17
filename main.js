@@ -22,22 +22,16 @@ function initBootSequence() {
   const skipBtn = document.getElementById("skip-boot-btn");
   const bootLinesContainer = document.getElementById("boot-lines");
   const currentTyping = document.getElementById("current-typing");
+  const promptPrefix = document.getElementById("prompt-prefix");
+  const bootConsole = document.getElementById("boot-console");
 
   if (!bootTerminal) return;
-
-  const hasVisited = sessionStorage.getItem("boot_complete");
-  if (hasVisited === "true") {
-    bootTerminal.classList.add("finished");
-    setTimeout(() => { bootTerminal.style.display = "none"; }, 300);
-    return;
-  }
 
   let isSkipped = false;
 
   function finishBoot() {
     if (isSkipped) return;
     isSkipped = true;
-    sessionStorage.setItem("boot_complete", "true");
     bootTerminal.classList.add("finished");
     setTimeout(() => {
       bootTerminal.style.display = "none";
@@ -47,14 +41,34 @@ function initBootSequence() {
   skipBtn?.addEventListener("click", finishBoot);
 
   const scriptSteps = [
-    { type: "cmd", text: "test --init", delayAfter: 300 },
-    { type: "output", text: "Initializing testing server...", delayAfter: 250 },
-    { type: "cmd", text: "test --status", delayAfter: 300 },
-    { type: "output", text: "Testing server active (60 FPS)", delayAfter: 200 },
-    { type: "success", text: "Testing ready.", delayAfter: 300 }
+    { type: "cmd", text: "git status", delayAfter: 350 },
+    { type: "output", text: "On branch main. Your branch is up to date with 'origin/main'.", delayAfter: 280 },
+    { type: "cmd", text: "npm run dev -- --host", delayAfter: 450 },
+    { type: "info", text: "> jophy-test-server@1.0.0 dev", delayAfter: 200 },
+    { type: "info", text: "> vite --host", delayAfter: 300 },
+    { type: "prompt-question", prompt: "Initialize testing sandbox environment? (Y/n)", answer: "Y", delayAfter: 350 },
+    { type: "success", text: "✔ Testing sandbox environment initialized.", delayAfter: 250 },
+    { type: "prompt-question", prompt: "Enable 60 FPS hardware acceleration & GPU compositing? (Y/n)", answer: "y", delayAfter: 350 },
+    { type: "output", text: "  [css-gpu] WebGL & CSS compositing layers: enabled (60fps target)", delayAfter: 250 },
+    { type: "prompt-question", prompt: "Run animation test suite before mounting? (Y/n)", answer: "y", delayAfter: 350 },
+    { type: "output", text: "  ├── [1/4] Checking DOM nodes and responsive layouts... ok", delayAfter: 200 },
+    { type: "output", text: "  ├── [2/4] Initializing cursor spotlight coordinate tracker... ok", delayAfter: 200 },
+    { type: "output", text: "  ├── [3/4] Calibrating horizontal momentum drag physics... ok", delayAfter: 200 },
+    { type: "output", text: "  └── [4/4] Mounting interactive CLI drawer state machine... ok", delayAfter: 250 },
+    { type: "prompt-question", prompt: "Ready to mount DOM and start server? (Y/n)", answer: "y", delayAfter: 400 },
+    { type: "success", text: "  VITE v5.4.2 ready in 340 ms", delayAfter: 250 },
+    { type: "output", text: "  ➜ Local:   http://localhost:5173/", delayAfter: 180 },
+    { type: "output", text: "  ➜ Network: http://192.168.1.42:5173/", delayAfter: 220 },
+    { type: "info", text: "  ➜ Launching Jophy Test Website...", delayAfter: 750 }
   ];
 
   let stepIdx = 0;
+
+  function scrollConsole() {
+    if (bootConsole) {
+      bootConsole.scrollTop = bootConsole.scrollHeight;
+    }
+  }
 
   function runNextStep() {
     if (isSkipped) return;
@@ -68,6 +82,9 @@ function initBootSequence() {
     stepIdx++;
 
     if (step.type === "cmd") {
+      if (promptPrefix) {
+        promptPrefix.innerHTML = '<span class="prompt-user">test</span>:<span class="prompt-dir">~/testing</span>$&nbsp;';
+      }
       typeCommand(step.text, () => {
         if (isSkipped) return;
         const line = document.createElement("div");
@@ -75,35 +92,70 @@ function initBootSequence() {
         line.innerHTML = `<span class="prompt-user">test</span>:<span class="prompt-dir">~/testing</span>$ ${step.text}`;
         bootLinesContainer.appendChild(line);
         currentTyping.textContent = "";
+        scrollConsole();
         setTimeout(runNextStep, step.delayAfter || 200);
-      });
+      }, 25);
+    } else if (step.type === "prompt-question") {
+      if (promptPrefix) {
+        promptPrefix.innerHTML = '<span class="q-icon">?</span>&nbsp;';
+      }
+      currentTyping.textContent = step.prompt + " ";
+      scrollConsole();
+
+      setTimeout(() => {
+        if (isSkipped) return;
+        typeCommand(step.answer, () => {
+          if (isSkipped) return;
+          const line = document.createElement("div");
+          line.className = "boot-line question";
+          line.innerHTML = `<span class="q-icon">?</span> ${step.prompt} <span class="q-ans">${step.answer}</span>`;
+          bootLinesContainer.appendChild(line);
+          currentTyping.textContent = "";
+          scrollConsole();
+          setTimeout(runNextStep, step.delayAfter || 300);
+        }, 60);
+      }, 280);
     } else {
       const line = document.createElement("div");
       line.className = `boot-line ${step.type}`;
       line.textContent = step.text;
       bootLinesContainer.appendChild(line);
-      const bootConsole = document.getElementById("boot-console");
-      if (bootConsole) bootConsole.scrollTop = bootConsole.scrollHeight;
+      scrollConsole();
       setTimeout(runNextStep, step.delayAfter || 200);
     }
   }
 
-  function typeCommand(text, callback) {
+  function typeCommand(text, callback, speed = 25) {
     let charIdx = 0;
-    currentTyping.textContent = "";
+    if (promptPrefix && promptPrefix.innerHTML.includes("q-icon")) {
+      // Keep question prompt text
+    } else {
+      currentTyping.textContent = "";
+    }
 
     function typeChar() {
       if (isSkipped) return;
       if (charIdx < text.length) {
         currentTyping.textContent += text.charAt(charIdx);
         charIdx++;
-        setTimeout(typeChar, 30);
+        setTimeout(typeChar, speed + Math.random() * 15);
       } else {
         setTimeout(callback, 80);
       }
     }
     typeChar();
   }
+
+  // Allow re-triggering the startup animation via CLI or devtools
+  window.rebootSequence = function() {
+    isSkipped = false;
+    stepIdx = 0;
+    bootLinesContainer.innerHTML = "";
+    currentTyping.textContent = "";
+    bootTerminal.style.display = "flex";
+    bootTerminal.classList.remove("finished");
+    runNextStep();
+  };
 
   setTimeout(runNextStep, 250);
 }
@@ -362,10 +414,17 @@ function initInteractiveCLI() {
         appendHistoryLine(`
           Commands:<br>
           &nbsp;&nbsp;<span class="cmd-highlight">test</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Run test check<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">reboot</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Re-run startup animation<br>
           &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Testing server status<br>
           &nbsp;&nbsp;<span class="cmd-highlight">clear</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Clear console<br>
           &nbsp;&nbsp;<span class="cmd-highlight">exit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Close drawer
         `);
+        break;
+
+      case "reboot":
+      case "boot":
+        toggleDrawer(false);
+        if (window.rebootSequence) window.rebootSequence();
         break;
 
       case "test":
