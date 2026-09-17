@@ -268,14 +268,35 @@ body.depth-body {
 
 .pixel-headline {
   font-family: var(--font-pixel);
-  font-size: clamp(3.6rem, 7.8vw, 6.6rem);
+  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
   font-weight: 700;
-  line-height: 0.92;
-  letter-spacing: -0.02em;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
   color: var(--text-pixel);
   text-transform: lowercase;
   margin: 0;
   user-select: none;
+  min-height: 2.3em;
+}
+
+.hero-type-caret {
+  display: inline-block;
+  width: 0.3em;
+  height: 0.68em;
+  background-color: var(--amber);
+  vertical-align: baseline;
+  margin-left: 6px;
+  animation: heroCaretBlink 0.9s step-end infinite;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.45);
+}
+
+.hero-type-caret.finished {
+  animation: heroCaretBlink 1.4s step-end infinite;
+}
+
+@keyframes heroCaretBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .amber-period {

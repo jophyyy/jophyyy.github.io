@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initParticleWave();
   initLivingInkWallpaper();
   initBootSequence();
+  initHeroTypewriter();
   initCoordinatesTracker();
   initQueueAndFeedInteractions();
   initProjectFilters();
@@ -339,6 +340,9 @@ function initBootSequence() {
     activeTimeouts = [];
 
     macDesktop.classList.add("finished");
+    if (window.startHeroTypewriter) {
+      window.startHeroTypewriter();
+    }
     setTimeout(() => {
       macDesktop.style.display = "none";
     }, 550);
@@ -795,4 +799,69 @@ function initSequenceActions() {
       startBtn.style.transform = "";
     }, 150);
   });
+}
+
+/* ==========================================================================
+   8. HERO TYPEWRITER ANIMATION ("hello! welcome to jophy's home...")
+   ========================================================================== */
+function initHeroTypewriter() {
+  const target = document.getElementById("hero-type-target");
+  const caret = document.querySelector(".hero-type-caret");
+  if (!target) return;
+
+  const textSegments = [
+    { text: "hello!", pauseAfter: 520, newline: true },
+    { text: "welcome to jophy's home...", pauseAfter: 0, newline: false }
+  ];
+
+  let segmentIdx = 0;
+  let charIdx = 0;
+  let isTyping = false;
+  let typeTimer = null;
+  let typedHTML = "";
+
+  function typeChar() {
+    if (segmentIdx >= textSegments.length) {
+      if (caret) caret.classList.add("finished");
+      return;
+    }
+
+    const currentSegment = textSegments[segmentIdx];
+    if (charIdx < currentSegment.text.length) {
+      typedHTML += currentSegment.text[charIdx];
+      target.innerHTML = typedHTML;
+      charIdx++;
+      typeTimer = setTimeout(typeChar, 38 + Math.random() * 26);
+    } else {
+      segmentIdx++;
+      charIdx = 0;
+      if (currentSegment.newline) {
+        typedHTML += "<br>";
+        target.innerHTML = typedHTML;
+      }
+      typeTimer = setTimeout(typeChar, currentSegment.pauseAfter);
+    }
+  }
+
+  function startTyping() {
+    if (isTyping) return;
+    isTyping = true;
+    clearTimeout(typeTimer);
+    typedHTML = "";
+    target.innerHTML = "";
+    segmentIdx = 0;
+    charIdx = 0;
+    if (caret) caret.classList.remove("finished");
+    setTimeout(typeChar, 320);
+  }
+
+  window.startHeroTypewriter = function() {
+    isTyping = false;
+    startTyping();
+  };
+
+  const macDesktop = document.getElementById("mac-boot-desktop");
+  if (!macDesktop || macDesktop.style.display === "none" || macDesktop.classList.contains("finished")) {
+    startTyping();
+  }
 }
