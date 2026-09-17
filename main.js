@@ -1104,246 +1104,149 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SLIDING IMAGE TRACK (Natural Zoom-In, 3 Tracks, Zoom-Out)
+   VERTICAL SLIDING IMAGE TRACK (3 Simultaneous Counter-Scrolling Columns)
    ========================================================================== */
 function initVerticalImageTrack() {
-  const sectionWrap = document.getElementById("vertical-showcase");
-  const stage = document.getElementById("track-stage");
   const trackMid = document.getElementById("image-track-mid");
   const trackLeft = document.getElementById("image-track-left");
   const trackRight = document.getElementById("image-track-right");
+  const stage = document.getElementById("track-stage");
 
-  if (!sectionWrap || !stage || !trackMid) return;
+  if (!trackMid || !stage) return;
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
   const imagesRight = trackRight ? Array.from(trackRight.getElementsByClassName("image")) : [];
   const imagesSides = [...imagesLeft, ...imagesRight];
 
-  let targetProgress = 0; // 0.0 to 1.0
-  let currentProgress = 0; // 0.0 to 1.0
-  let isAnimating = false;
+  let currentPercentage = 0;
+  let isDragging = false;
+  let startY = 0;
+  let prevPercentage = 0;
 
-  function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function getDimensions() {
-    const isMobile = window.innerWidth <= 768;
-    return {
-      minScale: isMobile ? 0.86 : 0.80,
-      maxRadius: isMobile ? 18 : 28,
-      maxShadow: 0.25,
-    };
-  }
-
-  function renderFrame(p) {
-    const { minScale, maxRadius, maxShadow } = getDimensions();
-
-    let scale = 1.0;
-    let radius = 0;
-    let shadow = 0;
-    let colProgress = 0;
-
-    if (p <= 0) {
-      scale = minScale;
-      radius = maxRadius;
-      shadow = maxShadow;
-      colProgress = 0;
-    } else if (p < 0.20) {
-      // Phase 1: Zoom In from minScale to 1.0 (Expands so that's all you can see)
-      const t = p / 0.20;
-      const s = easeInOutCubic(t);
-      scale = minScale + (1.0 - minScale) * s;
-      radius = maxRadius * (1 - s);
-      shadow = maxShadow * (1 - s);
-      colProgress = 0;
-    } else if (p <= 0.80) {
-      // Phase 2: Full Screen & Scrub 3 Columns
-      scale = 1.0;
-      radius = 0;
-      shadow = 0;
-      colProgress = (p - 0.20) / (0.80 - 0.20);
-    } else if (p < 1.0) {
-      // Phase 3: Zoom Out from 1.0 to minScale (Contracts back before exiting)
-      const t = (p - 0.80) / (1.0 - 0.80);
-      const s = easeInOutCubic(t);
-      scale = 1.0 - (1.0 - minScale) * s;
-      radius = maxRadius * s;
-      shadow = maxShadow * s;
-      colProgress = 1.0;
-    } else {
-      scale = minScale;
-      radius = maxRadius;
-      shadow = maxShadow;
-      colProgress = 1.0;
-    }
-
-    // Apply stage zoom and framing
-    stage.style.transform = `scale(${scale.toFixed(4)})`;
-    stage.style.borderRadius = `${radius.toFixed(1)}px`;
-    stage.style.boxShadow = shadow > 0.005 
-      ? `0 30px 80px -15px rgba(28, 25, 23, ${shadow.toFixed(3)})` 
-      : "none";
-
-    // Apply column travel
-    const currentPercentage = colProgress * -100;
+  // Track position formula:
+  // Percentage ranges from 0 to -100:
+  // - When percentage = 0: Middle is at top (Image 1 centered), Sides are at bottom (Image 8 centered).
+  // - When percentage = -100: Middle is at bottom (Image 8 centered), Sides are at top (Image 1 centered).
+  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2% (span 88.4%).
+  function applyTrackPosition(percentage) {
+    currentPercentage = Math.max(Math.min(percentage, 0), -100);
     const sidePercentage = -100 - currentPercentage;
+
+    trackMid.dataset.percentage = currentPercentage;
+    if (trackLeft) trackLeft.dataset.percentage = sidePercentage;
+    if (trackRight) trackRight.dataset.percentage = sidePercentage;
 
     const trackY_mid = -5.8 + (currentPercentage * 0.884);
     const trackY_side = -5.8 + (sidePercentage * 0.884);
 
-    trackMid.style.transform = `translate(-50%, ${trackY_mid.toFixed(3)}%)`;
-    if (trackLeft) trackLeft.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
-    if (trackRight) trackRight.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
+    // 1. Middle Track (Slides UP as percentage goes from 0 to -100)
+    trackMid.animate(
+      {
+        transform: `translate(-50%, ${trackY_mid.toFixed(3)}%)`,
+      },
+      { duration: 1200, fill: "forwards" }
+    );
 
-    // Parallax inside images
-    const objPosMid = (100 + currentPercentage).toFixed(2);
-    for (let i = 0; i < imagesMid.length; i++) {
-      imagesMid[i].style.objectPosition = `center ${objPosMid}%`;
+    for (const image of imagesMid) {
+      image.animate(
+        {
+          objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
     }
 
-    const objPosSide = (100 + sidePercentage).toFixed(2);
-    for (let i = 0; i < imagesSides.length; i++) {
-      imagesSides[i].style.objectPosition = `center ${objPosSide}%`;
+    // 2. Side Tracks (Slide DOWN in counter-motion as percentage goes from 0 to -100)
+    if (trackLeft) {
+      trackLeft.animate(
+        {
+          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
+
+    if (trackRight) {
+      trackRight.animate(
+        {
+          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
+    }
+
+    for (const image of imagesSides) {
+      image.animate(
+        {
+          objectPosition: `center ${(100 + sidePercentage).toFixed(2)}%`,
+        },
+        { duration: 1200, fill: "forwards" }
+      );
     }
   }
 
-  function animationLoop() {
-    const diff = targetProgress - currentProgress;
+  // Initial setup: Mid centered at Image 1, Sides centered at Image 8
+  applyTrackPosition(0);
 
-    if (Math.abs(diff) < 0.0002) {
-      currentProgress = targetProgress;
-      renderFrame(currentProgress);
-      isAnimating = false;
-      return;
-    }
+  // 1. Mouse & Touch Dragging (Vertical Y)
+  const handleOnDown = (e) => {
+    isDragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    prevPercentage = currentPercentage;
+  };
 
-    // Responsive natural interpolation without artificial speed caps
-    currentProgress += diff * 0.14;
-    renderFrame(currentProgress);
+  const handleOnUp = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    prevPercentage = currentPercentage;
+  };
 
-    requestAnimationFrame(animationLoop);
-  }
+  const handleOnMove = (e) => {
+    if (!isDragging) return;
 
-  function startAnimationLoop() {
-    if (!isAnimating) {
-      isAnimating = true;
-      requestAnimationFrame(animationLoop);
-    }
-  }
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const mouseDelta = startY - clientY;
+    const maxDelta = window.innerHeight * 0.65;
 
-  // Initial render (shows initial framed grid)
-  renderFrame(0);
+    const percentage = (mouseDelta / maxDelta) * -100;
+    const nextPercentage = prevPercentage + percentage;
 
-  // Wheel listener
-  stage.addEventListener(
-    "wheel",
-    (e) => {
-      const rect = sectionWrap.getBoundingClientRect();
-      const isAligned = rect.top >= -80 && rect.top <= 80;
-
-      // If the section is not yet aligned in view, allow normal page scroll
-      if (!isAligned) {
-        return;
-      }
-
-      const isAtStart = currentProgress <= 0.001;
-      const isAtEnd = currentProgress >= 0.999;
-      const isScrollingDown = e.deltaY > 0;
-      const isScrollingUp = e.deltaY < 0;
-
-      // When at start and scrolling UP -> release to previous section
-      if (isAtStart && isScrollingUp) {
-        return;
-      }
-
-      // When at end and scrolling DOWN -> release to footer
-      if (isAtEnd && isScrollingDown) {
-        return;
-      }
-
+    // Prevent default touch pull/scroll on mobile during active track scrubbing
+    if (e.touches && e.cancelable) {
       e.preventDefault();
+    }
 
-      // Smoothly snap section to top if slightly offset
-      if (Math.abs(rect.top) > 4 && currentProgress < 0.08 && isScrollingDown) {
-        window.scrollTo({ top: sectionWrap.offsetTop, behavior: "smooth" });
-      }
-
-      // Unrestricted natural scroll response
-      const sensitivity = 0.0009;
-      targetProgress = Math.max(0, Math.min(1, targetProgress + e.deltaY * sensitivity));
-
-      startAnimationLoop();
-    },
-    { passive: false }
-  );
-
-  // Mobile Touch listener
-  let touchStartY = 0;
-
-  stage.addEventListener(
-    "touchstart",
-    (e) => {
-      touchStartY = e.touches[0].clientY;
-    },
-    { passive: true }
-  );
-
-  stage.addEventListener(
-    "touchmove",
-    (e) => {
-      const rect = sectionWrap.getBoundingClientRect();
-      const isAligned = rect.top >= -80 && rect.top <= 80;
-      if (!isAligned) return;
-
-      const touchY = e.touches[0].clientY;
-      const deltaY = touchStartY - touchY;
-      touchStartY = touchY;
-
-      const isAtStart = currentProgress <= 0.001;
-      const isAtEnd = currentProgress >= 0.999;
-      const isSwipingUp = deltaY > 0;
-      const isSwipingDown = deltaY < 0;
-
-      if ((isAtStart && isSwipingDown) || (isAtEnd && isSwipingUp)) {
-        return;
-      }
-
-      if (e.cancelable) e.preventDefault();
-
-      targetProgress = Math.max(0, Math.min(1, targetProgress + deltaY * 0.0015));
-      startAnimationLoop();
-    },
-    { passive: false }
-  );
-
-  // Mouse Drag on Stage
-  let isMouseDown = false;
-  let mouseStartY = 0;
+    applyTrackPosition(nextPercentage);
+  };
 
   stage.addEventListener("mousedown", (e) => {
     e.preventDefault();
-    isMouseDown = true;
-    mouseStartY = e.clientY;
+    handleOnDown(e);
   });
+  stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
 
-  window.addEventListener("mouseup", () => {
-    isMouseDown = false;
-  });
+  window.addEventListener("mouseup", handleOnUp);
+  window.addEventListener("touchend", handleOnUp);
+  window.addEventListener("mousemove", handleOnMove);
+  window.addEventListener("touchmove", handleOnMove, { passive: false });
 
-  window.addEventListener("mousemove", (e) => {
-    if (!isMouseDown) return;
-    const deltaY = mouseStartY - e.clientY;
-    mouseStartY = e.clientY;
+  // 2. Mouse Wheel / Trackpad Scroll on Stage
+  stage.addEventListener(
+    "wheel",
+    (e) => {
+      const delta = -e.deltaY * 0.08;
+      const target = currentPercentage + delta;
 
-    targetProgress = Math.max(0, Math.min(1, targetProgress + deltaY * 0.0015));
-    startAnimationLoop();
-  });
-
-  window.addEventListener("resize", () => {
-    renderFrame(currentProgress);
-  }, { passive: true });
+      // When within bounds, scroll moves the tracks smoothly
+      if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
+        e.preventDefault();
+        applyTrackPosition(target);
+        prevPercentage = currentPercentage;
+      }
+    },
+    { passive: false }
+  );
 }
 
 
