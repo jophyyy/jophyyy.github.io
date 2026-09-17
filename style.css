@@ -941,6 +941,15 @@ body.depth-body {
 /* ==========================================================================
    7. MACBOOK DESKTOP & TERMINAL STARTUP SEQUENCE
    ========================================================================== */
+html.booting,
+body.booting {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+}
+
 .mac-desktop-screen {
   position: fixed;
   inset: 0;
@@ -948,6 +957,8 @@ body.depth-body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
   background: radial-gradient(circle at 50% 35%, #eae5da 0%, #ded7ca 50%, #cbc2b2 100%);
   transition: opacity 0.55s var(--ease-smooth), transform 0.55s var(--ease-smooth);
 }

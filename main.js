@@ -3,6 +3,12 @@
    Aesthetic: Depththread Industrial Pixel Telemetry HUD
    ========================================================================== */
 
+// Prevent browser from restoring previous scroll position on reload
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+window.scrollTo(0, 0);
+
 document.addEventListener("DOMContentLoaded", () => {
   initParticleWave();
   initLivingInkWallpaper();
@@ -308,6 +314,25 @@ function initBootSequence() {
 
   if (!macDesktop) return;
 
+  // Lock scroll during boot so movements/gestures don't scroll background page
+  document.documentElement.classList.add("booting");
+  document.body.classList.add("booting");
+  window.scrollTo(0, 0);
+
+  function preventScroll(e) {
+    e.preventDefault();
+  }
+
+  function preventScrollKeys(e) {
+    if (["Space", " ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }
+
+  macDesktop.addEventListener("wheel", preventScroll, { passive: false });
+  macDesktop.addEventListener("touchmove", preventScroll, { passive: false });
+  window.addEventListener("keydown", preventScrollKeys, { capture: true });
+
   // Live macOS Clock updater
   function updateClock() {
     if (!macClock) return;
@@ -340,12 +365,32 @@ function initBootSequence() {
     activeTimeouts.forEach(clearTimeout);
     activeTimeouts = [];
 
+    // Detach boot scroll event preventers
+    macDesktop.removeEventListener("wheel", preventScroll);
+    macDesktop.removeEventListener("touchmove", preventScroll);
+    window.removeEventListener("keydown", preventScrollKeys, { capture: true });
+
+    // Lock position firmly to top before unlocking
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Release boot scroll lock
+    document.documentElement.classList.remove("booting");
+    document.body.classList.remove("booting");
+
+    // Force scroll position to 0 again after class removal
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
     macDesktop.classList.add("finished");
     if (window.startHeroTypewriter) {
       window.startHeroTypewriter();
     }
     setTimeout(() => {
       macDesktop.style.display = "none";
+      window.scrollTo(0, 0);
     }, 550);
   }
 
@@ -515,6 +560,19 @@ function initBootSequence() {
     isSkipped = false;
     activeTimeouts.forEach(clearTimeout);
     activeTimeouts = [];
+
+    window.scrollTo(0, 0);
+    document.documentElement.classList.add("booting");
+    document.body.classList.add("booting");
+
+    macDesktop.addEventListener("wheel", preventScroll, { passive: false });
+    macDesktop.addEventListener("touchmove", preventScroll, { passive: false });
+    window.addEventListener("keydown", preventScrollKeys, { capture: true });
+
+    if (window.resetWorkingSection) {
+      window.resetWorkingSection();
+    }
+
     macDesktop.style.display = "flex";
     macDesktop.classList.remove("finished");
     startDesktopSequence();
