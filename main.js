@@ -572,6 +572,9 @@ function initBootSequence() {
     if (window.resetWorkingSection) {
       window.resetWorkingSection();
     }
+    if (window.resetScrollCue) {
+      window.resetScrollCue();
+    }
 
     macDesktop.style.display = "flex";
     macDesktop.classList.remove("finished");
@@ -987,35 +990,53 @@ function initWorkingSection() {
 
   observer.observe(targetHeadline);
 
-  // If user clicks the scroll down cue directly, trigger typing
+  // Make scroll down cue disappear permanently once user first scrolls down
+  const heroScrollCue = document.getElementById("hero-scroll-cue") || document.querySelector(".hero-scroll-cue");
+  let scrollCueDismissed = false;
+
+  function dismissScrollCue() {
+    if (scrollCueDismissed) return;
+    scrollCueDismissed = true;
+    if (heroScrollCue) {
+      heroScrollCue.classList.add("scrolled-hidden");
+    }
+    window.removeEventListener("scroll", handleScrollCueCheck);
+  }
+
+  function handleScrollCueCheck() {
+    if (window.scrollY > 25) {
+      dismissScrollCue();
+    }
+  }
+
+  window.addEventListener("scroll", handleScrollCueCheck, { passive: true });
+  if (window.scrollY > 25) {
+    dismissScrollCue();
+  }
+
+  // If user clicks the scroll down cue directly, dismiss permanently and trigger typing
   const scrollCue = document.querySelector(".hero-scroll-cue a");
   if (scrollCue) {
     scrollCue.addEventListener("click", () => {
+      dismissScrollCue();
       setTimeout(() => {
         if (!hasTriggered) typeWorkingText();
       }, 350);
     });
   }
 
-  // Make scroll down cue disappear once scrolled down past the top
-  const heroScrollCue = document.getElementById("hero-scroll-cue") || document.querySelector(".hero-scroll-cue");
-  function handleScrollCueVisibility() {
-    if (!heroScrollCue) return;
-    if (window.scrollY > 35) {
-      heroScrollCue.classList.add("scrolled-hidden");
-    } else {
-      heroScrollCue.classList.remove("scrolled-hidden");
-    }
-  }
-
-  window.addEventListener("scroll", handleScrollCueVisibility, { passive: true });
-  handleScrollCueVisibility();
-
   window.resetWorkingSection = function() {
     hasTriggered = false;
     target.textContent = "";
     if (boxesContainer) boxesContainer.classList.remove("boxes-revealed");
     window.addEventListener("scroll", handleScrollCheck, { passive: true });
-    handleScrollCueVisibility();
+  };
+
+  window.resetScrollCue = function() {
+    scrollCueDismissed = false;
+    if (heroScrollCue) {
+      heroScrollCue.classList.remove("scrolled-hidden");
+    }
+    window.addEventListener("scroll", handleScrollCueCheck, { passive: true });
   };
 }
