@@ -27,6 +27,13 @@ function initBootSequence() {
 
   if (!bootTerminal) return;
 
+  try {
+    sessionStorage.clear();
+  } catch (e) {}
+
+  bootTerminal.style.display = "flex";
+  bootTerminal.classList.remove("finished");
+
   let isSkipped = false;
 
   function finishBoot() {
