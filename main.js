@@ -868,42 +868,81 @@ function initSequenceActions() {
    8. HERO TYPEWRITER ANIMATION ("hello! welcome to jophy's home...")
    ========================================================================== */
 function initHeroTypewriter() {
-  const target = document.getElementById("hero-type-target");
-  const caret = document.querySelector(".hero-type-caret");
-  if (!target) return;
+  const headlineTarget = document.getElementById("hero-type-target");
+  const headlineCaret = document.querySelector(".hero-type-caret");
+  const leadTarget = document.getElementById("hero-lead-type-target");
+  const leadCaret = document.querySelector(".hero-lead-type-caret");
 
-  const textSegments = [
+  if (!headlineTarget) return;
+
+  const headlineSegments = [
     { text: "hello", pauseAfter: 420, newline: true },
     { text: "welcome to", pauseAfter: 380, newline: true },
     { text: "jophy's home...", pauseAfter: 0, newline: false }
   ];
 
+  const leadText = "student at upenn • exploring software systems, game design, and living interfaces.";
+
   let segmentIdx = 0;
   let charIdx = 0;
   let isTyping = false;
   let typeTimer = null;
-  let typedHTML = "";
+  let typedHeadlineHTML = "";
 
-  function typeChar() {
-    if (segmentIdx >= textSegments.length) {
-      if (caret) caret.classList.add("finished");
+  let leadCharIdx = 0;
+  let leadTimer = null;
+  let typedLeadHTML = "";
+
+  function typeLeadChar() {
+    if (leadCharIdx < leadText.length) {
+      typedLeadHTML += leadText[leadCharIdx];
+      if (leadTarget) leadTarget.innerHTML = typedLeadHTML;
+      leadCharIdx++;
+      leadTimer = setTimeout(typeLeadChar, 24 + Math.random() * 20);
+    } else {
+      // Subtitle finished typing -> make orange caret disappear
+      if (leadCaret) {
+        leadCaret.classList.remove("waiting");
+        leadCaret.classList.add("finished");
+      }
+    }
+  }
+
+  function startLeadTyping() {
+    if (!leadTarget) return;
+    if (leadCaret) {
+      leadCaret.classList.remove("waiting");
+      leadCaret.classList.remove("finished");
+    }
+    leadCharIdx = 0;
+    typedLeadHTML = "";
+    leadTarget.innerHTML = "";
+    leadTimer = setTimeout(typeLeadChar, 200);
+  }
+
+  function typeHeadlineChar() {
+    if (segmentIdx >= headlineSegments.length) {
+      // Headline finished typing -> make headline caret disappear
+      if (headlineCaret) headlineCaret.classList.add("finished");
+      // Now start subtitle typewriter
+      setTimeout(startLeadTyping, 280);
       return;
     }
 
-    const currentSegment = textSegments[segmentIdx];
+    const currentSegment = headlineSegments[segmentIdx];
     if (charIdx < currentSegment.text.length) {
-      typedHTML += currentSegment.text[charIdx];
-      target.innerHTML = typedHTML;
+      typedHeadlineHTML += currentSegment.text[charIdx];
+      headlineTarget.innerHTML = typedHeadlineHTML;
       charIdx++;
-      typeTimer = setTimeout(typeChar, 38 + Math.random() * 26);
+      typeTimer = setTimeout(typeHeadlineChar, 38 + Math.random() * 26);
     } else {
       segmentIdx++;
       charIdx = 0;
       if (currentSegment.newline) {
-        typedHTML += "<br>";
-        target.innerHTML = typedHTML;
+        typedHeadlineHTML += "<br>";
+        headlineTarget.innerHTML = typedHeadlineHTML;
       }
-      typeTimer = setTimeout(typeChar, currentSegment.pauseAfter);
+      typeTimer = setTimeout(typeHeadlineChar, currentSegment.pauseAfter);
     }
   }
 
@@ -911,12 +950,24 @@ function initHeroTypewriter() {
     if (isTyping) return;
     isTyping = true;
     clearTimeout(typeTimer);
-    typedHTML = "";
-    target.innerHTML = "";
+    clearTimeout(leadTimer);
+
+    typedHeadlineHTML = "";
+    headlineTarget.innerHTML = "";
     segmentIdx = 0;
     charIdx = 0;
-    if (caret) caret.classList.remove("finished");
-    setTimeout(typeChar, 320);
+
+    if (headlineCaret) headlineCaret.classList.remove("finished");
+
+    if (leadTarget) {
+      leadTarget.innerHTML = "";
+      if (leadCaret) {
+        leadCaret.classList.add("waiting");
+        leadCaret.classList.remove("finished");
+      }
+    }
+
+    setTimeout(typeHeadlineChar, 320);
   }
 
   window.startHeroTypewriter = function() {
