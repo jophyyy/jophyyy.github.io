@@ -1053,7 +1053,7 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SLIDING IMAGE TRACK (Controlled Zoom-In, 3 Tracks, Zoom-Out)
+   VERTICAL SLIDING IMAGE TRACK (Natural Zoom-In, 3 Tracks, Zoom-Out)
    ========================================================================== */
 function initVerticalImageTrack() {
   const sectionWrap = document.getElementById("vertical-showcase");
@@ -1072,12 +1072,6 @@ function initVerticalImageTrack() {
   let targetProgress = 0; // 0.0 to 1.0
   let currentProgress = 0; // 0.0 to 1.0
   let isAnimating = false;
-  let lastFrameTime = performance.now();
-
-  // Speed governor: Maximum progress change per second
-  // ~0.35 progress/sec means full travel takes at least ~2.8 seconds,
-  // making it physically impossible to scroll too fast!
-  const MAX_VELOCITY_PER_SEC = 0.35;
 
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -1105,23 +1099,23 @@ function initVerticalImageTrack() {
       radius = maxRadius;
       shadow = maxShadow;
       colProgress = 0;
-    } else if (p < 0.22) {
+    } else if (p < 0.20) {
       // Phase 1: Zoom In from minScale to 1.0 (Expands so that's all you can see)
-      const t = p / 0.22;
+      const t = p / 0.20;
       const s = easeInOutCubic(t);
       scale = minScale + (1.0 - minScale) * s;
       radius = maxRadius * (1 - s);
       shadow = maxShadow * (1 - s);
       colProgress = 0;
-    } else if (p <= 0.78) {
+    } else if (p <= 0.80) {
       // Phase 2: Full Screen & Scrub 3 Columns
       scale = 1.0;
       radius = 0;
       shadow = 0;
-      colProgress = (p - 0.22) / (0.78 - 0.22);
+      colProgress = (p - 0.20) / (0.80 - 0.20);
     } else if (p < 1.0) {
       // Phase 3: Zoom Out from 1.0 to minScale (Contracts back before exiting)
-      const t = (p - 0.78) / (1.0 - 0.78);
+      const t = (p - 0.80) / (1.0 - 0.80);
       const s = easeInOutCubic(t);
       scale = 1.0 - (1.0 - minScale) * s;
       radius = maxRadius * s;
@@ -1164,34 +1158,24 @@ function initVerticalImageTrack() {
     }
   }
 
-  function animationLoop(now) {
-    const dt = Math.max(1, Math.min(100, now - lastFrameTime));
-    lastFrameTime = now;
-
+  function animationLoop() {
     const diff = targetProgress - currentProgress;
 
-    if (Math.abs(diff) < 0.0001) {
+    if (Math.abs(diff) < 0.0002) {
       currentProgress = targetProgress;
       renderFrame(currentProgress);
       isAnimating = false;
       return;
     }
 
-    // Speed limiter: Can NEVER scroll faster than MAX_VELOCITY_PER_SEC
-    const maxStep = MAX_VELOCITY_PER_SEC * (dt / 1000);
-    let step = diff * 0.09;
-    if (Math.abs(step) > maxStep) {
-      step = Math.sign(step) * maxStep;
-    }
-
-    currentProgress += step;
+    // Responsive natural interpolation without artificial speed caps
+    currentProgress += diff * 0.14;
     renderFrame(currentProgress);
 
     requestAnimationFrame(animationLoop);
   }
 
   function startAnimationLoop() {
-    lastFrameTime = performance.now();
     if (!isAnimating) {
       isAnimating = true;
       requestAnimationFrame(animationLoop);
@@ -1201,7 +1185,7 @@ function initVerticalImageTrack() {
   // Initial render (shows initial framed grid)
   renderFrame(0);
 
-  // Wheel listener with speed control and boundary release
+  // Wheel listener
   stage.addEventListener(
     "wheel",
     (e) => {
@@ -1228,7 +1212,6 @@ function initVerticalImageTrack() {
         return;
       }
 
-      // Inside showcase: prevent default window scroll and scrub at controlled speed
       e.preventDefault();
 
       // Smoothly snap section to top if slightly offset
@@ -1236,13 +1219,9 @@ function initVerticalImageTrack() {
         window.scrollTo({ top: sectionWrap.offsetTop, behavior: "smooth" });
       }
 
-      // Clamp raw delta per tick so massive wheel flicks are bounded
-      const rawDelta = e.deltaY;
-      const clampedDelta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 45);
-
-      // Add to target progress
-      const sensitivity = 0.00065;
-      targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * sensitivity));
+      // Unrestricted natural scroll response
+      const sensitivity = 0.0009;
+      targetProgress = Math.max(0, Math.min(1, targetProgress + e.deltaY * sensitivity));
 
       startAnimationLoop();
     },
@@ -1282,8 +1261,7 @@ function initVerticalImageTrack() {
 
       if (e.cancelable) e.preventDefault();
 
-      const clampedDelta = Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40);
-      targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * 0.001));
+      targetProgress = Math.max(0, Math.min(1, targetProgress + deltaY * 0.0015));
       startAnimationLoop();
     },
     { passive: false }
@@ -1308,8 +1286,7 @@ function initVerticalImageTrack() {
     const deltaY = mouseStartY - e.clientY;
     mouseStartY = e.clientY;
 
-    const clampedDelta = Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40);
-    targetProgress = Math.max(0, Math.min(1, targetProgress + clampedDelta * 0.001));
+    targetProgress = Math.max(0, Math.min(1, targetProgress + deltaY * 0.0015));
     startAnimationLoop();
   });
 
