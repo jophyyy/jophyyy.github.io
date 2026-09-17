@@ -576,6 +576,9 @@ function initBootSequence() {
     if (window.resetScrollCue) {
       window.resetScrollCue();
     }
+    if (window.resetVerticalShowcase) {
+      window.resetVerticalShowcase();
+    }
 
     macDesktop.style.display = "flex";
     macDesktop.classList.remove("finished");
@@ -1221,8 +1224,111 @@ function initVerticalImageTrack() {
   // Initial setup: Mid centered at Image 1, Sides centered at Image 8, grid at initial scale
   applyTrackPosition(0, true);
 
-  // 1. Mouse & Touch Dragging (Vertical Y)
+  let hasTriggered = false;
+  let autoAnimId = null;
+  let isAutoPlaying = false;
+
+  function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  // Automatic scrolling grid animation (triggers when scrolling past "what am i working on")
+  function startGridAutoScroll(duration = 3800) {
+    if (hasTriggered || isAutoPlaying) return;
+    hasTriggered = true;
+    isAutoPlaying = true;
+
+    const startTime = performance.now();
+    const startPercentage = currentPercentage;
+    const targetPercentage = -100;
+
+    function frame(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutQuad(progress);
+      const nextPct = startPercentage + (targetPercentage - startPercentage) * eased;
+
+      applyTrackPosition(nextPct, true);
+
+      if (progress < 1) {
+        autoAnimId = requestAnimationFrame(frame);
+      } else {
+        isAutoPlaying = false;
+        prevPercentage = -100;
+      }
+    }
+
+    autoAnimId = requestAnimationFrame(frame);
+  }
+
+  // 1. Automatic trigger when scrolling past the "what am i working on" section into view
+  const showcaseSection = document.getElementById("vertical-showcase");
+
+  function handleShowcaseScrollCheck() {
+    if (hasTriggered || !showcaseSection) return;
+    const rect = showcaseSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+
+    // Triggers automatically once user scrolls down and the showcase enters view (top <= 75% of viewport)
+    if (rect.top <= vh * 0.75 && window.scrollY > 50) {
+      startGridAutoScroll();
+      window.removeEventListener("scroll", handleShowcaseScrollCheck);
+    }
+  }
+
+  window.addEventListener("scroll", handleShowcaseScrollCheck, { passive: true });
+
+  if (showcaseSection) {
+    const showcaseObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasTriggered && window.scrollY > 50) {
+            startGridAutoScroll();
+          }
+        });
+      },
+      { rootMargin: "0px 0px -40px 0px", threshold: 0.15 }
+    );
+    showcaseObserver.observe(showcaseSection);
+  }
+
+  // If user scrolls back up near the top of the page, reset so the animation triggers again on next scroll down
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (window.scrollY < 60 && hasTriggered) {
+        hasTriggered = false;
+        if (autoAnimId) {
+          cancelAnimationFrame(autoAnimId);
+          autoAnimId = null;
+        }
+        isAutoPlaying = false;
+        applyTrackPosition(0, true);
+        window.addEventListener("scroll", handleShowcaseScrollCheck, { passive: true });
+      }
+    },
+    { passive: true }
+  );
+
+  // Global reset hook for reboot sequence
+  window.resetVerticalShowcase = function() {
+    hasTriggered = false;
+    if (autoAnimId) {
+      cancelAnimationFrame(autoAnimId);
+      autoAnimId = null;
+    }
+    isAutoPlaying = false;
+    applyTrackPosition(0, true);
+    window.addEventListener("scroll", handleShowcaseScrollCheck, { passive: true });
+  };
+
+  // 2. Interactive Dragging (Allows direct manual mouse/touch scrubbing at any time)
   const handleOnDown = (e) => {
+    if (autoAnimId) {
+      cancelAnimationFrame(autoAnimId);
+      autoAnimId = null;
+      isAutoPlaying = false;
+    }
     isDragging = true;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     prevPercentage = currentPercentage;
@@ -1244,7 +1350,6 @@ function initVerticalImageTrack() {
     const percentage = (mouseDelta / maxDelta) * -100;
     const nextPercentage = prevPercentage + percentage;
 
-    // Prevent default touch pull/scroll on mobile during active track scrubbing
     if (e.touches && e.cancelable) {
       e.preventDefault();
     }
@@ -1253,7 +1358,6 @@ function initVerticalImageTrack() {
   };
 
   stage.addEventListener("mousedown", (e) => {
-    e.preventDefault();
     handleOnDown(e);
   });
   stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
@@ -1262,64 +1366,6 @@ function initVerticalImageTrack() {
   window.addEventListener("touchend", handleOnUp);
   window.addEventListener("mousemove", handleOnMove);
   window.addEventListener("touchmove", handleOnMove, { passive: false });
-
-  // 2. Mouse Wheel / Trackpad Scroll on Stage
-  // Active scrolling area is enlarged and starts closer to "what am i working on now":
-  // Activates as soon as the showcase enters view (top <= 65% of viewport height).
-  const showcaseSection = document.getElementById("vertical-showcase");
-  let isCentering = false;
-  let centerTimer = null;
-
-  function isShowcaseInScrollZone() {
-    if (!showcaseSection) return true;
-    const rect = showcaseSection.getBoundingClientRect();
-    const vh = window.innerHeight;
-
-    // Active zone: when scrolling down, starts as soon as showcase top is within 65% of viewport
-    // When scrolling up, stays active as long as showcase bottom is within 35% of viewport
-    return rect.top <= (vh * 0.65) && rect.bottom >= (vh * 0.35);
-  }
-
-  function centerShowcaseOnPage() {
-    if (!showcaseSection || isCentering) return;
-    const rect = showcaseSection.getBoundingClientRect();
-    if (Math.abs(rect.top) > 6) {
-      isCentering = true;
-      const targetScroll = (window.pageYOffset !== undefined ? window.pageYOffset : window.scrollY) + rect.top;
-      window.scrollTo({
-        top: targetScroll,
-        behavior: "smooth"
-      });
-      clearTimeout(centerTimer);
-      centerTimer = setTimeout(() => {
-        isCentering = false;
-      }, 450);
-    }
-  }
-
-  const scrollTarget = showcaseSection || stage;
-
-  scrollTarget.addEventListener(
-    "wheel",
-    (e) => {
-      const delta = -e.deltaY * 0.08;
-      const target = currentPercentage + delta;
-
-      // If outside the active showcase scroll zone, allow natural page scroll
-      if (!isShowcaseInScrollZone()) {
-        return;
-      }
-
-      // When inside the scroll zone and within track boundaries, scrub the vertical tracks
-      if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
-        e.preventDefault();
-        centerShowcaseOnPage();
-        applyTrackPosition(target);
-        prevPercentage = currentPercentage;
-      }
-    },
-    { passive: false }
-  );
 
   // 3. Keep layout in sync across window resize
   window.addEventListener(
