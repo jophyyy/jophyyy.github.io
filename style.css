@@ -930,107 +930,116 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   5b. VERTICAL SHOWCASE (Blank Cards Vertical Reel)
+   5b. 3x4 COLOR GRID SHOWCASE
    ========================================================================== */
-.showcase-section-wrap {
+.grid-showcase-section {
   position: relative;
-  height: 450vh;
   width: 100%;
   background-color: #eae3d2;
   border-top: 1px dashed rgba(28, 25, 23, 0.18);
+  padding: 80px 48px 120px;
   box-sizing: border-box;
-}
-
-.showcase-sticky-stage {
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-  perspective: 1200px;
-  user-select: none;
 }
 
-/* Reel Viewport & Track */
-.showcase-reel-viewport {
+.grid-showcase-container {
+  max-width: 1360px;
+  margin: 0 auto;
   position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-}
-
-.showcase-reel-track {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 48px;
   will-change: transform;
-  transform-style: preserve-3d;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
 }
 
-/* Individual Blank Card */
-.showcase-card {
-  position: relative;
-  width: clamp(280px, 31vw, 430px);
-  aspect-ratio: 3 / 4;
-  border-radius: 14px;
-  transform-origin: center center;
-  will-change: transform, opacity, filter;
+/* 3 Columns x 4 Rows Grid */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  width: 100%;
   box-sizing: border-box;
+}
+
+/* Each Color Card */
+.color-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  background-color: var(--card-color, #1c1917);
+  box-shadow: 
+    0 12px 30px -8px rgba(28, 25, 23, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  cursor: pointer;
   outline: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  
+  /* Starts translated up and hidden, slides down when in view */
+  opacity: 0;
+  transform: translate3d(0, -60px, 0);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.35s ease;
+  will-change: transform, opacity;
 }
 
-.card-inner.card-blank {
-  position: relative;
-  width: 100%;
-  height: 100%;
+/* When in-view class is added, cards slide down into place */
+.color-grid.in-view .color-card {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Staggered slide-down delays by row */
+.color-grid.in-view .color-card[data-index="0"],
+.color-grid.in-view .color-card[data-index="1"],
+.color-grid.in-view .color-card[data-index="2"] {
+  transition-delay: 0.05s;
+}
+
+.color-grid.in-view .color-card[data-index="3"],
+.color-grid.in-view .color-card[data-index="4"],
+.color-grid.in-view .color-card[data-index="5"] {
+  transition-delay: 0.15s;
+}
+
+.color-grid.in-view .color-card[data-index="6"],
+.color-grid.in-view .color-card[data-index="7"],
+.color-grid.in-view .color-card[data-index="8"] {
+  transition-delay: 0.25s;
+}
+
+.color-grid.in-view .color-card[data-index="9"],
+.color-grid.in-view .color-card[data-index="10"],
+.color-grid.in-view .color-card[data-index="11"] {
+  transition-delay: 0.35s;
+}
+
+/* Hover effect on cards */
+.color-card:hover {
+  transform: translate3d(0, -6px, 0) scale(1.02);
+  box-shadow: 
+    0 24px 44px -10px var(--accent-glow, rgba(28, 25, 23, 0.3)),
+    0 10px 20px -6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  filter: brightness(1.06);
+}
+
+/* Subtle glossy reflection sheen */
+.color-card-surface {
+  position: absolute;
+  inset: 0;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.32);
-  border: 1px dashed rgba(200, 192, 180, 0.85);
-  box-shadow: 
-    0 16px 36px -12px rgba(28, 25, 23, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 100%);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.4s ease,
-              background-color 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
-.showcase-card:hover .card-inner.card-blank {
-  border-color: rgba(217, 119, 6, 0.55);
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 24px 50px -10px rgba(28, 25, 23, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  transform: translateY(-4px);
-}
-
-.card-blank-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  border: 1px dashed rgba(28, 25, 23, 0.12);
-  box-sizing: border-box;
+.color-card:hover .color-card-surface {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 /* ==========================================================================
@@ -1737,12 +1746,20 @@ body.booting {
     display: none;
   }
 
-  /* Showcase Mobile Overrides */
-  .showcase-section-wrap {
-    height: 400vh;
+  /* 3x4 Color Grid Responsive Overrides */
+  .grid-showcase-section {
+    padding: 50px 20px 80px;
   }
-  .showcase-card {
-    width: min(290px, 78vw);
+  .color-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .color-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 

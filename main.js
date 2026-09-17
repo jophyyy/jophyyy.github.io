@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initBootSequence();
   initHeroTypewriter();
   initWorkingSection();
-  initVerticalShowcase();
+  initColorGridShowcase();
   initCoordinatesTracker();
   initQueueAndFeedInteractions();
   initProjectFilters();
@@ -1053,96 +1053,63 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   VERTICAL SHOWCASE (Blank Cards Vertical Reel)
+   3x4 COLOR GRID SHOWCASE
    ========================================================================== */
-function initVerticalShowcase() {
-  const sectionWrap = document.getElementById("vertical-showcase");
-  const stage = document.getElementById("showcase-stage");
-  const track = document.getElementById("showcase-track");
-  const cards = Array.from(document.querySelectorAll(".showcase-card"));
+function initColorGridShowcase() {
+  const section = document.getElementById("grid-showcase");
+  const container = document.getElementById("grid-container");
+  const grid = document.getElementById("color-grid");
+  const cards = Array.from(document.querySelectorAll(".color-card"));
 
-  if (!sectionWrap || !stage || !track || cards.length === 0) return;
+  if (!section || !grid || cards.length === 0) return;
 
-  const totalCards = cards.length;
-  let targetProgress = 0;
-  let currentProgress = 0;
-
-  // Measure sizing and card centers
-  let cardCenters = [];
-  function updateDimensions() {
-    cardCenters = cards.map((card) => card.offsetTop + card.offsetHeight / 2);
+  // 1. Staggered slide-down entrance via IntersectionObserver
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            grid.classList.add("in-view");
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+    observer.observe(section);
+  } else {
+    grid.classList.add("in-view");
   }
-  updateDimensions();
-  window.addEventListener("load", updateDimensions, { passive: true });
-  window.addEventListener("resize", updateDimensions, { passive: true });
 
-  // Scroll listener to update targetProgress
+  // 2. Smooth downward slide parallax as user scrolls
+  let targetSlide = 0;
+  let currentSlide = 0;
+
   function onScroll() {
-    const rect = sectionWrap.getBoundingClientRect();
-    const totalScrollable = sectionWrap.offsetHeight - window.innerHeight;
-    if (totalScrollable <= 0) return;
-    const scrolled = -rect.top;
-    targetProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+    const rect = section.getBoundingClientRect();
+    const windowH = window.innerHeight;
+    if (rect.top < windowH && rect.bottom > 0) {
+      const progress = Math.max(0, Math.min(1, (windowH - rect.top) / (windowH + rect.height)));
+      targetSlide = progress * 55;
+    }
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  // Animation Loop (lerp inertia & transforms)
-  function animateShowcase() {
-    // Check if section is anywhere near viewport
-    const rect = sectionWrap.getBoundingClientRect();
-    const isInView = rect.bottom > -200 && rect.top < window.innerHeight + 200;
-
-    if (isInView) {
-      if (cardCenters.length === 0 || cardCenters[0] === 0) {
-        updateDimensions();
-      }
-
-      // Lerp scroll progression
-      currentProgress += (targetProgress - currentProgress) * 0.12;
-
-      // Exact center alignment:
-      const startCenter = cardCenters[0] || (cards[0].offsetHeight / 2);
-      const endCenter = cardCenters[totalCards - 1] || (startCenter + (totalCards - 1) * 460);
-      const targetCenter = startCenter + currentProgress * (endCenter - startCenter);
-      const stageCenter = stage.clientHeight / 2;
-      const trackDisplacement = stageCenter - targetCenter;
-
-      track.style.transform = `translate3d(-50%, ${trackDisplacement.toFixed(2)}px, 0)`;
-
-      // Active card index
-      const exactIndexFloat = currentProgress * (totalCards - 1);
-      const computedActiveIdx = Math.max(0, Math.min(totalCards - 1, Math.round(exactIndexFloat)));
-
-      // Card transforms: center-focus scaling, opacity, and Camille Mormal scatter convergence
-      for (let i = 0; i < totalCards; i++) {
-        const card = cards[i];
-        card.classList.toggle("active", i === computedActiveIdx);
-
-        const distFromCenter = (i - exactIndexFloat); // 0 when centered, +/-1, +/-2...
-        const absDist = Math.abs(distFromCenter);
-
-        // Center focus scaling: 1.05 when centered, drops smoothly
-        const scale = Math.max(0.84, Math.min(1.05, 1.05 - absDist * 0.2));
-        // Opacity drops smoothly
-        const opacity = Math.max(0.28, Math.min(1.0, 1.0 - absDist * 0.62));
-        // Depth blur
-        const blur = Math.min(2.5, Math.max(0, (absDist - 0.45) * 2.2));
-        // Camille Mormal scatter: alternating lateral offset that converges to 0 at center
-        const sign = (i % 2 === 0) ? 1 : -1;
-        const scatterX = sign * Math.sin(Math.min(1.5, absDist) * (Math.PI / 2)) * 36;
-        const rotateZ = sign * Math.sin(Math.min(1.5, absDist) * (Math.PI / 2)) * 2.2;
-
-        card.style.transform = `translate3d(${scatterX.toFixed(2)}px, 0, 0) scale(${scale.toFixed(3)}) rotateZ(${rotateZ.toFixed(2)}deg)`;
-        card.style.opacity = opacity.toFixed(3);
-        card.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : "none";
+  function animateGridSlide() {
+    if (container) {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        currentSlide += (targetSlide - currentSlide) * 0.1;
+        container.style.transform = `translate3d(0, ${currentSlide.toFixed(2)}px, 0)`;
       }
     }
-
-    requestAnimationFrame(animateShowcase);
+    requestAnimationFrame(animateGridSlide);
   }
-
-  requestAnimationFrame(animateShowcase);
+  requestAnimationFrame(animateGridSlide);
 }
+
 
 
