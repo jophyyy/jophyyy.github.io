@@ -261,30 +261,32 @@ body.depth-body {
 .hero-section {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 48px 56px;
+  padding: 40px 48px 64px;
   min-height: calc(100vh - 190px);
-  display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(520px, 1.25fr);
-  align-items: center;
-  gap: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   box-sizing: border-box;
   width: 100%;
 }
 
-/* Hero Left */
+/* Hero Content */
 .hero-content {
-  max-width: 780px;
+  max-width: 920px;
+  margin: 0;
+  padding: 0;
 }
 
 .pixel-headline {
   font-family: var(--font-pixel);
-  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
+  font-size: clamp(2.6rem, 5.2vw, 4.6rem);
   font-weight: 700;
-  line-height: 1.12;
+  line-height: 1.14;
   letter-spacing: -0.015em;
   color: var(--text-pixel);
   text-transform: lowercase;
   margin: 0;
+  padding: 0;
   user-select: none;
   min-height: 2.3em;
 }
@@ -322,167 +324,10 @@ body.depth-body {
 .hero-lead {
   margin-top: 28px;
   font-family: var(--font-mono);
-  font-size: 0.98rem;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.65;
   color: var(--text-muted);
-  max-width: 520px;
-}
-
-.hero-actions {
-  margin-top: 36px;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
-
-/* Button with amber bracket border */
-.btn-depth {
-  background: transparent;
-  color: var(--amber);
-  border: 1px solid var(--amber);
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-  letter-spacing: 0.06em;
-  padding: 11px 22px;
-  border-radius: 2px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 0 12px rgba(217, 119, 6, 0.06);
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.btn-depth::before, .btn-depth::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-color: var(--amber);
-  border-style: solid;
-}
-.btn-depth::before {
-  top: -2px;
-  left: -2px;
-  border-width: 2px 0 0 2px;
-}
-.btn-depth::after {
-  bottom: -2px;
-  right: -2px;
-  border-width: 0 2px 2px 0;
-}
-
-.btn-depth:hover {
-  background: rgba(217, 119, 6, 0.08);
-  box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
-  transform: translateY(-1px);
-}
-
-.btn-prefix {
-  font-weight: 700;
-  color: var(--amber);
-}
-
-.btn-link {
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: color var(--transition-fast);
-}
-
-.btn-link:hover {
-  color: var(--text-pixel);
-}
-
-.triangle-sym {
-  color: var(--amber);
-  font-size: 0.82rem;
-  transition: transform var(--transition-fast);
-}
-
-.btn-link:hover .triangle-sym {
-  transform: translateX(3px);
-}
-
-/* Hero Right: Modern Isometric Coder Dorm Room Diorama */
-.hero-dorm-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  justify-self: end;
-  width: 100%;
-  max-width: 660px;
-  margin-left: auto;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.dorm-svg-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.dorm-isometric-svg {
-  width: 100%;
-  height: auto;
-  max-width: 640px;
-  overflow: visible;
-  filter: drop-shadow(0 14px 36px rgba(180, 165, 140, 0.22));
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dorm-isometric-svg:hover {
-  transform: translateY(-4px) scale(1.015);
-}
-
-/* Micro Animations */
-.monitor-cursor {
-  animation: monitorBlink 0.9s step-end infinite;
-}
-
-@keyframes monitorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.dorm-steam {
-  animation: steamRise 2.4s ease-in-out infinite alternate;
-  transform-origin: center;
-}
-
-@keyframes steamRise {
-  0% { transform: translateY(0) scaleY(1); opacity: 0.35; }
-  100% { transform: translateY(-4px) scaleY(1.15); opacity: 0.8; }
-}
-
-/* Hero tag pills */
-.hero-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.hero-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
-  padding: 3px 8px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 3px;
-  letter-spacing: 0.05em;
-  background: rgba(255, 255, 255, 0.4);
+  max-width: 580px;
 }
 
 /* ==========================================================================
@@ -1496,13 +1341,7 @@ body.depth-body {
    ========================================================================== */
 @media (max-width: 1024px) {
   .hero-section {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-  .hero-dorm-container {
-    justify-self: center;
-    margin: 0 auto;
-    max-width: 560px;
+    padding: 36px 36px 48px;
   }
   .hero-telemetry {
     align-items: flex-start;
