@@ -1059,16 +1059,25 @@ body.depth-body {
    6. SITE FOOTER
    ========================================================================== */
 .site-footer {
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.footer-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 48px;
+  padding: 36px 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.72rem;
   letter-spacing: 0.15em;
   color: var(--text-dim);
-  border-top: 1px solid var(--border-line);
   box-sizing: border-box;
   width: 100%;
 }
@@ -1732,7 +1741,7 @@ body.booting {
   .hud-modules-section {
     padding: 32px 20px 56px;
   }
-  .site-footer {
+  .footer-inner {
     padding: 24px 20px;
     flex-direction: column;
     gap: 16px;
