@@ -31,6 +31,7 @@
   --border-amber: rgba(217, 119, 6, 0.5);
 
   /* Typography Stacks */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   --font-pixel: 'Pixelify Sans', 'Silkscreen', ui-monospace, monospace;
   --font-mono: 'JetBrains Mono', 'Space Mono', ui-monospace, monospace;
 
@@ -171,13 +172,13 @@ body.depth-body {
 .brand-link {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   text-decoration: none;
   color: var(--text-pixel);
-  font-family: var(--font-pixel);
-  font-size: 1.65rem;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.01em;
   line-height: 1;
   transition: opacity var(--transition-fast);
   margin: 0;
@@ -190,8 +191,9 @@ body.depth-body {
 
 .amber-square {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
   background-color: var(--amber);
   box-shadow: 0 0 8px rgba(217, 119, 6, 0.4);
 }
@@ -1522,36 +1524,7 @@ body.depth-body {
   font-size: 0.82rem;
 }
 
-.cli-toggle-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 36px;
-  width: 44px;
-  height: 44px;
-  border-radius: 4px;
-  background-color: #ede8dc;
-  border: 1px solid var(--border-subtle);
-  color: var(--amber);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 90;
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
 
-.cli-toggle-btn:hover {
-  border-color: var(--amber);
-  background-color: rgba(217, 119, 6, 0.12);
-  transform: translateY(-2px);
-}
-
-.cli-icon {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1rem;
-}
 
 /* ==========================================================================
    9. RESPONSIVE BREAKPOINTS
