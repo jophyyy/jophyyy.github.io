@@ -547,22 +547,23 @@ function initBootSequence() {
       }
     }, 1450);
 
-    // 4. Mouse click: perfectly synchronized (cursor press + orange ripple + app compress)
+    // 4. Mouse click sequence: cursor clicks first, then orange circle blooms right after
     safeTimeout(() => {
-      // Instant press on mousedown
+      // Step A: Cursor clicks down (mousedown)
       macCursor?.classList.add("clicking");
-      cursorRipple?.classList.remove("active");
-      void cursorRipple?.offsetWidth; // trigger reflow for clean replay
-      cursorRipple?.classList.add("active");
       dockTerminalApp?.classList.add("app-press");
 
-      // Mouse release (100ms later) -> spring into launch bounce
+      // Step B: Right after the cursor clicks (110ms later) -> orange circle blooms & app launches into bounce
       safeTimeout(() => {
         macCursor?.classList.remove("clicking");
+        cursorRipple?.classList.remove("active");
+        void cursorRipple?.offsetWidth; // trigger reflow for clean animation replay
+        cursorRipple?.classList.add("active");
+
         dockTerminalApp?.classList.remove("app-press", "dock-hover");
         dockTerminalApp?.classList.add("launching-bounce");
-      }, 100);
-    }, 1750);
+      }, 110);
+    }, 1680);
 
     // 5. Terminal window launches and zooms open from dock during the bounce apex
     safeTimeout(() => {
@@ -573,18 +574,18 @@ function initBootSequence() {
         macCursor.style.transform = `translate(${window.innerWidth * 0.76}px, ${window.innerHeight * 0.68}px)`;
         macCursor.style.opacity = "0.25";
       }
-    }, 2150);
+    }, 2200);
 
     // 6. Clean up bounce classes after animation finishes
     safeTimeout(() => {
       dockTerminalApp?.classList.remove("launching-bounce", "bounce");
-    }, 2550);
+    }, 2600);
 
     // 7. Begin code execution inside the opened Terminal window
     safeTimeout(() => {
       stepIdx = 0;
       runNextStep();
-    }, 2700);
+    }, 2750);
   }
 
   // Reboot hook for CLI drawer and buttons
