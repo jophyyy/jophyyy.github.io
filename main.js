@@ -824,12 +824,21 @@ function initInteractiveCLI() {
       case "help":
         appendHistoryLine(`
           <strong>Jophy's Personal Commands:</strong><br>
-          &nbsp;&nbsp;<span class="cmd-highlight">wave</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Trigger particle wave pulse<br>
-          &nbsp;&nbsp;<span class="cmd-highlight">signal</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Push live telemetry signal<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">contact</span>&nbsp;&nbsp;&nbsp;&nbsp;- Get in touch / email<br>
           &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Print system status<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">wave</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Trigger particle wave pulse<br>
           &nbsp;&nbsp;<span class="cmd-highlight">reboot</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Re-run bootloader sequence<br>
           &nbsp;&nbsp;<span class="cmd-highlight">clear</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Clear console buffer<br>
           &nbsp;&nbsp;<span class="cmd-highlight">exit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Close drawer
+        `);
+        break;
+
+      case "contact":
+      case "email":
+        appendHistoryLine(`
+          <strong>Contact Jophy:</strong><br>
+          • Email: <a href="mailto:jophyc@engineering.upenn.edu" style="color: var(--amber); text-decoration: underline;">jophyc@engineering.upenn.edu</a><br>
+          • University: University of Pennsylvania (Engineering)
         `);
         break;
 
@@ -837,12 +846,6 @@ function initInteractiveCLI() {
       case "pulse":
         if (window.pulseWave) window.pulseWave();
         appendHistoryLine("Particle wave perturbation injected.");
-        break;
-
-      case "signal":
-      case "push":
-        if (window.pushSignal) window.pushSignal();
-        appendHistoryLine("Telemetry signal emitted to Signal Feed.");
         break;
 
       case "status":
