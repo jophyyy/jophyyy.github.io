@@ -458,75 +458,156 @@ body.depth-body {
   animation: none !important;
 }
 
-/* 3 Pop-up Boxes */
+/* ==========================================================================
+   4. WORKING ON SECTION: 3 POST-IT NOTES TABBED ON
+   ========================================================================== */
 .working-boxes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: clamp(22px, 3.2vw, 38px);
+  padding: 20px 4px 10px;
 }
 
-.working-box {
-  min-height: 180px;
-  border-radius: 12px;
-  padding: 24px;
+.working-box.postit-note {
+  min-height: 205px;
+  border-radius: 3px 3px 6px 6px;
+  padding: 24px 22px 20px;
   position: relative;
   box-sizing: border-box;
   opacity: 0;
   transform: translateY(28px) scale(0.94);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.25),
-              box-shadow 0.25s ease,
-              border-color 0.25s ease;
+              transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.25),
+              box-shadow 0.3s ease;
+  user-select: none;
 }
 
-/* Pop-up staggered spring effect */
+/* Authentic Top Adhesive Strip */
+.working-box.postit-note::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.035);
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.07);
+  border-radius: 3px 3px 0 0;
+  pointer-events: none;
+}
+
+/* Subtle Corner Peel Shade at Bottom-Right */
+.working-box.postit-note::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, transparent 55%, rgba(0, 0, 0, 0.04) 100%);
+  border-radius: 0 0 6px 0;
+  pointer-events: none;
+}
+
+/* Translucent Frosted Tape / Tab Strip */
+.postit-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 76px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  box-shadow: 0 2px 5px rgba(45, 35, 20, 0.08);
+  border-radius: 2px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.postit-tape.tape-1 {
+  transform: translateX(-50%) rotate(-1deg);
+}
+
+.postit-tape.tape-2 {
+  transform: translateX(-50%) rotate(1.4deg);
+}
+
+.postit-tape.tape-3 {
+  transform: translateX(-50%) rotate(-1.5deg);
+}
+
+/* Pop-up staggered spring effect with post-it individual tilt */
 .working-boxes.boxes-revealed .working-box:nth-child(1) {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0) rotate(-1.5deg) scale(1);
   transition-delay: 0.05s;
 }
 
 .working-boxes.boxes-revealed .working-box:nth-child(2) {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0) rotate(1.2deg) scale(1);
   transition-delay: 0.18s;
 }
 
 .working-boxes.boxes-revealed .working-box:nth-child(3) {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0) rotate(-0.9deg) scale(1);
   transition-delay: 0.31s;
 }
 
-/* Box 1: My Roblox Game */
-.working-box.box-active {
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(215, 208, 195, 0.8);
+/* Lift on Hover */
+.working-box.postit-note:hover {
+  transform: translateY(-8px) rotate(0deg) scale(1.025) !important;
   box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.04),
-    0 2px 6px rgba(0, 0, 0, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    0 22px 36px -6px rgba(45, 35, 20, 0.18),
+    0 8px 16px -2px rgba(45, 35, 20, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  z-index: 10;
+}
+
+/* 1. Canary Yellow Post-it (Note 1) */
+.working-box.postit-yellow {
+  background: linear-gradient(172deg, #fffde7 0%, #fef9c3 30%, #fef08a 100%);
+  border: 1px solid rgba(202, 138, 4, 0.28);
+  box-shadow: 
+    0 12px 24px -5px rgba(60, 45, 20, 0.14),
+    0 4px 8px -2px rgba(60, 45, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
-.working-box.box-active:hover {
-  transform: translateY(-5px) scale(1.015);
-  border-color: var(--amber);
+/* 2. Soft Pastel Sky Post-it (Note 2) */
+.working-box.postit-blue {
+  background: linear-gradient(172deg, #f0f9ff 0%, #e0f2fe 32%, #bae6fd 100%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
   box-shadow: 
-    0 20px 44px rgba(217, 119, 6, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 12px 24px -5px rgba(20, 45, 60, 0.12),
+    0 4px 8px -2px rgba(20, 45, 60, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
+/* 3. Soft Pastel Peach/Rose Post-it (Note 3) */
+.working-box.postit-pink {
+  background: linear-gradient(172deg, #fff1f2 0%, #ffe4e6 32%, #fecdd3 100%);
+  border: 1px solid rgba(244, 63, 94, 0.24);
+  box-shadow: 
+    0 12px 24px -5px rgba(60, 20, 35, 0.12),
+    0 4px 8px -2px rgba(60, 20, 35, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Inner Elements */
 .box-top-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  position: relative;
+  z-index: 2;
 }
 
 .box-icon-wrap {
@@ -535,37 +616,40 @@ body.depth-body {
 
 .box-corner-arrow {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
-  color: var(--text-dim);
+  font-size: 1.15rem;
+  color: #78350f;
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .working-box.box-active:hover .box-corner-arrow {
-  transform: translate(2px, -2px);
-  color: var(--amber);
+  transform: translate(3px, -3px);
+  color: #b45309;
 }
 
 .box-details {
-  margin-top: 18px;
+  margin-top: 14px;
+  position: relative;
+  z-index: 2;
 }
 
 .box-title {
   font-family: var(--font-pixel);
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--text-pixel);
+  color: #1c1917;
   margin: 0 0 6px 0;
   letter-spacing: -0.01em;
 }
 
 .box-status {
   font-family: var(--font-mono);
-  font-size: 0.76rem;
-  color: var(--text-muted);
+  font-size: 0.75rem;
+  color: #44403c;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  font-weight: 500;
 }
 
 .status-dot {
@@ -577,26 +661,74 @@ body.depth-body {
   animation: statusPulse 2s infinite;
 }
 
-@keyframes statusPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.6; }
+.status-dot.dot-cyan {
+  background-color: #0284c7;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
 }
 
-/* Boxes 2 & 3: Blank Boxes */
-.working-box.box-blank {
-  background: rgba(255, 255, 255, 0.28);
-  border: 1px dashed rgba(200, 192, 180, 0.7);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+.status-dot.dot-pink {
+  background-color: #e11d48;
+  box-shadow: 0 0 6px rgba(225, 29, 72, 0.6);
+}
+
+/* Post-it Subnotes / Tags on Note 1 */
+.postit-subnote {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  position: relative;
+  z-index: 2;
 }
 
-.working-box.box-blank:hover {
-  border-color: rgba(180, 170, 155, 0.9);
-  background: rgba(255, 255, 255, 0.38);
+.postit-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  background: rgba(0, 0, 0, 0.05);
+  color: #57534e;
+  padding: 2px 7px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Post-it Header Tags for Notes 2 & 3 */
+.postit-num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #44403c;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.postit-pin-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  color: #292524;
+}
+
+/* Faint Ruled Notepad Lines for Blank Notes */
+.postit-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 14px 0 6px 0;
+  opacity: 0.45;
+  position: relative;
+  z-index: 2;
+}
+
+.postit-lines .p-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
 
 /* ==========================================================================
