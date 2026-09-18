@@ -506,7 +506,8 @@ function initBootSequence() {
   function startDesktopSequence() {
     // Initial desktop state
     macTerminalWindow?.classList.add("dock-collapsed");
-    dockTerminalApp?.classList.remove("dock-hover", "bounce");
+    dockTerminalApp?.classList.remove("dock-hover", "app-press", "bounce", "launching-bounce");
+    macCursor?.classList.remove("clicking");
     cursorRipple?.classList.remove("active");
     bootLinesContainer.innerHTML = "";
     if (currentTyping) currentTyping.textContent = "";
@@ -517,43 +518,73 @@ function initBootSequence() {
       macCursor.style.transform = `translate(${window.innerWidth * 0.48}px, ${window.innerHeight * 0.35}px)`;
     }
 
+    // Helper: compute target coordinates centered on the Terminal dock icon
+    function getDockTarget() {
+      if (!dockTerminalApp) return { x: window.innerWidth * 0.5, y: window.innerHeight * 0.92 };
+      const iconBox = dockTerminalApp.querySelector(".dock-icon-box") || dockTerminalApp;
+      const rect = iconBox.getBoundingClientRect();
+      // Arrow tip is at (x + 2, y + 2), so target tip precisely to the center of the icon
+      return {
+        x: rect.left + rect.width * 0.5 - 2,
+        y: rect.top + rect.height * 0.5 - 2
+      };
+    }
+
     // 2. Cursor glides smoothly down to the Terminal dock icon
     safeTimeout(() => {
-      if (!dockTerminalApp || !macCursor) return;
-      const rect = dockTerminalApp.getBoundingClientRect();
-      const targetX = rect.left + rect.width * 0.5 - 6;
-      const targetY = rect.top + rect.height * 0.4;
-      macCursor.style.transform = `translate(${targetX}px, ${targetY}px)`;
-    }, 450);
+      if (!macCursor) return;
+      const target = getDockTarget();
+      macCursor.style.transform = `translate(${target.x}px, ${target.y}px)`;
+    }, 400);
 
-    // 3. Hover state triggers icon magnification
+    // 3. Hover state triggers as cursor arrives, elevating the icon
     safeTimeout(() => {
       dockTerminalApp?.classList.add("dock-hover");
-    }, 1550);
+      // Keep cursor tip locked to icon center during hover elevation (-8px)
+      if (macCursor) {
+        const target = getDockTarget();
+        macCursor.style.transform = `translate(${target.x}px, ${target.y - 8}px)`;
+      }
+    }, 1450);
 
-    // 4. Mouse click animation (click ripple + dock icon bounce)
+    // 4. Mouse click: perfectly synchronized (cursor press + orange ripple + app compress)
     safeTimeout(() => {
+      // Instant press on mousedown
+      macCursor?.classList.add("clicking");
+      cursorRipple?.classList.remove("active");
+      void cursorRipple?.offsetWidth; // trigger reflow for clean replay
       cursorRipple?.classList.add("active");
-      dockTerminalApp?.classList.add("bounce");
-    }, 1900);
+      dockTerminalApp?.classList.add("app-press");
 
-    // 5. Terminal window launches and zooms open from dock
+      // Mouse release (100ms later) -> spring into launch bounce
+      safeTimeout(() => {
+        macCursor?.classList.remove("clicking");
+        dockTerminalApp?.classList.remove("app-press", "dock-hover");
+        dockTerminalApp?.classList.add("launching-bounce");
+      }, 100);
+    }, 1750);
+
+    // 5. Terminal window launches and zooms open from dock during the bounce apex
     safeTimeout(() => {
-      dockTerminalApp?.classList.remove("dock-hover");
       macTerminalWindow?.classList.remove("dock-collapsed");
       
-      // Move cursor aside subtly
+      // Move cursor aside smoothly out of the way of the terminal
       if (macCursor) {
         macCursor.style.transform = `translate(${window.innerWidth * 0.76}px, ${window.innerHeight * 0.68}px)`;
         macCursor.style.opacity = "0.25";
       }
-    }, 2350);
+    }, 2150);
 
-    // 6. Begin code execution inside the opened Terminal window
+    // 6. Clean up bounce classes after animation finishes
+    safeTimeout(() => {
+      dockTerminalApp?.classList.remove("launching-bounce", "bounce");
+    }, 2550);
+
+    // 7. Begin code execution inside the opened Terminal window
     safeTimeout(() => {
       stepIdx = 0;
       runNextStep();
-    }, 2850);
+    }, 2700);
   }
 
   // Reboot hook for CLI drawer and buttons
