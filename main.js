@@ -785,7 +785,7 @@ function initInteractiveCLI() {
       cmdHistoryList.push(rawCmd);
       historyPointer = cmdHistoryList.length;
 
-      appendHistoryLine(`depth:~$ ${rawCmd}`, "cmd-echo");
+      appendHistoryLine(`boopbot:~$ ${rawCmd}`, "cmd-echo");
       cliInput.value = "";
 
       processCLICommand(rawCmd.toLowerCase());
@@ -807,7 +807,7 @@ function initInteractiveCLI() {
 
   window.cliExecute = function(cmd) {
     toggleDrawer(true);
-    appendHistoryLine(`depth:~$ ${cmd}`, "cmd-echo");
+    appendHistoryLine(`boopbot:~$ ${cmd}`, "cmd-echo");
     processCLICommand(cmd.toLowerCase());
   };
 
@@ -823,7 +823,7 @@ function initInteractiveCLI() {
     switch (cmd) {
       case "help":
         appendHistoryLine(`
-          <strong>Jophy's Personal Commands:</strong><br>
+          <strong>boopbot Commands:</strong><br>
           &nbsp;&nbsp;<span class="cmd-highlight">contact</span>&nbsp;&nbsp;&nbsp;&nbsp;- Get in touch / email<br>
           &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Print system status<br>
           &nbsp;&nbsp;<span class="cmd-highlight">wave</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Trigger particle wave pulse<br>
@@ -831,6 +831,11 @@ function initInteractiveCLI() {
           &nbsp;&nbsp;<span class="cmd-highlight">clear</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Clear console buffer<br>
           &nbsp;&nbsp;<span class="cmd-highlight">exit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Close drawer
         `);
+        break;
+
+      case "boop":
+      case "boopbot":
+        appendHistoryLine("🤖 *boop!* boopbot is online and listening.");
         break;
 
       case "contact":
