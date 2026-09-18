@@ -824,7 +824,7 @@ function initInteractiveCLI() {
       case "help":
         appendHistoryLine(`
           <strong>boopbot Commands:</strong><br>
-          &nbsp;&nbsp;<span class="cmd-highlight">contact</span>&nbsp;&nbsp;&nbsp;&nbsp;- Get in touch / email<br>
+          &nbsp;&nbsp;<span class="cmd-highlight">contact</span>&nbsp;&nbsp;&nbsp;&nbsp;- Email & socials (LinkedIn, GitHub)<br>
           &nbsp;&nbsp;<span class="cmd-highlight">status</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Print system status<br>
           &nbsp;&nbsp;<span class="cmd-highlight">wave</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Trigger particle wave pulse<br>
           &nbsp;&nbsp;<span class="cmd-highlight">reboot</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Re-run bootloader sequence<br>
@@ -840,11 +840,21 @@ function initInteractiveCLI() {
 
       case "contact":
       case "email":
+      case "links":
         appendHistoryLine(`
           <strong>Contact Jophy:</strong><br>
           • Email: <a href="mailto:jophyc@engineering.upenn.edu" style="color: var(--amber); text-decoration: underline;">jophyc@engineering.upenn.edu</a><br>
-          • University: University of Pennsylvania (Engineering)
+          • LinkedIn: <a href="https://www.linkedin.com/in/jophy-chen/" target="_blank" rel="noopener noreferrer" style="color: var(--amber); text-decoration: underline;">https://www.linkedin.com/in/jophy-chen/</a><br>
+          • GitHub: <a href="https://github.com/jophyyy" target="_blank" rel="noopener noreferrer" style="color: var(--amber); text-decoration: underline;">https://github.com/jophyyy</a>
         `);
+        break;
+
+      case "linkedin":
+        appendHistoryLine(`LinkedIn: <a href="https://www.linkedin.com/in/jophy-chen/" target="_blank" rel="noopener noreferrer" style="color: var(--amber); text-decoration: underline;">https://www.linkedin.com/in/jophy-chen/</a>`);
+        break;
+
+      case "github":
+        appendHistoryLine(`GitHub: <a href="https://github.com/jophyyy" target="_blank" rel="noopener noreferrer" style="color: var(--amber); text-decoration: underline;">https://github.com/jophyyy</a>`);
         break;
 
       case "wave":
