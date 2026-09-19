@@ -1091,13 +1091,11 @@ body.depth-body {
   position: relative;
   height: 100vh;
   width: 100%;
-  background-color: #111115;
-  background: radial-gradient(circle at 50% 50%, #17171e 0%, #0d0d11 100%);
-  border-top: 1px solid rgba(0, 0, 0, 0.25);
-  box-shadow: inset 0 24px 36px -12px rgba(0, 0, 0, 0.45);
+  background-color: #faf7ee;
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
   box-sizing: border-box;
   overflow: hidden;
-  z-index: 2;
+  z-index: 1;
 }
 
 .track-stage {
@@ -1177,9 +1175,9 @@ body.depth-body {
   height: clamp(220px, 32vh, 340px);
   object-fit: cover;
   border-radius: 14px;
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 38px -6px rgba(28, 25, 23, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
   pointer-events: none;
-  background-color: #1a1a1e;
+  background-color: #ece7db;
   will-change: object-position;
 }
 
@@ -1197,9 +1195,9 @@ body.depth-body {
    ========================================================================== */
 .site-footer {
   width: 100%;
-  background-color: #0b0b0e;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+  background-color: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
   position: relative;
   z-index: 2;
@@ -1985,7 +1983,7 @@ body.booting {
     width: clamp(94px, 29vw, 145px);
     height: clamp(135px, 24vh, 210px);
     border-radius: 8px;
-    box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.09);
+    box-shadow: 0 8px 22px -3px rgba(28, 25, 23, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
   }
 }
 
