@@ -1163,6 +1163,7 @@ function initVerticalImageTrack() {
   const stage = document.getElementById("track-stage");
 
   const trackColumns = document.getElementById("track-columns") || (stage ? stage.querySelector(".track-columns") : null);
+  const bgText = document.getElementById("showcase-bg-text");
 
   if (!trackMid || !stage) return;
 
@@ -1262,6 +1263,36 @@ function initVerticalImageTrack() {
       trackColumns.animate(
         {
           transform: `scale(${currentScale.toFixed(4)})`,
+        },
+        { duration: animDuration, fill: "forwards" }
+      );
+    }
+
+    // 4. Parallax Background Ambient Text (Moves Left-to-Right and appears near middle of scroll)
+    if (bgText) {
+      const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
+
+      // Horizontal Parallax: Shifts Left to Right as you scroll down (and vice versa)
+      // Ranges smoothly from -35vw (left) at 0, passing through 0vw (center) at 0.5, to +35vw (right) at 1.0
+      const xTravel = (progress - 0.5) * 70;
+
+      // Opacity Curve: Appears near the middle of the scroll (fades in 0.16 -> 0.40),
+      // peaks and stays fully visible across the central scrubbing range, then softly tapers near 0.85 -> 1.0
+      let textOpacity = 0;
+      if (progress < 0.16) {
+        textOpacity = 0;
+      } else if (progress < 0.40) {
+        textOpacity = (progress - 0.16) / (0.40 - 0.16);
+      } else if (progress <= 0.82) {
+        textOpacity = 1;
+      } else {
+        textOpacity = Math.max(0, 1 - (progress - 0.82) / 0.18);
+      }
+
+      bgText.animate(
+        {
+          transform: `translateX(${xTravel.toFixed(2)}vw)`,
+          opacity: textOpacity.toFixed(3),
         },
         { duration: animDuration, fill: "forwards" }
       );

@@ -1115,6 +1115,36 @@ body.depth-body {
   cursor: grabbing;
 }
 
+/* Floating Parallax Background Text Behind Columns */
+.showcase-bg-text-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.showcase-bg-text {
+  font-family: var(--font-pixel);
+  font-size: clamp(3.2rem, 7.8vw, 7.5rem);
+  font-weight: 700;
+  letter-spacing: clamp(1px, 0.25vw, 4px);
+  color: rgba(22, 22, 26, 0.42);
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  text-transform: lowercase;
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: translateX(-35vw);
+}
+
 .track-columns {
   display: flex;
   justify-content: center;
@@ -1126,6 +1156,7 @@ body.depth-body {
   padding: 0 clamp(12px, 2.5vw, 40px);
   box-sizing: border-box;
   position: relative;
+  z-index: 2;
   transform-origin: center center;
   will-change: transform;
   transform: scale(0.75);
@@ -1984,6 +2015,9 @@ body.booting {
     height: clamp(135px, 24vh, 210px);
     border-radius: 8px;
     box-shadow: 0 8px 22px -3px rgba(28, 25, 23, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+  .showcase-bg-text {
+    font-size: clamp(2rem, 7vw, 3.4rem);
   }
 }
 
