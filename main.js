@@ -1385,7 +1385,8 @@ function initVerticalImageTrack() {
       updateTimeline(progress);
     }
 
-    // 2. Grid Entrance & Motion (Starts as you near 2030, around progress = 0.24)
+    // 2. Grid Entrance & Continuous Motion (Progress 0.24 -> 0.98)
+    // Grid smoothly glides the entire time with NO frozen dead zones!
     let gridEntrance = 0;
     let gridProgress = 0;
 
@@ -1395,18 +1396,14 @@ function initVerticalImageTrack() {
     } else if (progress < 0.36) {
       // Fades in smoothly as you near 2030
       gridEntrance = (progress - 0.24) / 0.12;
-      gridProgress = (progress - 0.24) / 0.62;
-    } else if (progress <= 0.86) {
+      gridProgress = (progress - 0.24) / 0.72;
+    } else if (progress <= 0.91) {
       gridEntrance = 1.0;
-      gridProgress = (progress - 0.24) / 0.62;
-    } else if (progress <= 0.94) {
-      // Grid scroll has ended (1.0), text is centered (0vw) and popped out
-      gridEntrance = 1.0;
-      gridProgress = 1.0;
+      gridProgress = (progress - 0.24) / 0.72;
     } else {
-      // Text and grid scroll disappear together at the end (0.94 to 1.0)
-      gridEntrance = Math.max(0, 1.0 - (progress - 0.94) / 0.06);
-      gridProgress = 1.0;
+      // Seamless exit fade: text and grid dissolve effortlessly together into footer
+      gridEntrance = Math.max(0, 1.0 - (progress - 0.91) / 0.09);
+      gridProgress = Math.min((progress - 0.24) / 0.72, 1.0);
     }
 
     const clampedGridProgress = Math.min(Math.max(gridProgress, 0), 1);
@@ -1443,35 +1440,35 @@ function initVerticalImageTrack() {
     const { min: minScale, max: maxScale } = getTrackScaleRange();
     const currentScale = minScale + clampedGridProgress * (maxScale - minScale);
 
-    // 4. Background Text & Finale Spotlight (Timing: Very End of Grid Scroll)
-    // - As grid scroll nears the end (clampedGridProgress 0.68 -> 0.92), text slides left-to-right toward center
-    // - When grid scroll ends (clampedGridProgress >= 0.92 through progress 0.94), text locks at center (xTravel = 0, NO scroll to right) and pops out!
-    // - As you continue scrolling (progress 0.94 -> 1.0), text and grid scroll disappear together!
+    // 4. Background Text & Finale Spotlight (Seamless End-of-Grid Flow)
+    // - As grid nears end (clampedGridProgress 0.70 -> 0.88), text slides in left-to-center
+    // - At clampedGridProgress >= 0.88, text locks at center (0vw) and pops out
+    // - From progress 0.91 -> 1.00, text and grid dissolve together seamlessly and easily, with zero blocking!
     let spotlightOpacity = 1.0;
     let textOpacity = 0;
-    let xTravel = -26;
-    let textPopScale = 0.95;
+    let xTravel = -22;
+    let textPopScale = 0.96;
 
-    if (clampedGridProgress < 0.68) {
-      // Quiet during early/mid grid scrolling
+    if (clampedGridProgress < 0.70) {
+      // Clean and quiet during main grid scroll
       spotlightOpacity = 1.0;
       textOpacity = 0;
-      xTravel = -26;
-      textPopScale = 0.95;
-    } else if (clampedGridProgress < 0.92) {
+      xTravel = -22;
+      textPopScale = 0.96;
+    } else if (clampedGridProgress < 0.88) {
       // Nearing the end: slides left to right toward center (0vw)
-      const tSlide = (clampedGridProgress - 0.68) / 0.24;
-      xTravel = -26 * (1.0 - tSlide); // -26vw up to 0vw
-      textOpacity = tSlide * 0.48;
-      textPopScale = 0.95 + tSlide * 0.05;
+      const tSlide = (clampedGridProgress - 0.70) / 0.18;
+      xTravel = -22 * (1.0 - tSlide); // -22vw up to 0vw
+      textOpacity = tSlide * 0.55;
+      textPopScale = 0.96 + tSlide * 0.04;
       spotlightOpacity = 1.0;
     } else {
       // Grid scroll ends: text centers at 0vw (locked at center, never scrolls right) and pops out!
-      const tPop = progress < 0.86 ? (clampedGridProgress - 0.92) / 0.08 : 1.0;
+      const tPop = Math.min((clampedGridProgress - 0.88) / 0.08, 1.0);
       xTravel = 0; // strictly centered, no scroll to right
-      textOpacity = 0.48 + tPop * 0.52; // reaches 1.0
-      textPopScale = 1.00 + tPop * 0.08; // reaches 1.08
-      spotlightOpacity = 1.0 - tPop * 0.52; // pictures dim down to ~0.48 so text pops out!
+      textOpacity = 0.55 + tPop * 0.45; // reaches 1.0
+      textPopScale = 1.00 + tPop * 0.07; // reaches 1.07
+      spotlightOpacity = 1.0 - tPop * 0.45; // pictures soften down to ~0.55
     }
 
     const effectiveColumnsOpacity = gridEntrance * spotlightOpacity;
