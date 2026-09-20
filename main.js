@@ -1154,6 +1154,133 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
+   5c. SHOWCASE TIMELINE HEADER ANIMATION (2008 -> 2026 -> my dream is...)
+   ========================================================================== */
+function initShowcaseTimeline() {
+  const header = document.getElementById("showcase-timeline-header");
+  const track = document.getElementById("timeline-track");
+  if (!header || !track) return null;
+
+  // Years from 2008 to 2026
+  const years = [];
+  for (let y = 2008; y <= 2026; y++) {
+    years.push(y);
+  }
+
+  track.innerHTML = "";
+  const nodes = [];
+
+  years.forEach((year, index) => {
+    const node = document.createElement("div");
+    node.className = "timeline-node";
+    node.dataset.index = index;
+    node.innerHTML = `
+      <span class="timeline-node-dot"></span>
+      <span class="timeline-node-year">${year}</span>
+      <span class="timeline-node-line"></span>
+    `;
+    track.appendChild(node);
+    nodes.push(node);
+  });
+
+  // Finale node: "my dream is..."
+  const dreamNode = document.createElement("div");
+  dreamNode.className = "timeline-node timeline-node-dream";
+  dreamNode.dataset.index = years.length;
+  dreamNode.innerHTML = `
+    <span class="timeline-node-dot timeline-dream-dot"></span>
+    <span class="timeline-dream-badge">my dream is...</span>
+  `;
+  track.appendChild(dreamNode);
+  nodes.push(dreamNode);
+
+  const totalMilestones = nodes.length; // 20
+
+  let animStartTime = null;
+  const animDuration = 3800; // 3.8s smooth progression
+  let hasStartedAnim = false;
+  let isAnimComplete = false;
+
+  function resetTimeline() {
+    animStartTime = null;
+    hasStartedAnim = false;
+    isAnimComplete = false;
+    nodes.forEach((n) => {
+      n.classList.remove("is-revealed", "is-active");
+    });
+    header.style.opacity = "0";
+    track.style.transform = `translateX(${window.innerWidth}px)`;
+  }
+
+  function updateTimeline(scrollProgress, entranceOpacity) {
+    header.style.opacity = entranceOpacity.toFixed(3);
+
+    // If completely hidden / outside showcase, reset so animation replays upon re-entry
+    if (entranceOpacity <= 0) {
+      if (hasStartedAnim || isAnimComplete) {
+        resetTimeline();
+      }
+      return false;
+    }
+
+    const now = performance.now();
+    if (!hasStartedAnim) {
+      hasStartedAnim = true;
+      animStartTime = now;
+    }
+
+    let animProgress = 0;
+    if (animStartTime !== null) {
+      animProgress = Math.min((now - animStartTime) / animDuration, 1.0);
+      if (animProgress >= 1.0) {
+        isAnimComplete = true;
+      }
+    }
+
+    // Effective progress: advances either by the time-based animation OR by scroll progress
+    const effectiveProgress = Math.min(Math.max(Math.max(animProgress, scrollProgress), 0), 1);
+
+    // Active milestone index (0 to 19)
+    const activeIndex = Math.min(Math.floor(effectiveProgress * (totalMilestones - 0.001)), totalMilestones - 1);
+
+    // Reveal nodes up to activeIndex
+    for (let i = 0; i < totalMilestones; i++) {
+      const node = nodes[i];
+      if (i <= activeIndex) {
+        node.classList.add("is-revealed");
+        if (i === activeIndex) {
+          node.classList.add("is-active");
+        } else {
+          node.classList.remove("is-active");
+        }
+      } else {
+        node.classList.remove("is-revealed", "is-active");
+      }
+    }
+
+    // Horizontal translation of the track:
+    // When progress = 0: 2008 (first node) appears on the right edge of viewport (~76vw)
+    // As progress advances: the track glides to the left, revealing new years on the right
+    // When progress = 1: "my dream is..." settles gracefully near the center of the header!
+    const activeNode = nodes[activeIndex];
+    if (activeNode) {
+      const vw = window.innerWidth;
+      const focalTargetX = (vw * 0.76) - (effectiveProgress * vw * 0.28);
+      const nodeOffset = activeNode.offsetLeft > 0 ? activeNode.offsetLeft : (activeIndex * 96);
+      const targetTrackX = focalTargetX - nodeOffset;
+      track.style.transform = `translateX(${targetTrackX.toFixed(1)}px)`;
+    }
+
+    return !isAnimComplete;
+  }
+
+  return {
+    updateTimeline,
+    resetTimeline,
+  };
+}
+
+/* ==========================================================================
    VERTICAL SLIDING IMAGE TRACK (3 Simultaneous Counter-Scrolling Columns)
    ========================================================================== */
 function initVerticalImageTrack() {
@@ -1167,6 +1294,8 @@ function initVerticalImageTrack() {
   const bgText = document.getElementById("showcase-bg-text");
 
   if (!trackMid || !stage || !showcaseSection) return;
+
+  const timeline = initShowcaseTimeline();
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
@@ -1299,6 +1428,11 @@ function initVerticalImageTrack() {
       bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
       bgText.style.opacity = effectiveTextOpacity.toFixed(3);
     }
+
+    // 5. Update Timeline Header
+    if (timeline) {
+      timeline.updateTimeline(clampedProgress, entranceOpacity);
+    }
   }
 
   // Smooth lerp state
@@ -1312,7 +1446,9 @@ function initVerticalImageTrack() {
     const pDiff = targetProgress - currentProgress;
     const eDiff = targetEntrance - currentEntrance;
 
-    if (Math.abs(pDiff) > 0.0003 || Math.abs(eDiff) > 0.002) {
+    const timelineActive = timeline ? timeline.updateTimeline(currentProgress, currentEntrance) : false;
+
+    if (Math.abs(pDiff) > 0.0003 || Math.abs(eDiff) > 0.002 || timelineActive) {
       currentProgress += pDiff * 0.18;
       currentEntrance += eDiff * 0.18;
       isAnimating = true;
