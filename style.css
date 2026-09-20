@@ -55,6 +55,7 @@ html {
   color: var(--text-pixel);
   font-family: var(--font-mono);
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 body.depth-body {
@@ -63,6 +64,7 @@ body.depth-body {
   background-color: var(--bg-void);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
   -moz-osx-font-smoothing: grayscale;
 }
 

@@ -392,7 +392,6 @@ function initBootSequence() {
     }
     setTimeout(() => {
       macDesktop.style.display = "none";
-      window.scrollTo(0, 0);
     }, 550);
   }
 
