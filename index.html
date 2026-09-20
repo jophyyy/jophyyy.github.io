@@ -21,7 +21,7 @@
   <!-- Stylesheet -->
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f59e0b%22/></svg>">
-  <link rel="stylesheet" href="style.css?v=8.6">
+  <link rel="stylesheet" href="style.css?v=8.7">
 </head>
 
 <body class="depth-body booting">
@@ -384,15 +384,25 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 4b. 3-TRACK VERTICAL SHOWCASE (Hyperplexed / Camille Mormal)              -->
+    <!-- 4b. SECTION TITLE: TIMELINE & JOURNEY (Visible before the grid)           -->
+    <!-- ========================================================================= -->
+    <section id="showcase-title-section" class="showcase-title-plane" aria-label="Timeline & Dreams">
+      <div class="showcase-title-container">
+        <div class="showcase-title-header">
+          <h2 class="showcase-title-headline">timeline</h2>
+        </div>
+
+        <div class="showcase-timeline-wrapper" id="showcase-timeline-header" aria-label="Timeline from 2008 to My Dream">
+          <div class="timeline-track" id="timeline-track"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 4c. 3-TRACK VERTICAL SHOWCASE (Hyperplexed / Camille Mormal)              -->
     <!-- ========================================================================= -->
     <section id="vertical-showcase" class="track-section-wrap" aria-label="3-Track Vertical Showcase">
       <div class="track-stage" id="track-stage">
-        <!-- Floating Timeline Header (2008 -> 2026 -> my dream is...) -->
-        <div class="showcase-timeline-header" id="showcase-timeline-header" aria-label="Timeline from 2008 to My Dream">
-          <div class="timeline-track" id="timeline-track"></div>
-        </div>
-
         <!-- Floating Ambient Background Text Behind Grids -->
         <div class="showcase-bg-text-wrap" id="showcase-bg-text-wrap" aria-hidden="true">
           <div class="showcase-bg-text" id="showcase-bg-text">places i'll be someday</div>
@@ -534,7 +544,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=8.6"></script>
+  <script src="main.js?v=8.7"></script>
 </body>
 
 </html>

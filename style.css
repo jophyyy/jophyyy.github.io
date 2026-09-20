@@ -1092,7 +1092,6 @@ body.depth-body {
   height: 240vh;
   width: 100%;
   background-color: #faf7ee;
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
   box-sizing: border-box;
   overflow: visible;
   z-index: 1;
@@ -1118,28 +1117,52 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   5c. SHOWCASE TIMELINE HEADER (2008 -> 2026 -> my dream is...)
+   5b. SECTION: SHOWCASE TITLE & TIMELINE (Visible before the grid)
    ========================================================================== */
-.showcase-timeline-header {
-  position: absolute;
-  top: 0;
-  left: 0;
+.showcase-title-plane {
+  width: 100%;
+  background-color: #faf7ee;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.showcase-title-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 68px 48px 36px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.showcase-title-header {
+  margin-bottom: 24px;
+}
+
+.showcase-title-headline {
+  font-family: var(--font-pixel);
+  font-size: clamp(2rem, 3.8vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: #111115;
+  text-transform: lowercase;
+  margin: 0;
+  padding: 0;
+}
+
+.showcase-timeline-wrapper {
+  position: relative;
   width: 100%;
   height: 52px;
   display: flex;
   align-items: center;
-  pointer-events: none;
-  z-index: 12;
   overflow: hidden;
   opacity: 0;
-  will-change: opacity, transform;
-  background: rgba(250, 247, 238, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(17, 17, 21, 0.08);
-  box-shadow: 0 4px 18px rgba(28, 25, 23, 0.03);
-  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  transition: opacity 0.4s ease;
+  mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
 }
 
 .timeline-track {
@@ -1303,7 +1326,7 @@ body.depth-body {
   width: 100%;
   height: 100%;
   max-width: 1600px;
-  padding: clamp(36px, 5vh, 64px) clamp(16px, 3vw, 48px) 0;
+  padding: 0 clamp(16px, 3vw, 48px);
   box-sizing: border-box;
   position: relative;
   z-index: 2;
@@ -2181,12 +2204,11 @@ body.booting {
   .showcase-bg-text {
     font-size: clamp(2rem, 7vw, 3.4rem);
   }
-  .showcase-timeline-header {
-    top: 0;
+  .showcase-title-container {
+    padding: 44px 20px 24px;
+  }
+  .showcase-timeline-wrapper {
     height: 42px;
-    background: rgba(250, 247, 238, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
   }
