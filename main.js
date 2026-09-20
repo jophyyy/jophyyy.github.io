@@ -1157,15 +1157,17 @@ function initWorkingSection() {
 /* ==========================================================================
    5b. SHOWCASE NUMBER LINE ANIMATION (Full Bleed, 5x Scale, Continuous Travel)
    ========================================================================== */
+/* ==========================================================================
+   5b. SCROLL NUMBER LINE (2026 -> 2040, 7 Years View, Scroll-Driven)
+   ========================================================================== */
 function initShowcaseTimeline() {
-  const titleSection = document.getElementById("showcase-title-section");
   const header = document.getElementById("showcase-timeline-header");
   const track = document.getElementById("timeline-track");
-  if (!titleSection || !header || !track) return;
+  if (!header || !track) return null;
 
-  // Years from 2008 to 2026 (19 years)
+  // Years from 2026 to 2040 (15 years)
   const years = [];
-  for (let y = 2008; y <= 2026; y++) {
+  for (let y = 2026; y <= 2040; y++) {
     years.push(y);
   }
 
@@ -1183,7 +1185,7 @@ function initShowcaseTimeline() {
   const axisFill = track.querySelector("#number-line-axis-fill");
   const axisBg = track.querySelector("#number-line-axis-bg");
 
-  // Generate Year Nodes (2008 to 2026)
+  // Generate Year Nodes (2026 to 2040)
   years.forEach((year, index) => {
     const node = document.createElement("div");
     node.className = "number-line-node";
@@ -1196,7 +1198,7 @@ function initShowcaseTimeline() {
     nodes.push(node);
   });
 
-  // Finale node: "my dream is..." (extends past 2026)
+  // Finale node: "my dream is..." (extends past 2040)
   const dreamNode = document.createElement("div");
   dreamNode.className = "number-line-node number-line-node-dream";
   dreamNode.dataset.index = years.length;
@@ -1211,7 +1213,7 @@ function initShowcaseTimeline() {
   track.appendChild(dreamNode);
   nodes.push(dreamNode);
 
-  const totalMilestones = nodes.length; // 20
+  const totalMilestones = nodes.length; // 16 milestones
 
   // Layout computation: ensures ~7 years are visible across the screen at any time
   function computeLayout() {
@@ -1237,28 +1239,50 @@ function initShowcaseTimeline() {
 
   computeLayout();
 
-  let animStartTime = null;
-  const animDuration = 4800; // 4.8s monumental progression
-  let hasStartedAnim = false;
-  let isAnimComplete = false;
-  let animRafId = null;
-  let currentTrackX = 0;
+  window.addEventListener("resize", () => {
+    computeLayout();
+  }, { passive: true });
 
-  function renderAnim(now) {
-    if (!animStartTime) animStartTime = now;
-    const elapsed = now - animStartTime;
-    const animProgress = Math.min(elapsed / animDuration, 1.0);
+  // Pure scroll-driven timeline update:
+  // progress represents the scroll progress of #vertical-showcase (0.0 to 1.0)
+  function updateTimeline(progress) {
+    // 1. Number line opacity:
+    // Fades in as user scrolls into section (progress 0.00 to 0.05) with 2026 visible.
+    // Stays visible (1.0) while revealing all 7 years and beginning travel.
+    // As user nears 2030 (progress 0.24 to 0.36), smoothly fades out as grid scroll begins!
+    let timelineOpacity = 0;
+    if (progress <= 0) {
+      timelineOpacity = 0;
+    } else if (progress < 0.05) {
+      timelineOpacity = progress / 0.05;
+    } else if (progress < 0.24) {
+      timelineOpacity = 1.0;
+    } else if (progress < 0.36) {
+      timelineOpacity = Math.max(0, 1.0 - (progress - 0.24) / 0.12);
+    } else {
+      timelineOpacity = 0;
+    }
 
-    // Active milestone index (0 to 19)
-    const exactIndex = animProgress * (totalMilestones - 0.001);
+    header.style.opacity = timelineOpacity.toFixed(3);
+    header.style.visibility = timelineOpacity > 0 ? "visible" : "hidden";
+    header.style.pointerEvents = timelineOpacity > 0.1 ? "auto" : "none";
+
+    // 2. Progression of milestones across timeline:
+    // Maps progress 0.02 to 0.38 into timelineProgress 0.0 to 1.0
+    let timelineProgress = 0;
+    if (progress > 0.02) {
+      timelineProgress = Math.min(Math.max((progress - 0.02) / 0.36, 0), 1.0);
+    }
+
+    const exactIndex = timelineProgress * (totalMilestones - 0.001);
     const activeIndex = Math.min(Math.floor(exactIndex), totalMilestones - 1);
 
-    // Fade in nodes sequentially up to activeIndex (pure opacity fade-in, no pop-out)
+    // Reveal nodes up to activeIndex (pure opacity fade-in)
     for (let i = 0; i < totalMilestones; i++) {
       const node = nodes[i];
       if (i <= activeIndex) {
         node.classList.add("is-revealed");
-        if (i === activeIndex && !isAnimComplete) {
+        if (i === activeIndex) {
           node.classList.add("is-active");
         } else {
           node.classList.remove("is-active");
@@ -1279,10 +1303,10 @@ function initShowcaseTimeline() {
     }
 
     // Dynamic horizontal travel:
-    // Starts anchored at left margin (translateX = 0).
-    // The first 7 years (2008 - 2014) are visible across the screen.
-    // As currentFillX advances past year 7, the track smoothly glides left,
-    // causing 2008, 2009, etc. to slide off-screen to the left and disappear.
+    // Starts anchored at left margin (translateX = 0) with 2026 at x = 0.
+    // The first 7 years (2026 to 2032) are visible across the screen.
+    // As currentFillX advances past year 7 (nodePositions[6]), track glides smoothly left,
+    // sliding 2026, 2027, etc. off-screen to the left!
     const initialLead = nodePositions[6] || window.innerWidth * 0.85;
     const finalLead = window.innerWidth * 0.72;
     let focalLead = initialLead;
@@ -1291,78 +1315,11 @@ function initShowcaseTimeline() {
       focalLead = initialLead + (finalLead - initialLead) * travelProgress;
     }
     const targetTrackX = Math.min(0, focalLead - currentFillX);
-    currentTrackX += (targetTrackX - currentTrackX) * 0.22;
-    track.style.transform = `translateX(${currentTrackX.toFixed(1)}px)`;
-
-    if (animProgress < 1.0) {
-      animRafId = requestAnimationFrame(renderAnim);
-    } else {
-      isAnimComplete = true;
-      animRafId = null;
-      nodes.forEach((n) => n.classList.add("is-revealed"));
-      nodes.forEach((n) => n.classList.remove("is-active"));
-      nodes[nodes.length - 1].classList.add("is-active");
-      if (axisFill) axisFill.style.width = `${totalTrackWidth}px`;
-      // Settle smoothly with dreamNode comfortably on screen
-      const finalTargetX = Math.min(0, finalLead - dreamPosition);
-      track.style.transform = `translateX(${finalTargetX.toFixed(1)}px)`;
-    }
+    track.style.transform = `translateX(${targetTrackX.toFixed(1)}px)`;
   }
 
-  function startAnimation() {
-    if (hasStartedAnim) return;
-    hasStartedAnim = true;
-    header.style.opacity = "1";
-    animStartTime = null;
-    currentTrackX = 0;
-    track.style.transform = "translateX(0px)";
-    if (animRafId) cancelAnimationFrame(animRafId);
-    animRafId = requestAnimationFrame(renderAnim);
-  }
-
-  function resetTimeline() {
-    if (animRafId) cancelAnimationFrame(animRafId);
-    animRafId = null;
-    animStartTime = null;
-    hasStartedAnim = false;
-    isAnimComplete = false;
-    currentTrackX = 0;
-    nodes.forEach((n) => {
-      n.classList.remove("is-revealed", "is-active");
-    });
-    if (axisFill) axisFill.style.width = "0px";
-    track.style.transform = "translateX(0px)";
-    header.style.opacity = "0";
-  }
-
-  // Scroll check for when titleSection enters view
-  function checkTitleVisibility() {
-    const rect = titleSection.getBoundingClientRect();
-    const vh = window.innerHeight;
-
-    // When titleSection enters within 85% of viewport from bottom
-    if (rect.top <= vh * 0.85 && rect.bottom >= 0) {
-      startAnimation();
-    } else if (rect.top > vh) {
-      // Scrolled back above the section
-      resetTimeline();
-    }
-  }
-
-  window.addEventListener("scroll", checkTitleVisibility, { passive: true });
-
-  window.addEventListener("resize", () => {
-    computeLayout();
-    if (isAnimComplete) {
-      if (axisFill) axisFill.style.width = `${totalTrackWidth}px`;
-      const finalLead = window.innerWidth * 0.72;
-      const finalTargetX = Math.min(0, finalLead - dreamPosition);
-      track.style.transform = `translateX(${finalTargetX.toFixed(1)}px)`;
-    }
-  }, { passive: true });
-
-  // Initial check
-  checkTitleVisibility();
+  window.updateShowcaseTimeline = updateTimeline;
+  return updateTimeline;
 }
 
 /* ==========================================================================
@@ -1379,6 +1336,9 @@ function initVerticalImageTrack() {
   const bgText = document.getElementById("showcase-bg-text");
 
   if (!trackMid || !stage || !showcaseSection) return;
+
+  // Initialize timeline and get scroll updater
+  const updateTimeline = window.updateShowcaseTimeline || initShowcaseTimeline();
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
@@ -1412,30 +1372,37 @@ function initVerticalImageTrack() {
       progress = Math.min(Math.max(-rect.top / scrollDistance, 0), 1);
     }
 
-    // Entrance Opacity:
-    // Before you start scrolling into the grid (or when above it):
-    // If rect.top > 0: user is above the showcase -> entranceOpacity = 0 (100% invisible).
-    // When user enters the showcase and starts scrolling:
-    // From progress = 0.0 to progress = 0.12 (first ~12% of scroll, ~120px):
-    // Smoothly fades in from 0.0 to 1.0!
-    // For progress >= 0.12: entranceOpacity = 1.0.
-    let entranceOpacity = 0;
-    if (rect.top <= 0) {
-      if (progress < 0.12) {
-        entranceOpacity = Math.max(0, progress / 0.12);
-      } else {
-        entranceOpacity = 1.0;
-      }
-    } else {
-      entranceOpacity = 0;
-    }
-
-    return { progress, entranceOpacity };
+    return { progress };
   }
 
-  function applyTrackState(progress, entranceOpacity) {
-    const clampedProgress = Math.min(Math.max(progress, 0), 1);
-    const percentage = -clampedProgress * 100;
+  function applyTrackState(progress) {
+    // 1. Update Scroll-Driven Number Line (2026 -> 2040)
+    if (updateTimeline) {
+      updateTimeline(progress);
+    }
+
+    // 2. Grid Entrance & Motion (Starts as you near 2030, around progress = 0.24)
+    let gridEntrance = 0;
+    let gridProgress = 0;
+
+    if (progress < 0.24) {
+      gridEntrance = 0;
+      gridProgress = 0;
+    } else if (progress < 0.36) {
+      // Fades in smoothly as you near 2030
+      gridEntrance = (progress - 0.24) / 0.12;
+      gridProgress = (progress - 0.24) / 0.71;
+    } else if (progress <= 0.95) {
+      gridEntrance = 1.0;
+      gridProgress = (progress - 0.24) / 0.71;
+    } else {
+      // Graceful exit at the bottom (0.95 to 1.0)
+      gridEntrance = Math.max(0, 1.0 - (progress - 0.95) / 0.05);
+      gridProgress = 1.0;
+    }
+
+    const clampedGridProgress = Math.min(Math.max(gridProgress, 0), 1);
+    const percentage = -clampedGridProgress * 100;
     const sidePercentage = -100 - percentage;
 
     trackMid.dataset.percentage = percentage;
@@ -1466,46 +1433,48 @@ function initVerticalImageTrack() {
 
     // 3. Dynamic Grid Scale & Spotlight Dimming
     const { min: minScale, max: maxScale } = getTrackScaleRange();
-    const currentScale = minScale + clampedProgress * (maxScale - minScale);
+    const currentScale = minScale + clampedGridProgress * (maxScale - minScale);
 
     let spotlightOpacity = 1.0;
-    if (clampedProgress >= 0.32 && clampedProgress <= 0.68) {
-      const distFromCenter = Math.abs(clampedProgress - 0.50);
+    if (clampedGridProgress >= 0.32 && clampedGridProgress <= 0.68) {
+      const distFromCenter = Math.abs(clampedGridProgress - 0.50);
       const fadeFactor = 1 - (distFromCenter / 0.18);
       spotlightOpacity = 1.0 - (fadeFactor * 0.46); // dips from 1.0 down to ~0.54 at center
     }
 
-    const effectiveColumnsOpacity = entranceOpacity * spotlightOpacity;
+    const effectiveColumnsOpacity = gridEntrance * spotlightOpacity;
 
     if (trackColumns) {
       trackColumns.style.transform = `scale(${currentScale.toFixed(4)})`;
       trackColumns.style.opacity = effectiveColumnsOpacity.toFixed(3);
+      trackColumns.style.visibility = gridEntrance > 0 ? "visible" : "hidden";
+      trackColumns.style.pointerEvents = gridEntrance > 0.1 ? "auto" : "none";
     }
 
     // 4. Parallax Background Text (Pops out darker when centered, fades as pictures return, disappears at end)
     if (bgText) {
-      const xTravel = (clampedProgress - 0.5) * 62;
+      const xTravel = (clampedGridProgress - 0.5) * 62;
 
       let textOpacity = 0;
-      if (clampedProgress < 0.14) {
+      if (clampedGridProgress < 0.14) {
         textOpacity = 0;
-      } else if (clampedProgress < 0.32) {
-        textOpacity = ((clampedProgress - 0.14) / 0.18) * 0.35;
-      } else if (clampedProgress <= 0.50) {
-        const t = (clampedProgress - 0.32) / 0.18;
+      } else if (clampedGridProgress < 0.32) {
+        textOpacity = ((clampedGridProgress - 0.14) / 0.18) * 0.35;
+      } else if (clampedGridProgress <= 0.50) {
+        const t = (clampedGridProgress - 0.32) / 0.18;
         textOpacity = 0.35 + t * 0.60;
-      } else if (clampedProgress <= 0.68) {
-        const t = (clampedProgress - 0.50) / 0.18;
+      } else if (clampedGridProgress <= 0.68) {
+        const t = (clampedGridProgress - 0.50) / 0.18;
         textOpacity = 0.95 - t * 0.63;
-      } else if (clampedProgress <= 0.84) {
-        const t = (clampedProgress - 0.68) / 0.16;
+      } else if (clampedGridProgress <= 0.84) {
+        const t = (clampedGridProgress - 0.68) / 0.16;
         textOpacity = 0.32 - t * 0.17;
       } else {
-        const t = Math.min((clampedProgress - 0.84) / 0.16, 1);
+        const t = Math.min((clampedGridProgress - 0.84) / 0.16, 1);
         textOpacity = Math.max(0, 0.15 - t * 0.15);
       }
 
-      const effectiveTextOpacity = textOpacity * entranceOpacity;
+      const effectiveTextOpacity = textOpacity * gridEntrance;
       const textPopScale = 0.96 + (textOpacity / 0.95) * 0.08;
 
       bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
@@ -1516,37 +1485,30 @@ function initVerticalImageTrack() {
   // Smooth lerp state
   let targetProgress = 0;
   let currentProgress = 0;
-  let targetEntrance = 0;
-  let currentEntrance = 0;
   let isAnimating = false;
 
   function renderFrame() {
     const pDiff = targetProgress - currentProgress;
-    const eDiff = targetEntrance - currentEntrance;
 
-    if (Math.abs(pDiff) > 0.0003 || Math.abs(eDiff) > 0.002) {
+    if (Math.abs(pDiff) > 0.0003) {
       currentProgress += pDiff * 0.18;
-      currentEntrance += eDiff * 0.18;
       isAnimating = true;
       requestAnimationFrame(renderFrame);
     } else {
       currentProgress = targetProgress;
-      currentEntrance = targetEntrance;
       isAnimating = false;
     }
 
-    applyTrackState(currentProgress, currentEntrance);
+    applyTrackState(currentProgress);
   }
 
   function updateOnScroll(immediate = false) {
-    const { progress, entranceOpacity } = calculateState();
+    const { progress } = calculateState();
     targetProgress = progress;
-    targetEntrance = entranceOpacity;
 
     if (immediate) {
       currentProgress = progress;
-      currentEntrance = entranceOpacity;
-      applyTrackState(currentProgress, currentEntrance);
+      applyTrackState(currentProgress);
       return;
     }
 

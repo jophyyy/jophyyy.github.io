@@ -1089,9 +1089,10 @@ body.depth-body {
    ========================================================================== */
 .track-section-wrap {
   position: relative;
-  height: 240vh;
+  height: 380vh;
   width: 100%;
   background-color: #faf7ee;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
   overflow: visible;
   z-index: 1;
@@ -1117,30 +1118,22 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   5b. SECTION: SHOWCASE NUMBER LINE (Full Bleed, No Margins, 7 Years View)
+   5b. SCROLL NUMBER LINE (Positioned inside Sticky Showcase Stage)
    ========================================================================== */
-.showcase-title-plane {
-  width: 100%;
-  background-color: #faf7ee;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-  overflow: hidden;
-  padding: clamp(48px, 6vh, 68px) 0 clamp(54px, 7vh, 80px);
-  margin: 0;
-}
-
 .showcase-timeline-wrapper {
-  position: relative;
+  position: absolute;
+  top: clamp(65px, 14vh, 120px);
+  left: 0;
   width: 100vw;
   max-width: 100vw;
   margin: 0;
   padding: 0;
   overflow: visible;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  z-index: 10;
+  pointer-events: none;
   box-sizing: border-box;
+  will-change: opacity;
 }
 
 .number-line-track {
@@ -2185,7 +2178,7 @@ body.booting {
 
   /* 3-Track Vertical Showcase Mobile Overrides */
   .track-section-wrap {
-    height: 220vh;
+    height: 340vh;
     overflow: visible;
   }
   .track-stage {
@@ -2193,6 +2186,9 @@ body.booting {
     top: 0;
     height: 100vh;
     height: 100dvh;
+  }
+  .showcase-timeline-wrapper {
+    top: clamp(45px, 11vh, 80px);
   }
   .track-columns {
     gap: clamp(8px, 2vw, 16px);
@@ -2215,9 +2211,7 @@ body.booting {
   .showcase-bg-text {
     font-size: clamp(2rem, 7vw, 3.4rem);
   }
-  .showcase-title-plane {
-    padding: 36px 0 44px;
-  }
+
   .number-line-track {
     height: 95px;
   }
