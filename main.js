@@ -1161,276 +1161,226 @@ function initVerticalImageTrack() {
   const trackLeft = document.getElementById("image-track-left");
   const trackRight = document.getElementById("image-track-right");
   const stage = document.getElementById("track-stage");
+  const showcaseSection = document.getElementById("vertical-showcase");
 
   const trackColumns = document.getElementById("track-columns") || (stage ? stage.querySelector(".track-columns") : null);
   const bgText = document.getElementById("showcase-bg-text");
 
-  if (!trackMid || !stage) return;
+  if (!trackMid || !stage || !showcaseSection) return;
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
   const imagesRight = trackRight ? Array.from(trackRight.getElementsByClassName("image")) : [];
   const imagesSides = [...imagesLeft, ...imagesRight];
 
-  let currentPercentage = 0;
-  let isDragging = false;
-  let startY = 0;
-  let prevPercentage = 0;
-
-  // Responsive scale bounds: scales from a compact centered grid at start (0%)
-  // to an expansive grid filling near the margins at the end (-100%)
+  // Responsive scale bounds: starts at an expansive 0.92-0.94 and gracefully scales up to 1.12-1.15
   function getTrackScaleRange() {
     const width = window.innerWidth;
     if (width <= 640) {
-      return { min: 0.82, max: 1.05 };
+      return { min: 0.90, max: 1.05 };
     } else if (width <= 1024) {
-      return { min: 0.78, max: 1.12 };
+      return { min: 0.91, max: 1.09 };
     } else if (width <= 1440) {
-      return { min: 0.75, max: 1.18 };
+      return { min: 0.92, max: 1.12 };
     } else {
-      return { min: 0.74, max: 1.24 };
+      return { min: 0.94, max: 1.15 };
     }
   }
 
-  // Track position formula:
-  // Percentage ranges from 0 to -100:
-  // - When percentage = 0: Middle is at top (Image 1 centered), Sides are at bottom (Image 8 centered).
-  // - When percentage = -100: Middle is at bottom (Image 8 centered), Sides are at top (Image 1 centered).
-  // Across 8 images with equal spacing, the offset range maps from -5.8% to -94.2% (span 88.4%).
-  function applyTrackPosition(percentage, immediate = false) {
-    currentPercentage = Math.max(Math.min(percentage, 0), -100);
-    const sidePercentage = -100 - currentPercentage;
-    const animDuration = immediate ? 0 : 1200;
+  function calculateState() {
+    const rect = showcaseSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const scrollDistance = rect.height - vh;
 
-    trackMid.dataset.percentage = currentPercentage;
+    // rect.top is the distance from viewport top to showcaseSection top.
+    // When rect.top > 0, the user is above the showcase (e.g. in #working-on).
+    // When rect.top <= 0 and rect.bottom >= vh, the showcase is pinned sticky!
+    let progress = 0;
+    if (scrollDistance > 0) {
+      progress = Math.min(Math.max(-rect.top / scrollDistance, 0), 1);
+    }
+
+    // Entrance Opacity:
+    // Before you start scrolling into the grid (or when above it):
+    // If rect.top > 0: user is above the showcase -> entranceOpacity = 0 (100% invisible).
+    // When user enters the showcase and starts scrolling:
+    // From progress = 0.0 to progress = 0.12 (first ~12% of scroll, ~120px):
+    // Smoothly fades in from 0.0 to 1.0!
+    // For progress >= 0.12: entranceOpacity = 1.0.
+    let entranceOpacity = 0;
+    if (rect.top <= 0) {
+      if (progress < 0.12) {
+        entranceOpacity = Math.max(0, progress / 0.12);
+      } else {
+        entranceOpacity = 1.0;
+      }
+    } else {
+      entranceOpacity = 0;
+    }
+
+    return { progress, entranceOpacity };
+  }
+
+  function applyTrackState(progress, entranceOpacity) {
+    const clampedProgress = Math.min(Math.max(progress, 0), 1);
+    const percentage = -clampedProgress * 100;
+    const sidePercentage = -100 - percentage;
+
+    trackMid.dataset.percentage = percentage;
     if (trackLeft) trackLeft.dataset.percentage = sidePercentage;
     if (trackRight) trackRight.dataset.percentage = sidePercentage;
 
-    const trackY_mid = -5.8 + (currentPercentage * 0.884);
+    const trackY_mid = -5.8 + (percentage * 0.884);
     const trackY_side = -5.8 + (sidePercentage * 0.884);
 
-    // 1. Middle Track (Slides UP as percentage goes from 0 to -100)
-    trackMid.animate(
-      {
-        transform: `translate(-50%, ${trackY_mid.toFixed(3)}%)`,
-      },
-      { duration: animDuration, fill: "forwards" }
-    );
-
-    for (const image of imagesMid) {
-      image.animate(
-        {
-          objectPosition: `center ${(100 + currentPercentage).toFixed(2)}%`,
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+    // 1. Move Middle Track
+    trackMid.style.transform = `translate(-50%, ${trackY_mid.toFixed(3)}%)`;
+    const midPos = (100 + percentage).toFixed(2);
+    for (let i = 0; i < imagesMid.length; i++) {
+      imagesMid[i].style.objectPosition = `center ${midPos}%`;
     }
 
-    // 2. Side Tracks (Slide DOWN in counter-motion as percentage goes from 0 to -100)
+    // 2. Move Side Tracks (Counter-motion)
     if (trackLeft) {
-      trackLeft.animate(
-        {
-          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+      trackLeft.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
     }
-
     if (trackRight) {
-      trackRight.animate(
-        {
-          transform: `translate(-50%, ${trackY_side.toFixed(3)}%)`,
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+      trackRight.style.transform = `translate(-50%, ${trackY_side.toFixed(3)}%)`;
     }
-
-    for (const image of imagesSides) {
-      image.animate(
-        {
-          objectPosition: `center ${(100 + sidePercentage).toFixed(2)}%`,
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+    const sidePos = (100 + sidePercentage).toFixed(2);
+    for (let i = 0; i < imagesSides.length; i++) {
+      imagesSides[i].style.objectPosition = `center ${sidePos}%`;
     }
 
     // 3. Dynamic Grid Scale & Spotlight Dimming
-    // Pictures fade a little when the text is centered on screen, then recover as you continue
-    const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
+    const { min: minScale, max: maxScale } = getTrackScaleRange();
+    const currentScale = minScale + clampedProgress * (maxScale - minScale);
 
-    let columnsOpacity = 1.0;
-    if (progress >= 0.32 && progress <= 0.68) {
-      const distFromCenter = Math.abs(progress - 0.50);
+    let spotlightOpacity = 1.0;
+    if (clampedProgress >= 0.32 && clampedProgress <= 0.68) {
+      const distFromCenter = Math.abs(clampedProgress - 0.50);
       const fadeFactor = 1 - (distFromCenter / 0.18);
-      columnsOpacity = 1.0 - (fadeFactor * 0.46); // dips from 1.0 down to ~0.54 at center
+      spotlightOpacity = 1.0 - (fadeFactor * 0.46); // dips from 1.0 down to ~0.54 at center
     }
 
-    if (trackColumns) {
-      const { min: minScale, max: maxScale } = getTrackScaleRange();
-      const currentScale = minScale + progress * (maxScale - minScale);
+    const effectiveColumnsOpacity = entranceOpacity * spotlightOpacity;
 
-      trackColumns.animate(
-        {
-          transform: `scale(${currentScale.toFixed(4)})`,
-          opacity: columnsOpacity.toFixed(3),
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+    if (trackColumns) {
+      trackColumns.style.transform = `scale(${currentScale.toFixed(4)})`;
+      trackColumns.style.opacity = effectiveColumnsOpacity.toFixed(3);
     }
 
     // 4. Parallax Background Text (Pops out darker when centered, fades as pictures return, disappears at end)
     if (bgText) {
-      // Horizontal Parallax: Shifts Left to Right as you scroll down (and vice versa)
-      // Centered exactly at 0vw when progress is 0.50 (text all on screen)
-      const xTravel = (progress - 0.5) * 62;
+      const xTravel = (clampedProgress - 0.5) * 62;
 
-      // Opacity Curve:
-      // - 0.00 to 0.14: invisible
-      // - 0.14 to 0.32: fades in to ambient tone (~0.35)
-      // - 0.32 to 0.50: surges to 0.95 (pops out and gets darker as pictures fade)
-      // - 0.50 to 0.68: fades back down to ambient (~0.32) as pictures come back
-      // - 0.68 to 0.84: tapers further
-      // - 0.84 to 1.00: disappears completely (reaches 0.0 at end)
       let textOpacity = 0;
-      if (progress < 0.14) {
+      if (clampedProgress < 0.14) {
         textOpacity = 0;
-      } else if (progress < 0.32) {
-        textOpacity = ((progress - 0.14) / 0.18) * 0.35;
-      } else if (progress <= 0.50) {
-        const t = (progress - 0.32) / 0.18;
+      } else if (clampedProgress < 0.32) {
+        textOpacity = ((clampedProgress - 0.14) / 0.18) * 0.35;
+      } else if (clampedProgress <= 0.50) {
+        const t = (clampedProgress - 0.32) / 0.18;
         textOpacity = 0.35 + t * 0.60;
-      } else if (progress <= 0.68) {
-        const t = (progress - 0.50) / 0.18;
+      } else if (clampedProgress <= 0.68) {
+        const t = (clampedProgress - 0.50) / 0.18;
         textOpacity = 0.95 - t * 0.63;
-      } else if (progress <= 0.84) {
-        const t = (progress - 0.68) / 0.16;
+      } else if (clampedProgress <= 0.84) {
+        const t = (clampedProgress - 0.68) / 0.16;
         textOpacity = 0.32 - t * 0.17;
       } else {
-        const t = Math.min((progress - 0.84) / 0.16, 1);
+        const t = Math.min((clampedProgress - 0.84) / 0.16, 1);
         textOpacity = Math.max(0, 0.15 - t * 0.15);
       }
 
-      // Subtle scale pop when at peak darkness
+      const effectiveTextOpacity = textOpacity * entranceOpacity;
       const textPopScale = 0.96 + (textOpacity / 0.95) * 0.08;
 
-      bgText.animate(
-        {
-          transform: `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`,
-          opacity: textOpacity.toFixed(3),
-        },
-        { duration: animDuration, fill: "forwards" }
-      );
+      bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
+      bgText.style.opacity = effectiveTextOpacity.toFixed(3);
     }
   }
 
-  // Initial setup: Mid centered at Image 1, Sides centered at Image 8, grid at initial scale
-  applyTrackPosition(0, true);
+  // Smooth lerp state
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let targetEntrance = 0;
+  let currentEntrance = 0;
+  let isAnimating = false;
 
-  // 1. Mouse & Touch Dragging (Vertical Y)
-  const handleOnDown = (e) => {
-    isDragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    prevPercentage = currentPercentage;
-  };
+  function renderFrame() {
+    const pDiff = targetProgress - currentProgress;
+    const eDiff = targetEntrance - currentEntrance;
 
-  const handleOnUp = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    prevPercentage = currentPercentage;
-  };
-
-  const handleOnMove = (e) => {
-    if (!isDragging) return;
-
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const mouseDelta = startY - clientY;
-    const maxDelta = window.innerHeight * 0.65;
-
-    const percentage = (mouseDelta / maxDelta) * -100;
-    const nextPercentage = prevPercentage + percentage;
-
-    // Prevent default touch pull/scroll on mobile during active track scrubbing
-    if (e.touches && e.cancelable) {
-      e.preventDefault();
+    if (Math.abs(pDiff) > 0.0003 || Math.abs(eDiff) > 0.002) {
+      currentProgress += pDiff * 0.18;
+      currentEntrance += eDiff * 0.18;
+      isAnimating = true;
+      requestAnimationFrame(renderFrame);
+    } else {
+      currentProgress = targetProgress;
+      currentEntrance = targetEntrance;
+      isAnimating = false;
     }
 
-    applyTrackPosition(nextPercentage);
-  };
+    applyTrackState(currentProgress, currentEntrance);
+  }
+
+  function updateOnScroll(immediate = false) {
+    const { progress, entranceOpacity } = calculateState();
+    targetProgress = progress;
+    targetEntrance = entranceOpacity;
+
+    if (immediate) {
+      currentProgress = progress;
+      currentEntrance = entranceOpacity;
+      applyTrackState(currentProgress, currentEntrance);
+      return;
+    }
+
+    if (!isAnimating) {
+      isAnimating = true;
+      requestAnimationFrame(renderFrame);
+    }
+  }
+
+  // Initial update
+  updateOnScroll(true);
+
+  // 1. Natural page scroll listener
+  window.addEventListener(
+    "scroll",
+    () => {
+      updateOnScroll(false);
+    },
+    { passive: true }
+  );
+
+  // 2. Mouse Dragging on Stage scrolls window
+  let isDragging = false;
+  let dragStartY = 0;
 
   stage.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    handleOnDown(e);
+    isDragging = true;
+    dragStartY = e.clientY;
   });
-  stage.addEventListener("touchstart", (e) => handleOnDown(e), { passive: true });
 
-  window.addEventListener("mouseup", handleOnUp);
-  window.addEventListener("touchend", handleOnUp);
-  window.addEventListener("mousemove", handleOnMove);
-  window.addEventListener("touchmove", handleOnMove, { passive: false });
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
 
-  // 2. Mouse Wheel / Trackpad Scroll on Stage
-  // Active scrolling area is enlarged and starts closer to "what am i working on now":
-  // Activates as soon as the showcase enters view (top <= 65% of viewport height).
-  const showcaseSection = document.getElementById("vertical-showcase");
-  let isCentering = false;
-  let centerTimer = null;
-
-  function isShowcaseInScrollZone() {
-    if (!showcaseSection) return true;
-    const rect = showcaseSection.getBoundingClientRect();
-    const vh = window.innerHeight;
-
-    // Active zone: when scrolling down, starts as soon as showcase top is within 65% of viewport
-    // When scrolling up, stays active as long as showcase bottom is within 35% of viewport
-    return rect.top <= (vh * 0.65) && rect.bottom >= (vh * 0.35);
-  }
-
-  function centerShowcaseOnPage() {
-    if (!showcaseSection || isCentering) return;
-    const rect = showcaseSection.getBoundingClientRect();
-    if (Math.abs(rect.top) > 6) {
-      isCentering = true;
-      const targetScroll = (window.pageYOffset !== undefined ? window.pageYOffset : window.scrollY) + rect.top;
-      window.scrollTo({
-        top: targetScroll,
-        behavior: "smooth"
-      });
-      clearTimeout(centerTimer);
-      centerTimer = setTimeout(() => {
-        isCentering = false;
-      }, 450);
-    }
-  }
-
-  const scrollTarget = showcaseSection || stage;
-
-  scrollTarget.addEventListener(
-    "wheel",
-    (e) => {
-      const delta = -e.deltaY * 0.08;
-      const target = currentPercentage + delta;
-
-      // If outside the active showcase scroll zone, allow natural page scroll
-      if (!isShowcaseInScrollZone()) {
-        return;
-      }
-
-      // When inside the scroll zone and within track boundaries, scrub the vertical tracks
-      if ((delta < 0 && currentPercentage > -100) || (delta > 0 && currentPercentage < 0)) {
-        e.preventDefault();
-        centerShowcaseOnPage();
-        applyTrackPosition(target);
-        prevPercentage = currentPercentage;
-      }
-    },
-    { passive: false }
-  );
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const deltaY = dragStartY - e.clientY;
+    dragStartY = e.clientY;
+    window.scrollBy({ top: deltaY * 1.5, behavior: "auto" });
+  });
 
   // 3. Keep layout in sync across window resize
   window.addEventListener(
     "resize",
     () => {
-      applyTrackPosition(currentPercentage, true);
+      updateOnScroll(true);
     },
     { passive: true }
   );

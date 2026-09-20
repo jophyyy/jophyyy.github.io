@@ -1089,19 +1089,21 @@ body.depth-body {
    ========================================================================== */
 .track-section-wrap {
   position: relative;
-  height: 100vh;
+  height: 240vh;
   width: 100%;
   background-color: #faf7ee;
   border-top: 1px solid rgba(255, 255, 255, 0.7);
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   z-index: 1;
 }
 
 .track-stage {
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1144,36 +1146,39 @@ body.depth-body {
   opacity: 0;
   will-change: transform, opacity;
   transform: translateX(-35vw);
+  transition: none;
 }
 
 .track-columns {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: clamp(14px, 2.5vw, 36px);
+  gap: clamp(16px, 2.8vw, 42px);
   width: 100%;
   height: 100%;
-  max-width: 1440px;
-  padding: 0 clamp(12px, 2.5vw, 40px);
+  max-width: 1600px;
+  padding: 0 clamp(16px, 3vw, 48px);
   box-sizing: border-box;
   position: relative;
   z-index: 2;
   transform-origin: center center;
   will-change: transform, opacity;
-  transform: scale(0.75);
+  transform: scale(0.92);
+  opacity: 0;
+  transition: none;
 }
 
 .track-col-wrap {
   position: relative;
   flex: 1;
-  max-width: clamp(200px, 28vw, 380px);
+  max-width: clamp(240px, 30vw, 440px);
   height: 100%;
   display: flex;
   justify-content: center;
 }
 
 .col-side {
-  opacity: 0.9;
+  opacity: 0.92;
   transition: opacity 0.3s ease;
 }
 
@@ -1184,13 +1189,14 @@ body.depth-body {
 .image-track {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2.5vh, 26px);
+  gap: clamp(16px, 2.8vh, 32px);
   position: absolute;
   left: 50%;
   top: 50%;
   user-select: none;
   touch-action: none;
   will-change: transform;
+  transition: none;
 }
 
 #image-track-mid {
@@ -1203,14 +1209,15 @@ body.depth-body {
 }
 
 .image-track > .image {
-  width: clamp(180px, 26vw, 360px);
-  height: clamp(220px, 32vh, 340px);
+  width: clamp(210px, 28vw, 400px);
+  height: clamp(270px, 38vh, 440px);
   object-fit: cover;
-  border-radius: 14px;
-  box-shadow: 0 16px 38px -6px rgba(28, 25, 23, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 18px 42px -6px rgba(28, 25, 23, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
   pointer-events: none;
   background-color: #ece7db;
   will-change: object-position;
+  transition: none;
 }
 
 #image-track-mid > .image {
@@ -1998,23 +2005,31 @@ body.booting {
 
   /* 3-Track Vertical Showcase Mobile Overrides */
   .track-section-wrap {
+    height: 220vh;
+    overflow: visible;
+  }
+  .track-stage {
+    position: sticky;
+    top: 0;
     height: 100vh;
     height: 100dvh;
   }
   .track-columns {
-    gap: clamp(6px, 1.8vw, 14px);
-    padding: 0 clamp(6px, 1.5vw, 14px);
+    gap: clamp(8px, 2vw, 16px);
+    padding: 0 clamp(8px, 2vw, 16px);
+    transform: scale(0.92);
+    opacity: 0;
   }
   .track-col-wrap {
     max-width: none;
   }
   .image-track {
-    gap: clamp(8px, 1.8vh, 16px);
+    gap: clamp(10px, 2vh, 18px);
   }
   .image-track > .image {
-    width: clamp(94px, 29vw, 145px);
-    height: clamp(135px, 24vh, 210px);
-    border-radius: 8px;
+    width: clamp(100px, 30vw, 155px);
+    height: clamp(145px, 26vh, 225px);
+    border-radius: 10px;
     box-shadow: 0 8px 22px -3px rgba(28, 25, 23, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
   }
   .showcase-bg-text {
