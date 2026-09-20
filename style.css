@@ -1091,7 +1091,7 @@ body.depth-body {
    ========================================================================== */
 .track-section-wrap {
   position: relative;
-  height: 620vh;
+  height: 820vh;
   width: 100%;
   background-color: #faf7ee;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -2341,7 +2341,7 @@ body.booting {
 
   /* 3-Track Vertical Showcase Mobile Overrides */
   .track-section-wrap {
-    height: 540vh;
+    height: 700vh;
     overflow: visible;
   }
   .track-stage {
