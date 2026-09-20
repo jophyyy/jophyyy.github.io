@@ -1252,14 +1252,14 @@ function initShowcaseTimeline() {
     if (progress <= 0) {
       timelineOpacity = 0;
       timelineY = 0;
-    } else if (progress < 0.05) {
-      timelineOpacity = progress / 0.05;
+    } else if (progress < 0.04) {
+      timelineOpacity = progress / 0.04;
       timelineY = 0;
-    } else if (progress < 0.18) {
+    } else if (progress < 0.16) {
       timelineOpacity = 1.0;
       timelineY = 0;
-    } else if (progress < 0.34) {
-      const tOut = (progress - 0.18) / 0.16;
+    } else if (progress < 0.30) {
+      const tOut = (progress - 0.16) / 0.14;
       timelineOpacity = Math.max(0, 1.0 - tOut);
       timelineY = -tOut * 28;
     } else {
@@ -1273,10 +1273,10 @@ function initShowcaseTimeline() {
     header.style.pointerEvents = timelineOpacity > 0.1 ? "auto" : "none";
 
     // 2. Progression of milestones across timeline:
-    // Maps progress 0.02 to 0.38 into timelineProgress 0.0 to 1.0
+    // Maps progress 0.02 to 0.32 into timelineProgress 0.0 to 1.0
     let timelineProgress = 0;
     if (progress > 0.02) {
-      timelineProgress = Math.min(Math.max((progress - 0.02) / 0.36, 0), 1.0);
+      timelineProgress = Math.min(Math.max((progress - 0.02) / 0.30, 0), 1.0);
     }
 
     const exactIndex = timelineProgress * (totalMilestones - 0.001);
@@ -1346,8 +1346,45 @@ function initVerticalImageTrack() {
   const skySmokeLoop = document.getElementById("sky-smoke-loop");
   const smokeCirclePath = document.getElementById("smoke-circle-path");
   const bgText = document.getElementById("showcase-bg-text");
+  const worldMap = document.getElementById("world-map-backdrop");
+  const mapTooltipCard = document.getElementById("map-tooltip-card");
+  const tooltipCity = document.getElementById("tooltip-city");
+  const tooltipBadge = document.getElementById("tooltip-badge");
+  const tooltipDesc = document.getElementById("tooltip-desc");
+  const tooltipCoords = document.getElementById("tooltip-coords");
 
   if (!trackMid || !stage || !showcaseSection) return;
+
+  // Setup interactive map pin hover cards
+  if (worldMap && mapTooltipCard) {
+    const pins = worldMap.querySelectorAll(".map-pin");
+    pins.forEach((pin) => {
+      pin.addEventListener("mouseenter", () => {
+        const city = pin.getAttribute("data-city") || "";
+        const badge = pin.getAttribute("data-badge") || "";
+        const desc = pin.getAttribute("data-desc") || "";
+        const latlon = pin.getAttribute("data-latlon") || "";
+
+        if (tooltipCity) tooltipCity.textContent = city;
+        if (tooltipBadge) tooltipBadge.textContent = badge;
+        if (tooltipDesc) tooltipDesc.textContent = desc;
+        if (tooltipCoords) tooltipCoords.textContent = latlon;
+
+        const rect = pin.getBoundingClientRect();
+        const mapRect = worldMap.getBoundingClientRect();
+        const relX = rect.left + rect.width / 2 - mapRect.left;
+        const relY = rect.top - mapRect.top;
+
+        mapTooltipCard.style.left = `${relX}px`;
+        mapTooltipCard.style.top = `${relY}px`;
+        mapTooltipCard.classList.add("is-visible");
+      });
+
+      pin.addEventListener("mouseleave", () => {
+        mapTooltipCard.classList.remove("is-visible");
+      });
+    });
+  }
 
   // Initialize timeline and get scroll updater
   const updateTimeline = window.updateShowcaseTimeline || initShowcaseTimeline();
@@ -1397,8 +1434,8 @@ function initVerticalImageTrack() {
       updateTimeline(progress);
     }
 
-    // 2. Continuous Grid Motion (Progress 0.24 -> 0.74)
-    const gridProgress = Math.min(Math.max((progress - 0.24) / 0.50, 0), 1.0);
+    // 2. Continuous Grid Motion (Progress 0.18 -> 0.64)
+    const gridProgress = Math.min(Math.max((progress - 0.18) / 0.46, 0), 1.0);
     const percentage = -gridProgress * 100;
     const sidePercentage = -100 - percentage;
 
@@ -1433,32 +1470,34 @@ function initVerticalImageTrack() {
     const gridScale = minScale + gridProgress * (maxScale - minScale);
 
     // 4. Staged Opacity & Aerial Finale Sequence:
-    // A. Grid Columns Fade In (progress 0.18 -> 0.32)
-    // B. Text Slides in from Left toward Center (progress 0.62 -> 0.74)
-    // C. Grid Columns Fade OUT FIRST (progress 0.74 -> 0.80) while Text locks centered at full scale
-    // D. Airplane Finale (progress 0.78 -> 1.00) — delivers 2.2k px of dedicated scroll:
-    //    Phase 1 (0.78 -> 0.81): Text shrinks smoothly in size (1.00 -> 0.58)
-    //    Phase 2 (0.80 -> 0.91): Vintage airplane arrives from lower-left, performs 360° air-circle with smoke loop, and swoops up to text (takes ~1,100px of scroll!)
-    //    Phase 3 (0.905 -> 0.930): Canvas banner flag unfurls around text & tow cable attaches (~250px)
-    //    Phase 4 (0.930 -> 1.000): Airplane accelerates and tows banner & text across the sky and off-screen to the right (~700px of scroll!)
+    // A. Grid Columns Fade In (progress 0.15 -> 0.25)
+    // B. Text Slides in from Left toward Center (progress 0.54 -> 0.64)
+    // C. Grid Columns Fade OUT FIRST (progress 0.64 -> 0.70) while Text locks centered at full scale
+    // D. Airplane Finale (progress 0.70 -> 0.889) — commands exactly 2.2k px of dedicated scroll:
+    //    Phase 1 (0.70 -> 0.73): Text shrinks smoothly in size (1.00 -> 0.58)
+    //    Phase 2 (0.72 -> 0.82): Vintage airplane arrives from lower-left, performs 360° air-circle with smoke loop, and swoops up to text (takes ~1,165px of scroll!)
+    //    Phase 3 (0.815 -> 0.835): Canvas banner flag unfurls around text & tow cable attaches (~230px)
+    //    Phase 4 (0.835 -> 0.889): Airplane accelerates and tows banner & text across the sky and completely disappears to the right (~630px of scroll!)
+    // E. World Map Finale (progress 0.885 -> 1.000):
+    //    After plane flies away and disappears with the text, the world map fades in (0.885 -> 0.925) and stays fully visible
 
     // A & C: Grid Columns Opacity & Soft Vertical Parallax Drift
     let columnsOpacity = 0;
     let columnsY = 0;
 
-    if (progress < 0.18) {
+    if (progress < 0.15) {
       columnsOpacity = 0;
       columnsY = 28;
-    } else if (progress < 0.32) {
-      const tIn = (progress - 0.18) / 0.14;
+    } else if (progress < 0.25) {
+      const tIn = (progress - 0.15) / 0.10;
       columnsOpacity = tIn;
       columnsY = 28 * (1.0 - tIn);
-    } else if (progress <= 0.74) {
+    } else if (progress <= 0.64) {
       columnsOpacity = 1.0;
       columnsY = 0;
-    } else if (progress <= 0.80) {
+    } else if (progress <= 0.70) {
       // Grid fades out FIRST before the text, floating gently upward
-      const tOut = (progress - 0.74) / 0.06;
+      const tOut = (progress - 0.64) / 0.06;
       columnsOpacity = Math.max(0, 1.0 - tOut);
       columnsY = -tOut * 24;
     } else {
@@ -1471,21 +1510,21 @@ function initVerticalImageTrack() {
     let xTravel = -22;
     let textPopScale = 0.96;
 
-    if (progress < 0.62) {
+    if (progress < 0.54) {
       textOpacity = 0;
       xTravel = -22;
       textPopScale = 0.96;
-    } else if (progress < 0.74) {
+    } else if (progress < 0.64) {
       // Slides in smoothly from left toward center
-      const tSlide = (progress - 0.62) / 0.12;
+      const tSlide = (progress - 0.54) / 0.10;
       xTravel = -22 * (1.0 - tSlide); // -22vw up to 0vw
       textOpacity = tSlide * 0.70;
       textPopScale = 0.96 + tSlide * 0.04;
-    } else if (progress <= 0.80) {
+    } else if (progress <= 0.70) {
       // Centers at 0vw and finishes popping out to full 1.0 as grid fades away!
-      const tPop = (progress - 0.74) / 0.06;
+      const tPop = (progress - 0.64) / 0.06;
       xTravel = 0;
-      textOpacity = 0.70 + tPop * 0.30; // reaches 1.0 at 0.80
+      textOpacity = 0.70 + tPop * 0.30; // reaches 1.0 at 0.70
       textPopScale = 1.00;
     } else {
       xTravel = 0;
@@ -1493,16 +1532,16 @@ function initVerticalImageTrack() {
       textPopScale = 1.00;
     }
 
-    // D: 4-Phase Airplane Tow Finale (progress 0.78 -> 1.00)
-    // Phase 1: Text Shrink (0.78 -> 0.81)
+    // D: 4-Phase Airplane Tow Finale (progress 0.70 -> 0.889) — delivers 2.2k px of dedicated scroll!
+    // Phase 1: Text Shrink (0.70 -> 0.73)
     let bannerScale = textPopScale;
-    if (progress >= 0.78) {
-      const tShrink = Math.min((progress - 0.78) / 0.03, 1.0);
+    if (progress >= 0.70) {
+      const tShrink = Math.min((progress - 0.70) / 0.03, 1.0);
       const easeShrink = 0.5 - 0.5 * Math.cos(tShrink * Math.PI);
       bannerScale = 1.00 - easeShrink * 0.42; // shrinks from 1.00 down to 0.58
     }
 
-    // Phase 2: Airplane Stunt Entrance & Air-Circle (progress 0.80 -> 0.91)
+    // Phase 2: Airplane Stunt Entrance & Air-Circle (progress 0.72 -> 0.82)
     // Takes longer to get there, comes from lower down, loops a 360° air-circle with skywriter smoke, and swoops up to the text
     let planeX = 0;
     let planeY = 0;
@@ -1517,13 +1556,13 @@ function initVerticalImageTrack() {
     const loopCenterX = isMobile ? -(window.innerWidth * 0.38 + 50) : -(window.innerWidth * 0.32 + 130);
     const loopBottomY = loopCenterY + loopRadius; // low altitude!
 
-    if (progress < 0.80) {
+    if (progress < 0.72) {
       planeOpacity = 0;
       planeX = -(window.innerWidth * 1.25 + 400);
       planeY = loopBottomY + 15;
       smokeOpacity = 0;
-    } else if (progress < 0.91) {
-      const tPlane = (progress - 0.80) / 0.11; // 0.11 scroll span
+    } else if (progress < 0.82) {
+      const tPlane = (progress - 0.72) / 0.10; // 0.10 scroll span
 
       if (tPlane < 0.32) {
         // Sub-phase A: Low Approach from far left
@@ -1574,31 +1613,31 @@ function initVerticalImageTrack() {
       smokeOpacity = 0;
     }
 
-    // Phase 3: Flag forms around the text & tow cable attaches (0.905 -> 0.930)
+    // Phase 3: Flag forms around the text & tow cable attaches (0.815 -> 0.835)
     let flagT = 0;
-    if (progress < 0.905) {
+    if (progress < 0.815) {
       flagT = 0;
-    } else if (progress < 0.930) {
-      flagT = (progress - 0.905) / 0.025;
+    } else if (progress < 0.835) {
+      flagT = (progress - 0.815) / 0.020;
     } else {
       flagT = 1.0;
     }
 
-    // Phase 4: Airplane tows the flag & text off to the right (0.930 -> 1.000)
+    // Phase 4: Airplane tows the flag & text off to the right (0.835 -> 0.889)
     let towX = 0;
     let towY = 0;
     let towPitch = 0;
     let finalAlpha = 1.0;
 
-    if (progress >= 0.930) {
-      const tTow = Math.min((progress - 0.930) / 0.070, 1.0);
+    if (progress >= 0.835) {
+      const tTow = Math.min((progress - 0.835) / 0.054, 1.0);
       const easeTow = Math.pow(tTow, 1.35);
-      towX = easeTow * 130; // 130vw to completely clear screen
+      towX = easeTow * 135; // 135vw to completely clear screen
       towY = -easeTow * 32; // gentle climbing path
       towPitch = -easeTow * 3.5; // slight nose-up climb attitude
 
-      if (tTow > 0.96) {
-        finalAlpha = Math.max(0, 1.0 - (tTow - 0.96) / 0.04);
+      if (tTow > 0.90) {
+        finalAlpha = Math.max(0, 1.0 - (tTow - 0.90) / 0.10);
       }
     }
 
@@ -1613,9 +1652,9 @@ function initVerticalImageTrack() {
     // Apply styles to banner flag (contains text, canvas, and tow rig)
     const activeBanner = bannerFlag || bgText;
     if (activeBanner) {
-      const bannerX = (progress < 0.78) ? xTravel : towX;
-      const bannerY = (progress < 0.78) ? 0 : towY;
-      const bannerOpacity = (progress < 0.78) ? textOpacity : (textOpacity * finalAlpha);
+      const bannerX = (progress < 0.70) ? xTravel : towX;
+      const bannerY = (progress < 0.70) ? 0 : towY;
+      const bannerOpacity = (progress < 0.70) ? textOpacity : (textOpacity * finalAlpha);
 
       activeBanner.style.transform = `translate(${bannerX.toFixed(2)}vw, ${bannerY.toFixed(1)}px) scale(${bannerScale.toFixed(3)})`;
       activeBanner.style.opacity = bannerOpacity.toFixed(3);
@@ -1652,12 +1691,35 @@ function initVerticalImageTrack() {
       const netPitch = planePitch + towPitch;
       bannerAirplane.style.opacity = (planeOpacity * finalAlpha).toFixed(3);
       bannerAirplane.style.transform = `translate(${planeX.toFixed(1)}px, ${planeY.toFixed(1)}px) rotate(${netPitch.toFixed(1)}deg)`;
-      bannerAirplane.style.visibility = planeOpacity > 0 ? "visible" : "hidden";
+      bannerAirplane.style.visibility = (planeOpacity * finalAlpha) > 0.001 ? "visible" : "hidden";
     }
 
     // Layering: bring text and aerial rig above fading grid
     if (textWrap) {
-      textWrap.style.zIndex = progress >= 0.74 ? "10" : "1";
+      textWrap.style.zIndex = progress >= 0.64 ? "10" : "1";
+    }
+
+    // 5. World Map Finale: Fades in after the plane flies away and disappears with the text (0.885 -> 1.000)
+    if (worldMap) {
+      let mapOpacity = 0;
+      let mapScale = 0.97;
+
+      if (progress < 0.885) {
+        mapOpacity = 0;
+        mapScale = 0.97;
+      } else if (progress < 0.925) {
+        const tMap = (progress - 0.885) / 0.040;
+        mapOpacity = tMap;
+        mapScale = 0.97 + 0.03 * tMap;
+      } else {
+        mapOpacity = 1.0;
+        mapScale = 1.00;
+      }
+
+      worldMap.style.opacity = mapOpacity.toFixed(3);
+      worldMap.style.transform = `scale(${mapScale.toFixed(3)})`;
+      worldMap.style.visibility = mapOpacity > 0 ? "visible" : "hidden";
+      worldMap.style.pointerEvents = mapOpacity > 0.4 ? "auto" : "none";
     }
   }
 

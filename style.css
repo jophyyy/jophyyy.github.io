@@ -1091,7 +1091,7 @@ body.depth-body {
    ========================================================================== */
 .track-section-wrap {
   position: relative;
-  height: 1040vh;
+  height: 1200vh;
   width: 100%;
   background-color: #faf7ee;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -1483,6 +1483,334 @@ body.depth-body {
 .plane-propeller-spin {
   transform-origin: 146px 35px;
   animation: spinPropeller 0.07s linear infinite;
+}
+
+/* ==========================================================================
+   4c. WORLD MAP BACKDROP OVERLAY (Fades in after Airplane Tow)
+   ========================================================================== */
+.world-map-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity, transform;
+  background-color: #faf7ee;
+  box-sizing: border-box;
+  padding: clamp(16px, 3vh, 36px) clamp(16px, 3vw, 40px);
+}
+
+.map-inner-container {
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Map Header */
+.map-header-wrap {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.map-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  margin-bottom: 6px;
+}
+
+.badge-beacon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: beaconPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes beaconPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+.badge-text {
+  font-family: 'Space Mono', 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: #b45309;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.map-headline {
+  font-family: 'Pixelify Sans', 'Silkscreen', monospace;
+  font-size: clamp(1.3rem, 2.5vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #111115;
+  margin: 0 0 4px;
+}
+
+.map-subhead {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  color: #71717a;
+  margin: 0;
+}
+
+/* Map Viewport Wrap */
+.map-viewport-wrap {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 240px;
+  max-height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.world-map-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.04));
+}
+
+/* Landmass Styling */
+.map-continents {
+  fill: #ede6d6;
+  stroke: #111115;
+  stroke-width: 1.2px;
+  stroke-linejoin: round;
+  transition: fill 0.3s ease;
+}
+
+/* Flight Arcs */
+.flight-arc {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  stroke-dasharray: 6 5;
+  animation: flightRouteDash 3s linear infinite;
+}
+
+.flight-arc.arc-local {
+  stroke: #2563eb;
+  stroke-width: 1.2px;
+  stroke-dasharray: 3 3;
+}
+
+@keyframes flightRouteDash {
+  to {
+    stroke-dashoffset: -44;
+  }
+}
+
+/* Pins & Nodes */
+.map-pin {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.map-pin .pin-dot {
+  fill: #111115;
+  stroke: #faf7ee;
+  stroke-width: 1.5px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.2s;
+}
+
+.map-pin:hover .pin-dot {
+  transform: scale(1.6);
+  fill: #f59e0b;
+}
+
+.map-pin.pin-primary .pin-dot {
+  fill: #f59e0b;
+  stroke: #111115;
+  stroke-width: 1.8px;
+}
+
+.sonar-inner {
+  fill: none;
+  stroke: rgba(245, 158, 11, 0.45);
+  stroke-width: 1px;
+  animation: sonarInner 2.5s infinite ease-out;
+}
+
+.sonar-outer {
+  fill: rgba(245, 158, 11, 0.08);
+  stroke: rgba(245, 158, 11, 0.25);
+  stroke-width: 1px;
+  animation: sonarOuter 2.5s infinite ease-out;
+}
+
+@keyframes sonarInner {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes sonarOuter {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+.pin-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  fill: #111115;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.pin-label-left {
+  text-anchor: end;
+}
+
+/* Tooltip Card */
+.map-tooltip-card {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -100%) translateY(-12px);
+  background: #ffffff;
+  border: 1px solid #111115;
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 30;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+}
+
+.map-tooltip-card.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(-16px);
+}
+
+.tooltip-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #f59e0b;
+  margin-bottom: 2px;
+}
+
+.tooltip-city {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111115;
+}
+
+.tooltip-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: #52525b;
+  margin-top: 2px;
+}
+
+.tooltip-coords {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #a1a1aa;
+  margin-top: 4px;
+}
+
+/* Bottom Telemetry Bar */
+.map-telemetry-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: rgba(237, 230, 214, 0.55);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(17, 17, 21, 0.12);
+  border-radius: 12px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.telemetry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tele-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  color: #71717a;
+  font-weight: 600;
+}
+
+.tele-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #111115;
+  letter-spacing: 0.05em;
+}
+
+.tele-status-online {
+  color: #059669;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tele-beacon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .world-map-backdrop {
+    padding: 12px 10px;
+  }
+  .map-header-wrap {
+    margin-bottom: 6px;
+  }
+  .map-headline {
+    font-size: 1.15rem;
+  }
+  .map-subhead {
+    font-size: 0.68rem;
+  }
+  .map-telemetry-bar {
+    padding: 8px 12px;
+  }
+  .tele-value {
+    font-size: 0.62rem;
+  }
 }
 
 .track-columns {
@@ -2341,7 +2669,7 @@ body.booting {
 
   /* 3-Track Vertical Showcase Mobile Overrides */
   .track-section-wrap {
-    height: 880vh;
+    height: 1000vh;
     overflow: visible;
   }
   .track-stage {
