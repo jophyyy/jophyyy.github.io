@@ -1385,29 +1385,9 @@ function initVerticalImageTrack() {
       updateTimeline(progress);
     }
 
-    // 2. Grid Entrance & Continuous Motion (Progress 0.24 -> 0.98)
-    // Grid smoothly glides the entire time with NO frozen dead zones!
-    let gridEntrance = 0;
-    let gridProgress = 0;
-
-    if (progress < 0.24) {
-      gridEntrance = 0;
-      gridProgress = 0;
-    } else if (progress < 0.36) {
-      // Fades in smoothly as you near 2030
-      gridEntrance = (progress - 0.24) / 0.12;
-      gridProgress = (progress - 0.24) / 0.72;
-    } else if (progress <= 0.91) {
-      gridEntrance = 1.0;
-      gridProgress = (progress - 0.24) / 0.72;
-    } else {
-      // Seamless exit fade: text and grid dissolve effortlessly together into footer
-      gridEntrance = Math.max(0, 1.0 - (progress - 0.91) / 0.09);
-      gridProgress = Math.min((progress - 0.24) / 0.72, 1.0);
-    }
-
-    const clampedGridProgress = Math.min(Math.max(gridProgress, 0), 1);
-    const percentage = -clampedGridProgress * 100;
+    // 2. Continuous Grid Motion (Progress 0.24 -> 0.88)
+    const gridProgress = Math.min(Math.max((progress - 0.24) / 0.64, 0), 1.0);
+    const percentage = -gridProgress * 100;
     const sidePercentage = -100 - percentage;
 
     trackMid.dataset.percentage = percentage;
@@ -1438,52 +1418,76 @@ function initVerticalImageTrack() {
 
     // 3. Dynamic Grid Scale
     const { min: minScale, max: maxScale } = getTrackScaleRange();
-    const currentScale = minScale + clampedGridProgress * (maxScale - minScale);
+    const currentScale = minScale + gridProgress * (maxScale - minScale);
 
-    // 4. Background Text & Finale Spotlight (Seamless End-of-Grid Flow)
-    // - As grid nears end (clampedGridProgress 0.70 -> 0.88), text slides in left-to-center
-    // - At clampedGridProgress >= 0.88, text locks at center (0vw) and pops out
-    // - From progress 0.91 -> 1.00, text and grid dissolve together seamlessly and easily, with zero blocking!
-    let spotlightOpacity = 1.0;
+    // 4. Staged Opacity Sequence:
+    // A. Grid Columns Fade In (progress 0.24 -> 0.34)
+    // B. Text Slides in from Left toward Center (progress 0.68 -> 0.82)
+    // C. Grid Columns Fade OUT FIRST (progress 0.82 -> 0.88) while Text reaches center & pops out!
+    // D. Text Stays Solo on Screen for a little longer (progress 0.88 -> 0.95)
+    // E. Text Fades Out into the footer (progress 0.95 -> 1.00)
+
+    // A & C: Grid Columns Opacity (Fades out BEFORE text!)
+    let columnsOpacity = 0;
+    if (progress < 0.24) {
+      columnsOpacity = 0;
+    } else if (progress < 0.34) {
+      columnsOpacity = (progress - 0.24) / 0.10;
+    } else if (progress <= 0.82) {
+      columnsOpacity = 1.0;
+    } else if (progress <= 0.88) {
+      // Grid fades out first!
+      columnsOpacity = Math.max(0, 1.0 - (progress - 0.82) / 0.06);
+    } else {
+      columnsOpacity = 0; // completely gone while text stays!
+    }
+
+    // B, D & E: Text Opacity & Transform (Stays for a little longer!)
     let textOpacity = 0;
     let xTravel = -22;
     let textPopScale = 0.96;
 
-    if (clampedGridProgress < 0.70) {
-      // Clean and quiet during main grid scroll
-      spotlightOpacity = 1.0;
+    if (progress < 0.68) {
+      // Quiet during early/mid grid scroll
       textOpacity = 0;
       xTravel = -22;
       textPopScale = 0.96;
-    } else if (clampedGridProgress < 0.88) {
-      // Nearing the end: slides left to right toward center (0vw)
-      const tSlide = (clampedGridProgress - 0.70) / 0.18;
+    } else if (progress < 0.82) {
+      // Slides in from left to center
+      const tSlide = (progress - 0.68) / 0.14;
       xTravel = -22 * (1.0 - tSlide); // -22vw up to 0vw
-      textOpacity = tSlide * 0.55;
+      textOpacity = tSlide * 0.70;
       textPopScale = 0.96 + tSlide * 0.04;
-      spotlightOpacity = 1.0;
-    } else {
-      // Grid scroll ends: text centers at 0vw (locked at center, never scrolls right) and pops out!
-      const tPop = Math.min((clampedGridProgress - 0.88) / 0.08, 1.0);
-      xTravel = 0; // strictly centered, no scroll to right
-      textOpacity = 0.55 + tPop * 0.45; // reaches 1.0
+    } else if (progress <= 0.88) {
+      // Text centers at 0vw and pops out as grid fades out around it!
+      const tPop = (progress - 0.82) / 0.06;
+      xTravel = 0;
+      textOpacity = 0.70 + tPop * 0.30; // reaches full 1.0
       textPopScale = 1.00 + tPop * 0.07; // reaches 1.07
-      spotlightOpacity = 1.0 - tPop * 0.45; // pictures soften down to ~0.55
+    } else if (progress <= 0.95) {
+      // Grid is 100% GONE. Text STAYS for a little longer, bold and centered alone!
+      xTravel = 0;
+      textOpacity = 1.0;
+      textPopScale = 1.07;
+    } else {
+      // Text fades out into footer
+      const tExit = Math.min((progress - 0.95) / 0.05, 1.0);
+      xTravel = 0;
+      textOpacity = Math.max(0, 1.0 - tExit);
+      textPopScale = 1.07 - tExit * 0.04;
     }
-
-    const effectiveColumnsOpacity = gridEntrance * spotlightOpacity;
-    const effectiveTextOpacity = textOpacity * gridEntrance;
 
     if (trackColumns) {
       trackColumns.style.transform = `scale(${currentScale.toFixed(4)})`;
-      trackColumns.style.opacity = effectiveColumnsOpacity.toFixed(3);
-      trackColumns.style.visibility = gridEntrance > 0 ? "visible" : "hidden";
-      trackColumns.style.pointerEvents = gridEntrance > 0.1 ? "auto" : "none";
+      trackColumns.style.opacity = columnsOpacity.toFixed(3);
+      trackColumns.style.visibility = columnsOpacity > 0 ? "visible" : "hidden";
+      trackColumns.style.pointerEvents = columnsOpacity > 0.1 ? "auto" : "none";
     }
 
     if (bgText) {
       bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
-      bgText.style.opacity = effectiveTextOpacity.toFixed(3);
+      bgText.style.opacity = textOpacity.toFixed(3);
+      bgText.style.visibility = textOpacity > 0 ? "visible" : "hidden";
     }
   }
 
