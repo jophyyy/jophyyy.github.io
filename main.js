@@ -1339,6 +1339,11 @@ function initVerticalImageTrack() {
   const showcaseSection = document.getElementById("vertical-showcase");
 
   const trackColumns = document.getElementById("track-columns") || (stage ? stage.querySelector(".track-columns") : null);
+  const textWrap = document.getElementById("showcase-bg-text-wrap");
+  const bannerFlag = document.getElementById("banner-flag");
+  const flagCanvas = document.getElementById("flag-canvas");
+  const bannerTowCable = document.getElementById("banner-tow-cable");
+  const bannerAirplane = document.getElementById("banner-airplane");
   const bgText = document.getElementById("showcase-bg-text");
 
   if (!trackMid || !stage || !showcaseSection) return;
@@ -1424,17 +1429,19 @@ function initVerticalImageTrack() {
 
     // 3. Dynamic Grid Scale
     const { min: minScale, max: maxScale } = getTrackScaleRange();
-    const currentScale = minScale + gridProgress * (maxScale - minScale);
+    const gridScale = minScale + gridProgress * (maxScale - minScale);
 
-    // 4. Staged Opacity Sequence:
-    // A. Grid Columns Fade In (progress 0.24 -> 0.34)
-    // B. Text Slides in from Left toward Center (progress 0.68 -> 0.82)
-    // C. Grid Columns Fade OUT FIRST (progress 0.82 -> 0.88) while Text reaches center & pops out!
-    // D. Text Stays Solo on Screen for a little longer (progress 0.88 -> 0.95)
-    // E. Text Fades Out into the footer (progress 0.95 -> 1.00)
+    // 4. Staged Opacity & Aerial Finale Sequence:
+    // A. Grid Columns Fade In (progress 0.18 -> 0.34)
+    // B. Text Slides in from Left toward Center (progress 0.65 -> 0.80)
+    // C. Grid Columns Fade OUT FIRST (progress 0.80 -> 0.86) while Text locks centered at full scale
+    // D. Airplane Finale (progress 0.86 -> 1.00):
+    //    Phase 1 (0.86 -> 0.89): Text shrinks smoothly in size (1.00 -> 0.58)
+    //    Phase 2 (0.87 -> 0.92): Vintage airplane flies in from off-screen left to the right of the text
+    //    Phase 3 (0.91 -> 0.94): Canvas banner flag generates around the text & tow cable attaches
+    //    Phase 4 (0.94 -> 1.00): Airplane accelerates and tows the banner & text off-screen to the right!
 
     // A & C: Grid Columns Opacity & Soft Vertical Parallax Drift
-    // Fades in with a gentle upward glide from +28px, then gracefully floats up -24px as it fades out before the text
     let columnsOpacity = 0;
     let columnsY = 0;
 
@@ -1442,16 +1449,15 @@ function initVerticalImageTrack() {
       columnsOpacity = 0;
       columnsY = 28;
     } else if (progress < 0.34) {
-      // Seamless cross-fade with timeline (floats up 28px -> 0px)
       const tIn = (progress - 0.18) / 0.16;
       columnsOpacity = tIn;
       columnsY = 28 * (1.0 - tIn);
     } else if (progress <= 0.80) {
       columnsOpacity = 1.0;
       columnsY = 0;
-    } else if (progress <= 0.88) {
+    } else if (progress <= 0.86) {
       // Grid fades out FIRST before the text, floating gently upward
-      const tOut = (progress - 0.80) / 0.08;
+      const tOut = (progress - 0.80) / 0.06;
       columnsOpacity = Math.max(0, 1.0 - tOut);
       columnsY = -tOut * 24;
     } else {
@@ -1459,55 +1465,141 @@ function initVerticalImageTrack() {
       columnsY = -24;
     }
 
-    // B, D & E: Background Text Dynamic Flow
-    // Continuous motion and progressive fade so it's NEVER static!
+    // B: Background Text Entry & Center Locking
     let textOpacity = 0;
     let xTravel = -22;
     let textPopScale = 0.96;
-    let textY = 0;
 
     if (progress < 0.65) {
-      // Quiet during early grid scroll
       textOpacity = 0;
       xTravel = -22;
       textPopScale = 0.96;
-      textY = 0;
     } else if (progress < 0.80) {
       // Slides in smoothly from left toward center
       const tSlide = (progress - 0.65) / 0.15;
       xTravel = -22 * (1.0 - tSlide); // -22vw up to 0vw
       textOpacity = tSlide * 0.70;
       textPopScale = 0.96 + tSlide * 0.04;
-      textY = 0;
-    } else if (progress <= 0.88) {
-      // Centers at 0vw and finishes popping out to full 1.0 as grid fades out!
-      const tPop = (progress - 0.80) / 0.08;
+    } else if (progress <= 0.86) {
+      // Centers at 0vw and finishes popping out to full 1.0 as grid fades away!
+      const tPop = (progress - 0.80) / 0.06;
       xTravel = 0;
-      textOpacity = 0.70 + tPop * 0.30; // reaches 1.0 at 0.88
-      textPopScale = 1.00 + tPop * 0.07; // reaches 1.07 at 0.88
-      textY = 0;
+      textOpacity = 0.70 + tPop * 0.30; // reaches 1.0 at 0.86
+      textPopScale = 1.00;
     } else {
-      // Post-grid finale: Continuous smooth dissolve and float (NEVER static!)
-      // The text stays centered, but continuously and softly breathes, floats upward, and fades out into the footer
-      const tExit = Math.min((progress - 0.88) / 0.12, 1.0);
       xTravel = 0;
-      const fadeCurve = 1.0 - Math.pow(tExit, 1.3);
-      textOpacity = Math.max(0, fadeCurve);
-      textPopScale = 1.07 - tExit * 0.05;
-      textY = -(tExit * 22);
+      textOpacity = 1.0;
+      textPopScale = 1.00;
     }
 
+    // D: 4-Phase Airplane Tow Finale (progress 0.86 -> 1.00)
+    // Phase 1: Text Shrink (0.86 -> 0.89)
+    let bannerScale = textPopScale;
+    if (progress >= 0.86) {
+      const tShrink = Math.min((progress - 0.86) / 0.03, 1.0);
+      const easeShrink = 0.5 - 0.5 * Math.cos(tShrink * Math.PI);
+      bannerScale = 1.00 - easeShrink * 0.42; // shrinks from 1.00 down to 0.58
+    }
+
+    // Phase 2: Airplane flies in from left across to right of text (0.87 -> 0.92)
+    let planeX = 0;
+    let planeY = 0;
+    let planePitch = 0;
+    let planeOpacity = 0;
+
+    if (progress < 0.87) {
+      planeOpacity = 0;
+      planeX = -(window.innerWidth * 1.2 + 350);
+    } else if (progress < 0.92) {
+      const tPlane = (progress - 0.87) / 0.05;
+      planeOpacity = Math.min(tPlane * 3.5, 1.0);
+      // Decelerates as it reaches the tow position on the right
+      const easePlane = 1.0 - Math.pow(1.0 - tPlane, 2.6);
+      const startX = -(window.innerWidth * 1.15 + 300);
+      planeX = startX * (1.0 - easePlane);
+      planeY = Math.sin(tPlane * Math.PI * 1.5) * 8; // gentle aerodynamic bob
+      planePitch = (1.0 - easePlane) * -4.0; // slight arrival pitch
+    } else {
+      // Docked at tow hitch position
+      planeOpacity = 1.0;
+      planeX = 0;
+      planeY = 0;
+      planePitch = 0;
+    }
+
+    // Phase 3: Flag forms around the text & tow cable attaches (0.91 -> 0.94)
+    let flagT = 0;
+    if (progress < 0.91) {
+      flagT = 0;
+    } else if (progress < 0.94) {
+      flagT = (progress - 0.91) / 0.03;
+    } else {
+      flagT = 1.0;
+    }
+
+    // Phase 4: Airplane tows the flag & text off to the right (0.94 -> 1.00)
+    let towX = 0;
+    let towY = 0;
+    let towPitch = 0;
+    let finalAlpha = 1.0;
+
+    if (progress >= 0.94) {
+      const tTow = Math.min((progress - 0.94) / 0.06, 1.0);
+      const easeTow = Math.pow(tTow, 1.35);
+      towX = easeTow * 115; // 115vw to clear the right screen edge
+      towY = -easeTow * 26; // gentle climbing path
+      towPitch = -easeTow * 3.5; // slight nose-up climb attitude
+
+      if (tTow > 0.96) {
+        finalAlpha = Math.max(0, 1.0 - (tTow - 0.96) / 0.04);
+      }
+    }
+
+    // Apply styles to grid columns
     if (trackColumns) {
-      trackColumns.style.transform = `translateY(${columnsY.toFixed(1)}px) scale(${currentScale.toFixed(4)})`;
+      trackColumns.style.transform = `translateY(${columnsY.toFixed(1)}px) scale(${gridScale.toFixed(4)})`;
       trackColumns.style.opacity = columnsOpacity.toFixed(3);
       trackColumns.style.visibility = columnsOpacity > 0 ? "visible" : "hidden";
       trackColumns.style.pointerEvents = columnsOpacity > 0.1 ? "auto" : "none";
     }
 
-    if (bgText) {
-      bgText.style.transform = `translate(${xTravel.toFixed(2)}vw, ${textY.toFixed(1)}px) scale(${textPopScale.toFixed(3)})`;
-      bgText.style.opacity = textOpacity.toFixed(3);
-      bgText.style.visibility = textOpacity > 0 ? "visible" : "hidden";
+    // Apply styles to banner flag (contains text, canvas, and tow rig)
+    const activeBanner = bannerFlag || bgText;
+    if (activeBanner) {
+      const bannerX = (progress < 0.86) ? xTravel : towX;
+      const bannerY = (progress < 0.86) ? 0 : towY;
+      const bannerOpacity = (progress < 0.86) ? textOpacity : (textOpacity * finalAlpha);
+
+      activeBanner.style.transform = `translate(${bannerX.toFixed(2)}vw, ${bannerY.toFixed(1)}px) scale(${bannerScale.toFixed(3)})`;
+      activeBanner.style.opacity = bannerOpacity.toFixed(3);
+      activeBanner.style.visibility = bannerOpacity > 0 ? "visible" : "hidden";
+    }
+
+    // Unfurl flag canvas around text from right to left
+    if (flagCanvas) {
+      flagCanvas.style.opacity = flagT.toFixed(3);
+      flagCanvas.style.clipPath = (flagT > 0.001 && flagT < 0.999)
+        ? `inset(0 0 0 ${((1.0 - flagT) * 100).toFixed(1)}%)`
+        : "none";
+    }
+
+    // Tow cable attachment
+    if (bannerTowCable) {
+      bannerTowCable.style.opacity = flagT.toFixed(3);
+      bannerTowCable.style.transform = `scaleX(${Math.max(0.08, flagT).toFixed(3)})`;
+    }
+
+    // Airplane flight and attitude
+    if (bannerAirplane) {
+      const netPitch = planePitch + towPitch;
+      bannerAirplane.style.opacity = (planeOpacity * finalAlpha).toFixed(3);
+      bannerAirplane.style.transform = `translate(${planeX.toFixed(1)}px, ${planeY.toFixed(1)}px) rotate(${netPitch.toFixed(1)}deg)`;
+      bannerAirplane.style.visibility = planeOpacity > 0 ? "visible" : "hidden";
+    }
+
+    // Layering: bring text and aerial rig above fading grid
+    if (textWrap) {
+      textWrap.style.zIndex = progress >= 0.80 ? "10" : "1";
     }
   }
 
