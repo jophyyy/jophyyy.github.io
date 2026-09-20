@@ -1395,16 +1395,17 @@ function initVerticalImageTrack() {
     } else if (progress < 0.36) {
       // Fades in smoothly as you near 2030
       gridEntrance = (progress - 0.24) / 0.12;
-      gridProgress = (progress - 0.24) / 0.64;
-    } else if (progress <= 0.88) {
+      gridProgress = (progress - 0.24) / 0.62;
+    } else if (progress <= 0.86) {
       gridEntrance = 1.0;
-      gridProgress = (progress - 0.24) / 0.64;
-    } else if (progress <= 0.97) {
+      gridProgress = (progress - 0.24) / 0.62;
+    } else if (progress <= 0.94) {
+      // Grid scroll has ended (1.0), text is centered (0vw) and popped out
       gridEntrance = 1.0;
       gridProgress = 1.0;
     } else {
-      // Graceful exit at the bottom (0.97 to 1.0)
-      gridEntrance = Math.max(0, 1.0 - (progress - 0.97) / 0.03);
+      // Text and grid scroll disappear together at the end (0.94 to 1.0)
+      gridEntrance = Math.max(0, 1.0 - (progress - 0.94) / 0.06);
       gridProgress = 1.0;
     }
 
@@ -1443,8 +1444,9 @@ function initVerticalImageTrack() {
     const currentScale = minScale + clampedGridProgress * (maxScale - minScale);
 
     // 4. Background Text & Finale Spotlight (Timing: Very End of Grid Scroll)
-    // - As grid scroll nears the end (clampedGridProgress 0.68 -> 0.92), text slides from left to right behind the columns
-    // - When grid scroll ends (clampedGridProgress >= 0.92 through progress 0.97), pictures fade down to 0.48 and text pops out!
+    // - As grid scroll nears the end (clampedGridProgress 0.68 -> 0.92), text slides left-to-right toward center
+    // - When grid scroll ends (clampedGridProgress >= 0.92 through progress 0.94), text locks at center (xTravel = 0, NO scroll to right) and pops out!
+    // - As you continue scrolling (progress 0.94 -> 1.0), text and grid scroll disappear together!
     let spotlightOpacity = 1.0;
     let textOpacity = 0;
     let xTravel = -26;
@@ -1457,17 +1459,16 @@ function initVerticalImageTrack() {
       xTravel = -26;
       textPopScale = 0.95;
     } else if (clampedGridProgress < 0.92) {
-      // Nearing the end: slides left to right across the screen
+      // Nearing the end: slides left to right toward center (0vw)
       const tSlide = (clampedGridProgress - 0.68) / 0.24;
-      xTravel = -26 + tSlide * 26; // -26vw to 0vw
+      xTravel = -26 * (1.0 - tSlide); // -26vw up to 0vw
       textOpacity = tSlide * 0.48;
       textPopScale = 0.95 + tSlide * 0.05;
       spotlightOpacity = 1.0;
     } else {
-      // Grid scroll ends: text pops out, pictures fade slightly to let text pop!
-      const tPop = progress < 0.88 ? (clampedGridProgress - 0.92) / 0.08 : 1.0;
-      const driftRight = progress >= 0.88 ? ((progress - 0.88) / 0.09) * 3.5 : 0;
-      xTravel = driftRight;
+      // Grid scroll ends: text centers at 0vw (locked at center, never scrolls right) and pops out!
+      const tPop = progress < 0.86 ? (clampedGridProgress - 0.92) / 0.08 : 1.0;
+      xTravel = 0; // strictly centered, no scroll to right
       textOpacity = 0.48 + tPop * 0.52; // reaches 1.0
       textPopScale = 1.00 + tPop * 0.08; // reaches 1.08
       spotlightOpacity = 1.0 - tPop * 0.52; // pictures dim down to ~0.48 so text pops out!
