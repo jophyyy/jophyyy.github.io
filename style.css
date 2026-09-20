@@ -1135,7 +1135,8 @@ body.depth-body {
   font-size: clamp(3.2rem, 7.8vw, 7.5rem);
   font-weight: 700;
   letter-spacing: clamp(1px, 0.25vw, 4px);
-  color: rgba(22, 22, 26, 0.42);
+  color: #111115;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   user-select: none;
   pointer-events: none;
@@ -1158,7 +1159,7 @@ body.depth-body {
   position: relative;
   z-index: 2;
   transform-origin: center center;
-  will-change: transform;
+  will-change: transform, opacity;
   transform: scale(0.75);
 }
 

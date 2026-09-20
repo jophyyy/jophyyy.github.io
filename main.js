@@ -1254,44 +1254,68 @@ function initVerticalImageTrack() {
       );
     }
 
-    // 3. Dynamic Grid Scale (Expands outwards to margins as you scroll further down, shrinks in reverse)
+    // 3. Dynamic Grid Scale & Spotlight Dimming
+    // Pictures fade a little when the text is centered on screen, then recover as you continue
+    const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
+
+    let columnsOpacity = 1.0;
+    if (progress >= 0.32 && progress <= 0.68) {
+      const distFromCenter = Math.abs(progress - 0.50);
+      const fadeFactor = 1 - (distFromCenter / 0.18);
+      columnsOpacity = 1.0 - (fadeFactor * 0.46); // dips from 1.0 down to ~0.54 at center
+    }
+
     if (trackColumns) {
       const { min: minScale, max: maxScale } = getTrackScaleRange();
-      const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
       const currentScale = minScale + progress * (maxScale - minScale);
 
       trackColumns.animate(
         {
           transform: `scale(${currentScale.toFixed(4)})`,
+          opacity: columnsOpacity.toFixed(3),
         },
         { duration: animDuration, fill: "forwards" }
       );
     }
 
-    // 4. Parallax Background Ambient Text (Moves Left-to-Right and appears near middle of scroll)
+    // 4. Parallax Background Text (Pops out darker when centered, fades as pictures return, disappears at end)
     if (bgText) {
-      const progress = Math.min(Math.max(-currentPercentage / 100, 0), 1);
-
       // Horizontal Parallax: Shifts Left to Right as you scroll down (and vice versa)
-      // Ranges smoothly from -35vw (left) at 0, passing through 0vw (center) at 0.5, to +35vw (right) at 1.0
-      const xTravel = (progress - 0.5) * 70;
+      // Centered exactly at 0vw when progress is 0.50 (text all on screen)
+      const xTravel = (progress - 0.5) * 62;
 
-      // Opacity Curve: Appears near the middle of the scroll (fades in 0.16 -> 0.40),
-      // peaks and stays fully visible across the central scrubbing range, then softly tapers near 0.85 -> 1.0
+      // Opacity Curve:
+      // - 0.00 to 0.14: invisible
+      // - 0.14 to 0.32: fades in to ambient tone (~0.35)
+      // - 0.32 to 0.50: surges to 0.95 (pops out and gets darker as pictures fade)
+      // - 0.50 to 0.68: fades back down to ambient (~0.32) as pictures come back
+      // - 0.68 to 0.84: tapers further
+      // - 0.84 to 1.00: disappears completely (reaches 0.0 at end)
       let textOpacity = 0;
-      if (progress < 0.16) {
+      if (progress < 0.14) {
         textOpacity = 0;
-      } else if (progress < 0.40) {
-        textOpacity = (progress - 0.16) / (0.40 - 0.16);
-      } else if (progress <= 0.82) {
-        textOpacity = 1;
+      } else if (progress < 0.32) {
+        textOpacity = ((progress - 0.14) / 0.18) * 0.35;
+      } else if (progress <= 0.50) {
+        const t = (progress - 0.32) / 0.18;
+        textOpacity = 0.35 + t * 0.60;
+      } else if (progress <= 0.68) {
+        const t = (progress - 0.50) / 0.18;
+        textOpacity = 0.95 - t * 0.63;
+      } else if (progress <= 0.84) {
+        const t = (progress - 0.68) / 0.16;
+        textOpacity = 0.32 - t * 0.17;
       } else {
-        textOpacity = Math.max(0, 1 - (progress - 0.82) / 0.18);
+        const t = Math.min((progress - 0.84) / 0.16, 1);
+        textOpacity = Math.max(0, 0.15 - t * 0.15);
       }
+
+      // Subtle scale pop when at peak darkness
+      const textPopScale = 0.96 + (textOpacity / 0.95) * 0.08;
 
       bgText.animate(
         {
-          transform: `translateX(${xTravel.toFixed(2)}vw)`,
+          transform: `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`,
           opacity: textOpacity.toFixed(3),
         },
         { duration: animDuration, fill: "forwards" }
