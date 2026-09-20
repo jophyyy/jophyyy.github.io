@@ -1436,11 +1436,11 @@ function initVerticalImageTrack() {
     // A. Grid Columns Fade In (progress 0.18 -> 0.32)
     // B. Text Slides in from Left toward Center (progress 0.62 -> 0.74)
     // C. Grid Columns Fade OUT FIRST (progress 0.74 -> 0.80) while Text locks centered at full scale
-    // D. Airplane Finale (progress 0.78 -> 1.00):
+    // D. Airplane Finale (progress 0.78 -> 1.00) — delivers 2.2k px of dedicated scroll:
     //    Phase 1 (0.78 -> 0.81): Text shrinks smoothly in size (1.00 -> 0.58)
-    //    Phase 2 (0.80 -> 0.91): Vintage airplane arrives from lower-left, performs 360° air-circle with smoke loop, and swoops up to text
-    //    Phase 3 (0.905 -> 0.930): Canvas banner flag unfurls around text & tow cable attaches
-    //    Phase 4 (0.930 -> 1.000): Airplane accelerates and tows banner & text across the sky and off-screen to the right!
+    //    Phase 2 (0.80 -> 0.91): Vintage airplane arrives from lower-left, performs 360° air-circle with smoke loop, and swoops up to text (takes ~1,100px of scroll!)
+    //    Phase 3 (0.905 -> 0.930): Canvas banner flag unfurls around text & tow cable attaches (~250px)
+    //    Phase 4 (0.930 -> 1.000): Airplane accelerates and tows banner & text across the sky and off-screen to the right (~700px of scroll!)
 
     // A & C: Grid Columns Opacity & Soft Vertical Parallax Drift
     let columnsOpacity = 0;
