@@ -1362,14 +1362,18 @@ function initVerticalImageTrack() {
   function calculateState() {
     const rect = showcaseSection.getBoundingClientRect();
     const vh = window.innerHeight;
-    const scrollDistance = rect.height - vh;
+    const stickyScrollDistance = rect.height - vh;
 
-    // rect.top is the distance from viewport top to showcaseSection top.
-    // When rect.top > 0, the user is above the showcase (e.g. in #working-on).
-    // When rect.top <= 0 and rect.bottom >= vh, the showcase is pinned sticky!
+    // Trigger offset: the pixel mark before the stage pins sticky.
+    // When the top of showcaseSection enters within 65% of viewport height (as you pass the post-it notes),
+    // the timeline scroll starts! Users can scroll from anywhere on the page without entering a specific hitbox.
+    const triggerOffset = Math.round(vh * 0.65);
+    const totalScrollRange = triggerOffset + stickyScrollDistance;
+    const currentScrolled = triggerOffset - rect.top;
+
     let progress = 0;
-    if (scrollDistance > 0) {
-      progress = Math.min(Math.max(-rect.top / scrollDistance, 0), 1);
+    if (totalScrollRange > 0 && currentScrolled > 0) {
+      progress = Math.min(Math.max(currentScrolled / totalScrollRange, 0), 1.0);
     }
 
     return { progress };
@@ -1521,7 +1525,7 @@ function initVerticalImageTrack() {
   // Initial update
   updateOnScroll(true);
 
-  // 1. Natural page scroll listener
+  // 1. Natural page scroll listener on the entire window
   window.addEventListener(
     "scroll",
     () => {
@@ -1530,27 +1534,7 @@ function initVerticalImageTrack() {
     { passive: true }
   );
 
-  // 2. Mouse Dragging on Stage scrolls window
-  let isDragging = false;
-  let dragStartY = 0;
-
-  stage.addEventListener("mousedown", (e) => {
-    isDragging = true;
-    dragStartY = e.clientY;
-  });
-
-  window.addEventListener("mouseup", () => {
-    isDragging = false;
-  });
-
-  window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    const deltaY = dragStartY - e.clientY;
-    dragStartY = e.clientY;
-    window.scrollBy({ top: deltaY * 1.5, behavior: "auto" });
-  });
-
-  // 3. Keep layout in sync across window resize
+  // 2. Keep layout in sync across window resize
   window.addEventListener(
     "resize",
     () => {
