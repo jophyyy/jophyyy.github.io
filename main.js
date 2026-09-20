@@ -1246,24 +1246,30 @@ function initShowcaseTimeline() {
   // Pure scroll-driven timeline update:
   // progress represents the scroll progress of #vertical-showcase (0.0 to 1.0)
   function updateTimeline(progress) {
-    // 1. Number line opacity:
-    // Fades in as user scrolls into section (progress 0.00 to 0.05) with 2026 visible.
-    // Stays visible (1.0) while revealing all 7 years and beginning travel.
-    // As user nears 2030 (progress 0.24 to 0.36), smoothly fades out as grid scroll begins!
+    // 1. Number line opacity & graceful upward drift:
     let timelineOpacity = 0;
+    let timelineY = 0;
+
     if (progress <= 0) {
       timelineOpacity = 0;
+      timelineY = 0;
     } else if (progress < 0.05) {
       timelineOpacity = progress / 0.05;
-    } else if (progress < 0.24) {
+      timelineY = 0;
+    } else if (progress < 0.18) {
       timelineOpacity = 1.0;
-    } else if (progress < 0.36) {
-      timelineOpacity = Math.max(0, 1.0 - (progress - 0.24) / 0.12);
+      timelineY = 0;
+    } else if (progress < 0.34) {
+      const tOut = (progress - 0.18) / 0.16;
+      timelineOpacity = Math.max(0, 1.0 - tOut);
+      timelineY = -tOut * 28;
     } else {
       timelineOpacity = 0;
+      timelineY = -28;
     }
 
     header.style.opacity = timelineOpacity.toFixed(3);
+    header.style.transform = `translateY(${timelineY.toFixed(1)}px)`;
     header.style.visibility = timelineOpacity > 0 ? "visible" : "hidden";
     header.style.pointerEvents = timelineOpacity > 0.1 ? "auto" : "none";
 
@@ -1427,65 +1433,79 @@ function initVerticalImageTrack() {
     // D. Text Stays Solo on Screen for a little longer (progress 0.88 -> 0.95)
     // E. Text Fades Out into the footer (progress 0.95 -> 1.00)
 
-    // A & C: Grid Columns Opacity (Fades out BEFORE text!)
+    // A & C: Grid Columns Opacity & Soft Vertical Parallax Drift
+    // Fades in with a gentle upward glide from +28px, then gracefully floats up -24px as it fades out before the text
     let columnsOpacity = 0;
-    if (progress < 0.24) {
+    let columnsY = 0;
+
+    if (progress < 0.18) {
       columnsOpacity = 0;
+      columnsY = 28;
     } else if (progress < 0.34) {
-      columnsOpacity = (progress - 0.24) / 0.10;
-    } else if (progress <= 0.82) {
+      // Seamless cross-fade with timeline (floats up 28px -> 0px)
+      const tIn = (progress - 0.18) / 0.16;
+      columnsOpacity = tIn;
+      columnsY = 28 * (1.0 - tIn);
+    } else if (progress <= 0.80) {
       columnsOpacity = 1.0;
+      columnsY = 0;
     } else if (progress <= 0.88) {
-      // Grid fades out first!
-      columnsOpacity = Math.max(0, 1.0 - (progress - 0.82) / 0.06);
+      // Grid fades out FIRST before the text, floating gently upward
+      const tOut = (progress - 0.80) / 0.08;
+      columnsOpacity = Math.max(0, 1.0 - tOut);
+      columnsY = -tOut * 24;
     } else {
-      columnsOpacity = 0; // completely gone while text stays!
+      columnsOpacity = 0;
+      columnsY = -24;
     }
 
-    // B, D & E: Text Opacity & Transform (Stays for a little longer!)
+    // B, D & E: Background Text Dynamic Flow
+    // Continuous motion and progressive fade so it's NEVER static!
     let textOpacity = 0;
     let xTravel = -22;
     let textPopScale = 0.96;
+    let textY = 0;
 
-    if (progress < 0.68) {
-      // Quiet during early/mid grid scroll
+    if (progress < 0.65) {
+      // Quiet during early grid scroll
       textOpacity = 0;
       xTravel = -22;
       textPopScale = 0.96;
-    } else if (progress < 0.82) {
-      // Slides in from left to center
-      const tSlide = (progress - 0.68) / 0.14;
+      textY = 0;
+    } else if (progress < 0.80) {
+      // Slides in smoothly from left toward center
+      const tSlide = (progress - 0.65) / 0.15;
       xTravel = -22 * (1.0 - tSlide); // -22vw up to 0vw
       textOpacity = tSlide * 0.70;
       textPopScale = 0.96 + tSlide * 0.04;
+      textY = 0;
     } else if (progress <= 0.88) {
-      // Text centers at 0vw and pops out as grid fades out around it!
-      const tPop = (progress - 0.82) / 0.06;
+      // Centers at 0vw and finishes popping out to full 1.0 as grid fades out!
+      const tPop = (progress - 0.80) / 0.08;
       xTravel = 0;
-      textOpacity = 0.70 + tPop * 0.30; // reaches full 1.0
-      textPopScale = 1.00 + tPop * 0.07; // reaches 1.07
-    } else if (progress <= 0.95) {
-      // Grid is 100% GONE. Text STAYS for a little longer, bold and centered alone!
-      xTravel = 0;
-      textOpacity = 1.0;
-      textPopScale = 1.07;
+      textOpacity = 0.70 + tPop * 0.30; // reaches 1.0 at 0.88
+      textPopScale = 1.00 + tPop * 0.07; // reaches 1.07 at 0.88
+      textY = 0;
     } else {
-      // Text fades out into footer
-      const tExit = Math.min((progress - 0.95) / 0.05, 1.0);
+      // Post-grid finale: Continuous smooth dissolve and float (NEVER static!)
+      // The text stays centered, but continuously and softly breathes, floats upward, and fades out into the footer
+      const tExit = Math.min((progress - 0.88) / 0.12, 1.0);
       xTravel = 0;
-      textOpacity = Math.max(0, 1.0 - tExit);
-      textPopScale = 1.07 - tExit * 0.04;
+      const fadeCurve = 1.0 - Math.pow(tExit, 1.3);
+      textOpacity = Math.max(0, fadeCurve);
+      textPopScale = 1.07 - tExit * 0.05;
+      textY = -(tExit * 22);
     }
 
     if (trackColumns) {
-      trackColumns.style.transform = `scale(${currentScale.toFixed(4)})`;
+      trackColumns.style.transform = `translateY(${columnsY.toFixed(1)}px) scale(${currentScale.toFixed(4)})`;
       trackColumns.style.opacity = columnsOpacity.toFixed(3);
       trackColumns.style.visibility = columnsOpacity > 0 ? "visible" : "hidden";
       trackColumns.style.pointerEvents = columnsOpacity > 0.1 ? "auto" : "none";
     }
 
     if (bgText) {
-      bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
+      bgText.style.transform = `translate(${xTravel.toFixed(2)}vw, ${textY.toFixed(1)}px) scale(${textPopScale.toFixed(3)})`;
       bgText.style.opacity = textOpacity.toFixed(3);
       bgText.style.visibility = textOpacity > 0 ? "visible" : "hidden";
     }
