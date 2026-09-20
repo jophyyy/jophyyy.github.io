@@ -1117,7 +1117,7 @@ body.depth-body {
 }
 
 /* ==========================================================================
-   5b. SECTION: SHOWCASE NUMBER LINE (Full Bleed, No Margins, 5x Scale)
+   5b. SECTION: SHOWCASE NUMBER LINE (Full Bleed, No Margins, 7 Years View)
    ========================================================================== */
 .showcase-title-plane {
   width: 100%;
@@ -1127,7 +1127,7 @@ body.depth-body {
   position: relative;
   z-index: 2;
   overflow: hidden;
-  padding: clamp(64px, 8vh, 96px) 0 clamp(72px, 9vh, 108px);
+  padding: clamp(48px, 6vh, 68px) 0 clamp(54px, 7vh, 80px);
   margin: 0;
 }
 
@@ -1145,7 +1145,7 @@ body.depth-body {
 
 .number-line-track {
   position: relative;
-  height: 170px;
+  height: 110px;
   will-change: transform;
   transform: translateX(0px);
   margin: 0;
@@ -1153,29 +1153,29 @@ body.depth-body {
   box-sizing: border-box;
 }
 
-/* Horizontal Axis Baseline (6px thick, starts at very left end) */
+/* Horizontal Axis Baseline (4px thick, starts at very left end) */
 .number-line-axis-bg {
   position: absolute;
-  top: 35px;
+  top: 23px;
   left: 0;
-  height: 6px;
+  height: 4px;
   background: rgba(17, 17, 21, 0.18);
-  border-radius: 3px;
+  border-radius: 2px;
   z-index: 1;
 }
 
 .number-line-axis-fill {
   position: absolute;
-  top: 35px;
+  top: 23px;
   left: 0;
-  height: 6px;
+  height: 4px;
   width: 0px;
   background: #111115;
-  border-radius: 3px;
+  border-radius: 2px;
   z-index: 2;
 }
 
-/* Individual Milestone / Year Node (5x Larger) */
+/* Individual Milestone / Year Node */
 .number-line-node {
   position: absolute;
   top: 0;
@@ -1209,10 +1209,10 @@ body.depth-body {
   margin-left: 0;
 }
 
-/* Vertical Tick Mark Crossing the Axis Line (72px tall, 5px wide) */
+/* Vertical Tick Mark Crossing the Axis Line (48px tall, 3.5px wide) */
 .number-line-tick {
-  width: 5px;
-  height: 72px;
+  width: 3.5px;
+  height: 48px;
   background: rgba(17, 17, 21, 0.35);
   border-radius: 2px;
   transition: background-color 0.25s ease;
@@ -1226,16 +1226,16 @@ body.depth-body {
   background: #d97706;
 }
 
-/* Year Label (5x Larger: clamp 28px to 46px Space Mono font with clean letter-spacing) */
+/* Year Label (Space Mono, ~28px to comfortably show 7 years at a time) */
 .number-line-year {
   font-family: var(--font-mono);
-  font-size: clamp(28px, 3.2vw, 46px);
+  font-size: clamp(20px, 2.1vw, 28px);
   font-weight: 700;
   color: #78716c;
   letter-spacing: 0.04em;
   transition: color 0.25s ease;
   line-height: 1;
-  margin-top: 18px;
+  margin-top: 12px;
   white-space: nowrap;
 }
 
@@ -1258,7 +1258,7 @@ body.depth-body {
   align-items: center;
   justify-content: flex-start;
   width: auto;
-  height: 72px;
+  height: 48px;
   background: transparent !important;
   margin-bottom: 0;
 }
@@ -1266,8 +1266,8 @@ body.depth-body {
 .number-line-tick-dream svg.number-line-arrow {
   display: block;
   color: #111115;
-  width: 26px;
-  height: 32px;
+  width: 18px;
+  height: 24px;
   transition: color 0.25s ease;
 }
 
@@ -1277,18 +1277,18 @@ body.depth-body {
 
 .number-line-dream-badge {
   font-family: var(--font-pixel);
-  font-size: clamp(24px, 2.8vw, 42px);
+  font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 700;
   color: #111115;
   letter-spacing: 0.02em;
   text-transform: lowercase;
   background: rgba(245, 158, 11, 0.16);
-  border: 3px solid rgba(245, 158, 11, 0.65);
-  border-radius: 8px;
-  padding: 8px 24px;
+  border: 2px solid rgba(245, 158, 11, 0.65);
+  border-radius: 6px;
+  padding: 5px 16px;
   white-space: nowrap;
   user-select: none;
-  margin-top: 14px;
+  margin-top: 10px;
   transition: border-color 0.25s ease, background 0.25s ease;
 }
 
@@ -2216,31 +2216,31 @@ body.booting {
     font-size: clamp(2rem, 7vw, 3.4rem);
   }
   .showcase-title-plane {
-    padding: 40px 0 50px;
+    padding: 36px 0 44px;
   }
   .number-line-track {
-    height: 140px;
+    height: 95px;
   }
   .number-line-tick {
-    height: 54px;
-    width: 4px;
+    height: 40px;
+    width: 3px;
   }
   .number-line-axis-bg,
   .number-line-axis-fill {
-    top: 27px;
-    height: 5px;
+    top: 20px;
+    height: 3.5px;
   }
   .number-line-year {
-    font-size: clamp(24px, 5.5vw, 32px);
-    margin-top: 12px;
+    font-size: clamp(16px, 4.2vw, 22px);
+    margin-top: 10px;
   }
   .number-line-tick-dream {
-    height: 54px;
+    height: 40px;
   }
   .number-line-dream-badge {
-    font-size: clamp(18px, 4.2vw, 24px);
-    padding: 6px 14px;
-    margin-top: 10px;
+    font-size: clamp(14px, 3.6vw, 18px);
+    padding: 4px 12px;
+    margin-top: 8px;
   }
 }
 

@@ -1169,36 +1169,25 @@ function initShowcaseTimeline() {
     years.push(y);
   }
 
-  // Calculate dynamic spacing between ticks based on viewport width
-  const vw = window.innerWidth;
-  const tickSpacing = Math.max(vw * 0.165, 230);
-  const dreamExtraGap = Math.max(tickSpacing * 1.6, 380);
-
-  // Milestone positions along the track
-  const nodePositions = [];
-  years.forEach((_, i) => {
-    nodePositions.push(i * tickSpacing);
-  });
-  // Finale: "my dream is..." position (extends on and on past 2026)
-  const dreamPosition = (years.length - 1) * tickSpacing + dreamExtraGap;
-  nodePositions.push(dreamPosition);
-
-  const totalMilestones = nodePositions.length; // 20
-  const totalTrackWidth = dreamPosition + 400;
+  let tickSpacing = 220;
+  let dreamExtraGap = 330;
+  let dreamPosition = 0;
+  let totalTrackWidth = 0;
+  let nodePositions = [];
+  const nodes = [];
 
   track.innerHTML = `
-    <div class="number-line-axis-bg" id="number-line-axis-bg" style="width: ${totalTrackWidth}px;"></div>
+    <div class="number-line-axis-bg" id="number-line-axis-bg"></div>
     <div class="number-line-axis-fill" id="number-line-axis-fill"></div>
   `;
   const axisFill = track.querySelector("#number-line-axis-fill");
-  const nodes = [];
+  const axisBg = track.querySelector("#number-line-axis-bg");
 
   // Generate Year Nodes (2008 to 2026)
   years.forEach((year, index) => {
     const node = document.createElement("div");
     node.className = "number-line-node";
     node.dataset.index = index;
-    node.style.left = `${nodePositions[index]}px`;
     node.innerHTML = `
       <div class="number-line-tick"></div>
       <div class="number-line-year">${year}</div>
@@ -1207,14 +1196,13 @@ function initShowcaseTimeline() {
     nodes.push(node);
   });
 
-  // Finale node: "my dream is..."
+  // Finale node: "my dream is..." (extends past 2026)
   const dreamNode = document.createElement("div");
   dreamNode.className = "number-line-node number-line-node-dream";
   dreamNode.dataset.index = years.length;
-  dreamNode.style.left = `${dreamPosition}px`;
   dreamNode.innerHTML = `
     <div class="number-line-tick-dream">
-      <svg class="number-line-arrow" width="26" height="32" viewBox="0 0 26 32" fill="none">
+      <svg class="number-line-arrow" width="22" height="28" viewBox="0 0 26 32" fill="none">
         <path d="M4 4L20 16L4 28" stroke="#111115" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
@@ -1222,6 +1210,32 @@ function initShowcaseTimeline() {
   `;
   track.appendChild(dreamNode);
   nodes.push(dreamNode);
+
+  const totalMilestones = nodes.length; // 20
+
+  // Layout computation: ensures ~7 years are visible across the screen at any time
+  function computeLayout() {
+    const vw = window.innerWidth;
+    // Tick spacing sized so exactly ~7 years fit across the viewport width
+    tickSpacing = Math.round(Math.max(vw / 6.8, 120));
+    dreamExtraGap = Math.round(tickSpacing * 1.5);
+
+    nodePositions = [];
+    years.forEach((_, i) => {
+      nodePositions.push(i * tickSpacing);
+    });
+    dreamPosition = (years.length - 1) * tickSpacing + dreamExtraGap;
+    nodePositions.push(dreamPosition);
+    totalTrackWidth = dreamPosition + Math.round(tickSpacing * 1.8);
+
+    if (axisBg) axisBg.style.width = `${totalTrackWidth}px`;
+
+    nodes.forEach((node, i) => {
+      node.style.left = `${nodePositions[i]}px`;
+    });
+  }
+
+  computeLayout();
 
   let animStartTime = null;
   const animDuration = 4800; // 4.8s monumental progression
@@ -1266,9 +1280,16 @@ function initShowcaseTimeline() {
 
     // Dynamic horizontal travel:
     // Starts anchored at left margin (translateX = 0).
-    // When currentFillX exceeds 62% of viewport width, track shifts smoothly to the left,
-    // causing 2008, 2009, etc. to slide off-screen to the left and disappear!
-    const focalLead = window.innerWidth * 0.62;
+    // The first 7 years (2008 - 2014) are visible across the screen.
+    // As currentFillX advances past year 7, the track smoothly glides left,
+    // causing 2008, 2009, etc. to slide off-screen to the left and disappear.
+    const initialLead = nodePositions[6] || window.innerWidth * 0.85;
+    const finalLead = window.innerWidth * 0.72;
+    let focalLead = initialLead;
+    if (currentFillX > initialLead) {
+      const travelProgress = Math.min((currentFillX - initialLead) / (dreamPosition - initialLead), 1.0);
+      focalLead = initialLead + (finalLead - initialLead) * travelProgress;
+    }
     const targetTrackX = Math.min(0, focalLead - currentFillX);
     currentTrackX += (targetTrackX - currentTrackX) * 0.22;
     track.style.transform = `translateX(${currentTrackX.toFixed(1)}px)`;
@@ -1282,8 +1303,8 @@ function initShowcaseTimeline() {
       nodes.forEach((n) => n.classList.remove("is-active"));
       nodes[nodes.length - 1].classList.add("is-active");
       if (axisFill) axisFill.style.width = `${totalTrackWidth}px`;
-      // Settle with dreamNode comfortably on screen
-      const finalTargetX = Math.min(0, (window.innerWidth * 0.5) - dreamPosition);
+      // Settle smoothly with dreamNode comfortably on screen
+      const finalTargetX = Math.min(0, finalLead - dreamPosition);
       track.style.transform = `translateX(${finalTargetX.toFixed(1)}px)`;
     }
   }
@@ -1329,6 +1350,16 @@ function initShowcaseTimeline() {
   }
 
   window.addEventListener("scroll", checkTitleVisibility, { passive: true });
+
+  window.addEventListener("resize", () => {
+    computeLayout();
+    if (isAnimComplete) {
+      if (axisFill) axisFill.style.width = `${totalTrackWidth}px`;
+      const finalLead = window.innerWidth * 0.72;
+      const finalTargetX = Math.min(0, finalLead - dreamPosition);
+      track.style.transform = `translateX(${finalTargetX.toFixed(1)}px)`;
+    }
+  }, { passive: true });
 
   // Initial check
   checkTitleVisibility();
