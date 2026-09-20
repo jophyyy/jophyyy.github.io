@@ -21,7 +21,7 @@
   <!-- Stylesheet -->
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f59e0b%22/></svg>">
-  <link rel="stylesheet" href="style.css?v=10.7">
+  <link rel="stylesheet" href="style.css?v=10.8">
 </head>
 
 <body class="depth-body booting">
@@ -414,8 +414,16 @@
               <!-- The Centered Text -->
               <span class="showcase-bg-text" id="showcase-bg-text">places i'll be someday</span>
 
-              <!-- Tow Rig: Bridle Cable & Airplane anchored directly to right edge -->
+              <!-- Tow Rig: Bridle Cable, Airplane, and Aerobatic Smoke Loop -->
               <div class="banner-tow-rig" id="banner-tow-rig">
+                <!-- Skywriter Smoke Trail from Air-Circle -->
+                <div class="sky-smoke-loop" id="sky-smoke-loop" aria-hidden="true">
+                  <svg class="smoke-loop-svg" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="smoke-circle-path" id="smoke-circle-path" cx="90" cy="90" r="72" stroke="#111115" stroke-opacity="0.25" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M 90 162 C 55 162 25 165 0 168" stroke="#111115" stroke-opacity="0.18" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+
                 <div class="banner-tow-cable" id="banner-tow-cable">
                   <svg class="cable-svg" viewBox="0 0 60 32" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <line x1="0" y1="3" x2="22" y2="16" stroke="#111115" stroke-width="2" stroke-linecap="round"/>
@@ -616,7 +624,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=10.7"></script>
+  <script src="main.js?v=10.8"></script>
 </body>
 
 </html>
