@@ -21,7 +21,7 @@
   <!-- Stylesheet -->
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f59e0b%22/></svg>">
-  <link rel="stylesheet" href="style.css?v=10.13">
+  <link rel="stylesheet" href="style.css?v=10.14">
 </head>
 
 <body class="depth-body booting">
@@ -587,17 +587,7 @@
         <!-- ========================================================================= -->
         <div class="world-map-backdrop" id="world-map-backdrop" aria-label="Global Travel & Coordinates Map">
           <div class="map-inner-container">
-            <!-- Top Map Header -->
-            <div class="map-header-wrap">
-              <div class="map-badge">
-                <span class="badge-beacon"></span>
-                <span class="badge-text">GLOBAL CARTOGRAPHY // LAYER 04</span>
-              </div>
-              <h3 class="map-headline">BEYOND THE HORIZON</h3>
-              <p class="map-subhead">Tracking explorations, flight corridors, and coordinates across continents.</p>
-            </div>
-
-            <!-- Interactive Vector SVG Map -->
+            <!-- Fullscreen Vector SVG Map -->
             <div class="map-viewport-wrap" id="map-viewport-wrap">
               <svg class="world-map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -643,92 +633,60 @@
                   <line class="flight-arc arc-local" x1="291.2" y1="139.0" x2="294.4" y2="136.9" />
                 </g>
 
-                <!-- City Pins & Sonar Beacons -->
+                <!-- City Nodes & Beacons -->
                 <g class="map-nodes">
-                  <!-- Philadelphia (Primary Base) -->
-                  <g class="map-pin pin-primary" transform="translate(291.2, 139.0)" data-city="Philadelphia" data-badge="PRIMARY BASE" data-desc="Penn CIS • Systems & Software" data-latlon="39.9526° N, 75.1652° W">
+                  <!-- Philadelphia -->
+                  <g class="map-pin pin-primary" transform="translate(291.2, 139.0)">
                     <circle class="sonar-outer" r="14" />
                     <circle class="sonar-inner" r="8" />
                     <circle class="pin-dot" r="4.2" />
-                    <text class="pin-label" x="8" y="3">PHL [BASE]</text>
                   </g>
 
                   <!-- San Francisco / Bay Area -->
-                  <g class="map-pin" transform="translate(159.9, 145.1)" data-city="San Francisco" data-badge="TECH HUB" data-desc="Silicon Valley • Bay Area Exploration" data-latlon="37.7749° N, 122.4194° W">
+                  <g class="map-pin" transform="translate(159.9, 145.1)">
                     <circle class="sonar-inner" r="6" />
                     <circle class="pin-dot" r="3.2" />
-                    <text class="pin-label pin-label-left" x="-8" y="3">SFO</text>
                   </g>
 
                   <!-- New York -->
-                  <g class="map-pin" transform="translate(294.4, 136.9)" data-city="New York" data-badge="METROPOLIS" data-desc="Tech, Culture & Design Corridor" data-latlon="40.7128° N, 74.0060° W">
+                  <g class="map-pin" transform="translate(294.4, 136.9)">
                     <circle class="pin-dot" r="2.8" />
-                    <text class="pin-label" x="6" y="-5">NYC</text>
                   </g>
 
                   <!-- London -->
-                  <g class="map-pin" transform="translate(499.7, 106.9)" data-city="London" data-badge="EUROPE HUB" data-desc="Global Transit & International Systems" data-latlon="51.5074° N, 0.1278° W">
+                  <g class="map-pin" transform="translate(499.7, 106.9)">
                     <circle class="sonar-inner" r="6" />
                     <circle class="pin-dot" r="3.2" />
-                    <text class="pin-label" x="8" y="3">LON</text>
                   </g>
 
                   <!-- Paris -->
-                  <g class="map-pin" transform="translate(506.5, 114.3)" data-city="Paris" data-badge="EXPLORATION" data-desc="Art, Architecture & Aesthetics" data-latlon="48.8566° N, 2.3522° E">
+                  <g class="map-pin" transform="translate(506.5, 114.3)">
                     <circle class="pin-dot" r="2.5" />
                   </g>
 
                   <!-- Tokyo -->
-                  <g class="map-pin" transform="translate(887.9, 150.9)" data-city="Tokyo" data-badge="ASIA HUB" data-desc="Robotics, Future Cities & Design" data-latlon="35.6762° N, 139.6503° E">
+                  <g class="map-pin" transform="translate(887.9, 150.9)">
                     <circle class="sonar-inner" r="6" />
                     <circle class="pin-dot" r="3.2" />
-                    <text class="pin-label" x="8" y="3">TYO</text>
                   </g>
 
                   <!-- Taipei -->
-                  <g class="map-pin" transform="translate(837.7, 180.5)" data-city="Taipei" data-badge="HARDWARE & AI" data-desc="Semiconductor Frontier & Night Markets" data-latlon="25.0330° N, 121.5654° E">
+                  <g class="map-pin" transform="translate(837.7, 180.5)">
                     <circle class="sonar-inner" r="6" />
                     <circle class="pin-dot" r="3.2" />
-                    <text class="pin-label" x="8" y="3">TPE</text>
                   </g>
 
                   <!-- Singapore -->
-                  <g class="map-pin" transform="translate(788.4, 246.3)" data-city="Singapore" data-badge="GATEWAY" data-desc="Equatorial Gateway & Global Finance" data-latlon="1.3521° N, 103.8198° E">
+                  <g class="map-pin" transform="translate(788.4, 246.3)">
                     <circle class="pin-dot" r="2.6" />
-                    <text class="pin-label" x="6" y="3">SIN</text>
                   </g>
 
                   <!-- Sydney -->
-                  <g class="map-pin" transform="translate(920.0, 344.1)" data-city="Sydney" data-badge="OCEANIA" data-desc="Southern Hemisphere Exploration" data-latlon="33.8688° S, 151.2093° E">
+                  <g class="map-pin" transform="translate(920.0, 344.1)">
                     <circle class="pin-dot" r="2.6" />
-                    <text class="pin-label" x="6" y="3">SYD</text>
                   </g>
                 </g>
               </svg>
-
-              <!-- Floating Interactive City Card -->
-              <div class="map-tooltip-card" id="map-tooltip-card" aria-hidden="true">
-                <div class="tooltip-badge" id="tooltip-badge">PRIMARY BASE</div>
-                <div class="tooltip-city" id="tooltip-city">Philadelphia, PA</div>
-                <div class="tooltip-desc" id="tooltip-desc">Penn CIS • Systems & Software</div>
-                <div class="tooltip-coords" id="tooltip-coords">39.9526° N, 75.1652° W</div>
-              </div>
-            </div>
-
-            <!-- Map Bottom Telemetry Status HUD -->
-            <div class="map-telemetry-bar">
-              <div class="telemetry-col">
-                <span class="tele-label">BASE STATION</span>
-                <span class="tele-value">PHILADELPHIA, PA [UPENN CIS]</span>
-              </div>
-              <div class="telemetry-col">
-                <span class="tele-label">TELEMETRY CORRIDOR</span>
-                <span class="tele-value">FLIGHT ALT 32,000 FT • 084° ENE</span>
-              </div>
-              <div class="telemetry-col hide-mobile">
-                <span class="tele-label">SYSTEM STATUS</span>
-                <span class="tele-value tele-status-online"><span class="tele-beacon"></span> GLOBAL ROUTES ACTIVE</span>
-              </div>
             </div>
           </div>
         </div>
@@ -775,7 +733,7 @@
     </div>
   </div>
 
-  <script src="main.js?v=10.13"></script>
+  <script src="main.js?v=10.14"></script>
 </body>
 
 </html>

@@ -1347,44 +1347,7 @@ function initVerticalImageTrack() {
   const smokeCirclePath = document.getElementById("smoke-circle-path");
   const bgText = document.getElementById("showcase-bg-text");
   const worldMap = document.getElementById("world-map-backdrop");
-  const mapTooltipCard = document.getElementById("map-tooltip-card");
-  const tooltipCity = document.getElementById("tooltip-city");
-  const tooltipBadge = document.getElementById("tooltip-badge");
-  const tooltipDesc = document.getElementById("tooltip-desc");
-  const tooltipCoords = document.getElementById("tooltip-coords");
-
   if (!trackMid || !stage || !showcaseSection) return;
-
-  // Setup interactive map pin hover cards
-  if (worldMap && mapTooltipCard) {
-    const pins = worldMap.querySelectorAll(".map-pin");
-    pins.forEach((pin) => {
-      pin.addEventListener("mouseenter", () => {
-        const city = pin.getAttribute("data-city") || "";
-        const badge = pin.getAttribute("data-badge") || "";
-        const desc = pin.getAttribute("data-desc") || "";
-        const latlon = pin.getAttribute("data-latlon") || "";
-
-        if (tooltipCity) tooltipCity.textContent = city;
-        if (tooltipBadge) tooltipBadge.textContent = badge;
-        if (tooltipDesc) tooltipDesc.textContent = desc;
-        if (tooltipCoords) tooltipCoords.textContent = latlon;
-
-        const rect = pin.getBoundingClientRect();
-        const mapRect = worldMap.getBoundingClientRect();
-        const relX = rect.left + rect.width / 2 - mapRect.left;
-        const relY = rect.top - mapRect.top;
-
-        mapTooltipCard.style.left = `${relX}px`;
-        mapTooltipCard.style.top = `${relY}px`;
-        mapTooltipCard.classList.add("is-visible");
-      });
-
-      pin.addEventListener("mouseleave", () => {
-        mapTooltipCard.classList.remove("is-visible");
-      });
-    });
-  }
 
   // Initialize timeline and get scroll updater
   const updateTimeline = window.updateShowcaseTimeline || initShowcaseTimeline();
