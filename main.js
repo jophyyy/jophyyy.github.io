@@ -1155,7 +1155,7 @@ function initWorkingSection() {
 }
 
 /* ==========================================================================
-   5b. SHOWCASE TITLE & TIMELINE ANIMATION (2008 -> 2026 -> my dream is...)
+   5b. SHOWCASE TITLE & NUMBER LINE ANIMATION (2008 -> 2026 -> my dream is...)
    ========================================================================== */
 function initShowcaseTimeline() {
   const titleSection = document.getElementById("showcase-title-section");
@@ -1169,17 +1169,20 @@ function initShowcaseTimeline() {
     years.push(y);
   }
 
-  track.innerHTML = "";
+  track.innerHTML = `
+    <div class="number-line-axis-bg"></div>
+    <div class="number-line-axis-fill" id="number-line-axis-fill"></div>
+  `;
+  const axisFill = track.querySelector("#number-line-axis-fill");
   const nodes = [];
 
   years.forEach((year, index) => {
     const node = document.createElement("div");
-    node.className = "timeline-node";
+    node.className = "number-line-node";
     node.dataset.index = index;
     node.innerHTML = `
-      <span class="timeline-node-dot"></span>
-      <span class="timeline-node-year">${year}</span>
-      <span class="timeline-node-line"></span>
+      <div class="number-line-tick"></div>
+      <div class="number-line-year">${year}</div>
     `;
     track.appendChild(node);
     nodes.push(node);
@@ -1187,11 +1190,15 @@ function initShowcaseTimeline() {
 
   // Finale node: "my dream is..."
   const dreamNode = document.createElement("div");
-  dreamNode.className = "timeline-node timeline-node-dream";
+  dreamNode.className = "number-line-node number-line-node-dream";
   dreamNode.dataset.index = years.length;
   dreamNode.innerHTML = `
-    <span class="timeline-node-dot timeline-dream-dot"></span>
-    <span class="timeline-dream-badge">my dream is...</span>
+    <div class="number-line-tick-dream">
+      <svg class="number-line-arrow" width="8" height="10" viewBox="0 0 8 10" fill="none">
+        <path d="M1 1L6 5L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="number-line-dream-badge">my dream is...</div>
   `;
   track.appendChild(dreamNode);
   nodes.push(dreamNode);
@@ -1199,7 +1206,7 @@ function initShowcaseTimeline() {
   const totalMilestones = nodes.length; // 20
 
   let animStartTime = null;
-  const animDuration = 3800; // 3.8s smooth progression
+  const animDuration = 2400; // 2.4s smooth fade progression
   let hasStartedAnim = false;
   let isAnimComplete = false;
   let animRafId = null;
@@ -1212,12 +1219,12 @@ function initShowcaseTimeline() {
     // Active milestone index (0 to 19)
     const activeIndex = Math.min(Math.floor(animProgress * (totalMilestones - 0.001)), totalMilestones - 1);
 
-    // Reveal nodes up to activeIndex
+    // Fade in nodes sequentially up to activeIndex
     for (let i = 0; i < totalMilestones; i++) {
       const node = nodes[i];
       if (i <= activeIndex) {
         node.classList.add("is-revealed");
-        if (i === activeIndex) {
+        if (i === activeIndex && !isAnimComplete) {
           node.classList.add("is-active");
         } else {
           node.classList.remove("is-active");
@@ -1227,15 +1234,9 @@ function initShowcaseTimeline() {
       }
     }
 
-    // Horizontal translation of the track:
-    // Starts on the right at ~76vw and glides smoothly left as years are added
-    const activeNode = nodes[activeIndex];
-    if (activeNode) {
-      const vw = window.innerWidth;
-      const focalTargetX = (vw * 0.76) - (animProgress * vw * 0.28);
-      const nodeOffset = activeNode.offsetLeft > 0 ? activeNode.offsetLeft : (activeIndex * 96);
-      const targetTrackX = focalTargetX - nodeOffset;
-      track.style.transform = `translateX(${targetTrackX.toFixed(1)}px)`;
+    // Number line axis fill advances smoothly from left to right
+    if (axisFill) {
+      axisFill.style.width = `${(animProgress * 100).toFixed(1)}%`;
     }
 
     if (animProgress < 1.0) {
@@ -1243,6 +1244,10 @@ function initShowcaseTimeline() {
     } else {
       isAnimComplete = true;
       animRafId = null;
+      nodes.forEach((n) => n.classList.add("is-revealed"));
+      nodes.forEach((n) => n.classList.remove("is-active"));
+      nodes[nodes.length - 1].classList.add("is-active");
+      if (axisFill) axisFill.style.width = "100%";
     }
   }
 
@@ -1264,8 +1269,8 @@ function initShowcaseTimeline() {
     nodes.forEach((n) => {
       n.classList.remove("is-revealed", "is-active");
     });
+    if (axisFill) axisFill.style.width = "0%";
     header.style.opacity = "0";
-    track.style.transform = `translateX(${window.innerWidth}px)`;
   }
 
   // Scroll check for when titleSection enters view
@@ -1283,15 +1288,6 @@ function initShowcaseTimeline() {
   }
 
   window.addEventListener("scroll", checkTitleVisibility, { passive: true });
-  window.addEventListener("resize", () => {
-    if (isAnimComplete) {
-      const vw = window.innerWidth;
-      const activeNode = nodes[nodes.length - 1];
-      const focalTargetX = (vw * 0.76) - (vw * 0.28);
-      const nodeOffset = activeNode.offsetLeft > 0 ? activeNode.offsetLeft : ((nodes.length - 1) * 96);
-      track.style.transform = `translateX(${(focalTargetX - nodeOffset).toFixed(1)}px)`;
-    }
-  }, { passive: true });
 
   // Initial check
   checkTitleVisibility();
