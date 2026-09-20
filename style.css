@@ -1306,7 +1306,7 @@ body.depth-body {
   font-weight: 700;
   letter-spacing: clamp(1px, 0.25vw, 4px);
   color: #111115;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  text-shadow: 0 0 28px rgba(250, 247, 238, 0.95), 0 6px 24px rgba(0, 0, 0, 0.12);
   white-space: nowrap;
   user-select: none;
   pointer-events: none;

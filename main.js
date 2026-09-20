@@ -1395,13 +1395,16 @@ function initVerticalImageTrack() {
     } else if (progress < 0.36) {
       // Fades in smoothly as you near 2030
       gridEntrance = (progress - 0.24) / 0.12;
-      gridProgress = (progress - 0.24) / 0.71;
-    } else if (progress <= 0.95) {
+      gridProgress = (progress - 0.24) / 0.64;
+    } else if (progress <= 0.88) {
       gridEntrance = 1.0;
-      gridProgress = (progress - 0.24) / 0.71;
+      gridProgress = (progress - 0.24) / 0.64;
+    } else if (progress <= 0.97) {
+      gridEntrance = 1.0;
+      gridProgress = 1.0;
     } else {
-      // Graceful exit at the bottom (0.95 to 1.0)
-      gridEntrance = Math.max(0, 1.0 - (progress - 0.95) / 0.05);
+      // Graceful exit at the bottom (0.97 to 1.0)
+      gridEntrance = Math.max(0, 1.0 - (progress - 0.97) / 0.03);
       gridProgress = 1.0;
     }
 
@@ -1435,18 +1438,43 @@ function initVerticalImageTrack() {
       imagesSides[i].style.objectPosition = `center ${sidePos}%`;
     }
 
-    // 3. Dynamic Grid Scale & Spotlight Dimming
+    // 3. Dynamic Grid Scale
     const { min: minScale, max: maxScale } = getTrackScaleRange();
     const currentScale = minScale + clampedGridProgress * (maxScale - minScale);
 
+    // 4. Background Text & Finale Spotlight (Timing: Very End of Grid Scroll)
+    // - As grid scroll nears the end (clampedGridProgress 0.68 -> 0.92), text slides from left to right behind the columns
+    // - When grid scroll ends (clampedGridProgress >= 0.92 through progress 0.97), pictures fade down to 0.48 and text pops out!
     let spotlightOpacity = 1.0;
-    if (clampedGridProgress >= 0.32 && clampedGridProgress <= 0.68) {
-      const distFromCenter = Math.abs(clampedGridProgress - 0.50);
-      const fadeFactor = 1 - (distFromCenter / 0.18);
-      spotlightOpacity = 1.0 - (fadeFactor * 0.46); // dips from 1.0 down to ~0.54 at center
+    let textOpacity = 0;
+    let xTravel = -26;
+    let textPopScale = 0.95;
+
+    if (clampedGridProgress < 0.68) {
+      // Quiet during early/mid grid scrolling
+      spotlightOpacity = 1.0;
+      textOpacity = 0;
+      xTravel = -26;
+      textPopScale = 0.95;
+    } else if (clampedGridProgress < 0.92) {
+      // Nearing the end: slides left to right across the screen
+      const tSlide = (clampedGridProgress - 0.68) / 0.24;
+      xTravel = -26 + tSlide * 26; // -26vw to 0vw
+      textOpacity = tSlide * 0.48;
+      textPopScale = 0.95 + tSlide * 0.05;
+      spotlightOpacity = 1.0;
+    } else {
+      // Grid scroll ends: text pops out, pictures fade slightly to let text pop!
+      const tPop = progress < 0.88 ? (clampedGridProgress - 0.92) / 0.08 : 1.0;
+      const driftRight = progress >= 0.88 ? ((progress - 0.88) / 0.09) * 3.5 : 0;
+      xTravel = driftRight;
+      textOpacity = 0.48 + tPop * 0.52; // reaches 1.0
+      textPopScale = 1.00 + tPop * 0.08; // reaches 1.08
+      spotlightOpacity = 1.0 - tPop * 0.52; // pictures dim down to ~0.48 so text pops out!
     }
 
     const effectiveColumnsOpacity = gridEntrance * spotlightOpacity;
+    const effectiveTextOpacity = textOpacity * gridEntrance;
 
     if (trackColumns) {
       trackColumns.style.transform = `scale(${currentScale.toFixed(4)})`;
@@ -1455,32 +1483,7 @@ function initVerticalImageTrack() {
       trackColumns.style.pointerEvents = gridEntrance > 0.1 ? "auto" : "none";
     }
 
-    // 4. Parallax Background Text (Pops out darker when centered, fades as pictures return, disappears at end)
     if (bgText) {
-      const xTravel = (clampedGridProgress - 0.5) * 62;
-
-      let textOpacity = 0;
-      if (clampedGridProgress < 0.14) {
-        textOpacity = 0;
-      } else if (clampedGridProgress < 0.32) {
-        textOpacity = ((clampedGridProgress - 0.14) / 0.18) * 0.35;
-      } else if (clampedGridProgress <= 0.50) {
-        const t = (clampedGridProgress - 0.32) / 0.18;
-        textOpacity = 0.35 + t * 0.60;
-      } else if (clampedGridProgress <= 0.68) {
-        const t = (clampedGridProgress - 0.50) / 0.18;
-        textOpacity = 0.95 - t * 0.63;
-      } else if (clampedGridProgress <= 0.84) {
-        const t = (clampedGridProgress - 0.68) / 0.16;
-        textOpacity = 0.32 - t * 0.17;
-      } else {
-        const t = Math.min((clampedGridProgress - 0.84) / 0.16, 1);
-        textOpacity = Math.max(0, 0.15 - t * 0.15);
-      }
-
-      const effectiveTextOpacity = textOpacity * gridEntrance;
-      const textPopScale = 0.96 + (textOpacity / 0.95) * 0.08;
-
       bgText.style.transform = `translateX(${xTravel.toFixed(2)}vw) scale(${textPopScale.toFixed(3)})`;
       bgText.style.opacity = effectiveTextOpacity.toFixed(3);
     }
