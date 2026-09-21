@@ -1545,13 +1545,56 @@ body.depth-body {
   transform: none;
 }
 
-/* Landmass Styling */
-.map-continents {
-  fill: #ede6d6;
+/* Regional Landmass Biomes Styling */
+.map-biomes {
+  cursor: default;
+}
+
+.biome-land {
   stroke: #111115;
-  stroke-width: 1.2px;
+  stroke-width: 0.9px;
   stroke-linejoin: round;
-  transition: fill 0.3s ease;
+  transition: fill 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+}
+
+.biome-land:hover {
+  filter: brightness(1.08) saturate(1.15);
+}
+
+/* 7 Distinct Climate Biome Color Tokens */
+/* 1. Tundra & Polar (Glacial ice, permafrost slate) */
+.biome-tundra {
+  fill: #d8e5ea;
+}
+
+/* 2. Boreal Forest / Taiga (Evergreen spruce, subarctic pine) */
+.biome-boreal {
+  fill: #8aa797;
+}
+
+/* 3. Temperate Forest & Meadow (Lush deciduous green, fertile valleys) */
+.biome-temperate {
+  fill: #9ebf85;
+}
+
+/* 4. Mediterranean & Subtropical (Sun-drenched olive, coastal terracotta) */
+.biome-mediterranean {
+  fill: #d4b882;
+}
+
+/* 5. Arid & Desert (Sahara, Arabian & Outback golden dunes) */
+.biome-arid {
+  fill: #e8bf72;
+}
+
+/* 6. Savanna & Grassland (Sunlit acacia prairie, tall grassland amber) */
+.biome-savanna {
+  fill: #c6a15a;
+}
+
+/* 7. Tropical Rainforest (Dense equatorial Amazon/Congo emerald canopy) */
+.biome-tropical {
+  fill: #4b8861;
 }
 
 /* Flight Arcs */
