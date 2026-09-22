@@ -312,24 +312,6 @@ body.depth-body {
   animation: none !important;
 }
 
-.hero-lead-type-caret {
-  display: inline-block;
-  width: 0.28em;
-  height: 0.85em;
-  background-color: var(--amber);
-  vertical-align: -0.08em;
-  margin-left: 4px;
-  animation: heroCaretBlink 0.8s step-end infinite;
-  box-shadow: 0 0 8px rgba(217, 119, 6, 0.45);
-}
-
-.hero-lead-type-caret.waiting,
-.hero-lead-type-caret.finished {
-  opacity: 0 !important;
-  display: none !important;
-  animation: none !important;
-}
-
 @keyframes heroCaretBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
@@ -353,6 +335,25 @@ body.depth-body {
   color: var(--text-muted);
   max-width: 580px;
   min-height: 3.3em;
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.44s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: opacity, transform;
+}
+
+.hero-lead.popped-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-lead {
+    transform: none !important;
+    transition: opacity 0.2s ease;
+  }
 }
 
 /* Scroll Cue */

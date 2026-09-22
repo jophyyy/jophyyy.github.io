@@ -920,8 +920,8 @@ function initSequenceActions() {
 function initHeroTypewriter() {
   const headlineTarget = document.getElementById("hero-type-target");
   const headlineCaret = document.querySelector(".hero-type-caret");
+  const leadElement = document.getElementById("hero-lead") || document.querySelector(".hero-lead");
   const leadTarget = document.getElementById("hero-lead-type-target");
-  const leadCaret = document.querySelector(".hero-lead-type-caret");
 
   if (!headlineTarget) return;
 
@@ -938,44 +938,22 @@ function initHeroTypewriter() {
   let isTyping = false;
   let typeTimer = null;
   let typedHeadlineHTML = "";
+  let popTimer = null;
 
-  let leadCharIdx = 0;
-  let leadTimer = null;
-  let typedLeadHTML = "";
-
-  function typeLeadChar() {
-    if (leadCharIdx < leadText.length) {
-      typedLeadHTML += leadText[leadCharIdx];
-      if (leadTarget) leadTarget.innerHTML = typedLeadHTML;
-      leadCharIdx++;
-      leadTimer = setTimeout(typeLeadChar, 24 + Math.random() * 20);
-    } else {
-      // Subtitle finished typing -> make orange caret disappear
-      if (leadCaret) {
-        leadCaret.classList.remove("waiting");
-        leadCaret.classList.add("finished");
-      }
+  function popInLead() {
+    if (!leadElement) return;
+    if (leadTarget && !leadTarget.textContent.trim()) {
+      leadTarget.textContent = leadText;
     }
-  }
-
-  function startLeadTyping() {
-    if (!leadTarget) return;
-    if (leadCaret) {
-      leadCaret.classList.remove("waiting");
-      leadCaret.classList.remove("finished");
-    }
-    leadCharIdx = 0;
-    typedLeadHTML = "";
-    leadTarget.innerHTML = "";
-    leadTimer = setTimeout(typeLeadChar, 200);
+    leadElement.classList.add("popped-in");
   }
 
   function typeHeadlineChar() {
     if (segmentIdx >= headlineSegments.length) {
       // Headline finished typing -> make headline caret disappear
       if (headlineCaret) headlineCaret.classList.add("finished");
-      // Now start subtitle typewriter
-      setTimeout(startLeadTyping, 280);
+      // Pop in the subtitle with a crisp, snappy entrance
+      popTimer = setTimeout(popInLead, 240);
       return;
     }
 
@@ -1000,7 +978,7 @@ function initHeroTypewriter() {
     if (isTyping) return;
     isTyping = true;
     clearTimeout(typeTimer);
-    clearTimeout(leadTimer);
+    clearTimeout(popTimer);
 
     typedHeadlineHTML = "";
     headlineTarget.innerHTML = "";
@@ -1009,11 +987,10 @@ function initHeroTypewriter() {
 
     if (headlineCaret) headlineCaret.classList.remove("finished");
 
-    if (leadTarget) {
-      leadTarget.innerHTML = "";
-      if (leadCaret) {
-        leadCaret.classList.add("waiting");
-        leadCaret.classList.remove("finished");
+    if (leadElement) {
+      leadElement.classList.remove("popped-in");
+      if (leadTarget && !leadTarget.textContent.trim()) {
+        leadTarget.textContent = leadText;
       }
     }
 
