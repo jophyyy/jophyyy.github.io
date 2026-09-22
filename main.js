@@ -922,6 +922,7 @@ function initHeroTypewriter() {
   const headlineCaret = document.querySelector(".hero-type-caret");
   const leadElement = document.getElementById("hero-lead") || document.querySelector(".hero-lead");
   const leadTarget = document.getElementById("hero-lead-type-target");
+  const heroScrollCue = document.getElementById("hero-scroll-cue") || document.querySelector(".hero-scroll-cue");
 
   if (!headlineTarget) return;
 
@@ -939,13 +940,23 @@ function initHeroTypewriter() {
   let typeTimer = null;
   let typedHeadlineHTML = "";
   let popTimer = null;
+  let scrollCueTimer = null;
+
+  function popInScrollCue() {
+    if (heroScrollCue && !heroScrollCue.classList.contains("scrolled-hidden")) {
+      heroScrollCue.classList.add("popped-in");
+    }
+  }
 
   function popInLead() {
-    if (!leadElement) return;
-    if (leadTarget && !leadTarget.textContent.trim()) {
-      leadTarget.textContent = leadText;
+    if (leadElement) {
+      if (leadTarget && !leadTarget.textContent.trim()) {
+        leadTarget.textContent = leadText;
+      }
+      leadElement.classList.add("popped-in");
     }
-    leadElement.classList.add("popped-in");
+    // Pop in the scroll down cue a little after the subtitle text pops in
+    scrollCueTimer = setTimeout(popInScrollCue, 320);
   }
 
   function typeHeadlineChar() {
@@ -979,6 +990,7 @@ function initHeroTypewriter() {
     isTyping = true;
     clearTimeout(typeTimer);
     clearTimeout(popTimer);
+    clearTimeout(scrollCueTimer);
 
     typedHeadlineHTML = "";
     headlineTarget.innerHTML = "";
@@ -992,6 +1004,10 @@ function initHeroTypewriter() {
       if (leadTarget && !leadTarget.textContent.trim()) {
         leadTarget.textContent = leadText;
       }
+    }
+
+    if (heroScrollCue && !heroScrollCue.classList.contains("scrolled-hidden")) {
+      heroScrollCue.classList.remove("popped-in");
     }
 
     setTimeout(typeHeadlineChar, 320);
@@ -1125,6 +1141,7 @@ function initWorkingSection() {
     scrollCueDismissed = false;
     if (heroScrollCue) {
       heroScrollCue.classList.remove("scrolled-hidden");
+      heroScrollCue.classList.add("popped-in");
     }
     window.addEventListener("scroll", handleScrollCueCheck, { passive: true });
   };
