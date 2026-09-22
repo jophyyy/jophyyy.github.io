@@ -926,6 +926,10 @@ function initHeroTypewriter() {
 
   if (!headlineTarget) return;
 
+  // Ensure initial hidden state
+  if (leadElement) leadElement.classList.remove("popped-in");
+  if (heroScrollCue) heroScrollCue.classList.remove("popped-in");
+
   const headlineSegments = [
     { text: "hello", pauseAfter: 420, newline: true },
     { text: "welcome to", pauseAfter: 380, newline: true },
@@ -943,7 +947,7 @@ function initHeroTypewriter() {
   let scrollCueTimer = null;
 
   function popInScrollCue() {
-    if (heroScrollCue && !heroScrollCue.classList.contains("scrolled-hidden")) {
+    if (heroScrollCue && !heroScrollCue.classList.contains("scrolled-hidden") && window.scrollY <= 30) {
       heroScrollCue.classList.add("popped-in");
     }
   }
@@ -955,16 +959,16 @@ function initHeroTypewriter() {
       }
       leadElement.classList.add("popped-in");
     }
-    // Pop in the scroll down cue a little after the subtitle text pops in
-    scrollCueTimer = setTimeout(popInScrollCue, 320);
+    // Pop in the scroll down cue 450ms after the subtitle text pops in
+    scrollCueTimer = setTimeout(popInScrollCue, 450);
   }
 
   function typeHeadlineChar() {
     if (segmentIdx >= headlineSegments.length) {
       // Headline finished typing -> make headline caret disappear
       if (headlineCaret) headlineCaret.classList.add("finished");
-      // Pop in the subtitle with a crisp, snappy entrance
-      popTimer = setTimeout(popInLead, 240);
+      // Noticeable 720ms pause after headline completes before subtitle pops in
+      popTimer = setTimeout(popInLead, 720);
       return;
     }
 
@@ -1099,6 +1103,7 @@ function initWorkingSection() {
     if (scrollCueDismissed) return;
     scrollCueDismissed = true;
     if (heroScrollCue) {
+      heroScrollCue.classList.remove("popped-in");
       heroScrollCue.classList.add("scrolled-hidden");
     }
     window.removeEventListener("scroll", handleScrollCueCheck);
