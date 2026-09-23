@@ -1832,21 +1832,21 @@ function initUSStatesDrawer() {
     let targetX, targetY, pathD;
 
     if (popLeft >= anchorX + 24) {
-      // Window is to the right of anchor on USA
+      // Cloud is to the right of anchor on USA
       targetX = popLeft;
-      targetY = popTop + 20; // Connect to window titlebar
+      targetY = popTop + Math.round(popHeight * 0.38);
       const elbowX = anchorX + Math.round((popLeft - anchorX) * 0.42);
       pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
     } else if (popTop >= anchorY + 30) {
-      // Window is below anchor
+      // Cloud is below anchor
       targetX = Math.min(anchorX, popLeft + popWidth / 2);
       targetY = popTop;
       const elbowY = Math.min(anchorY + 24, popTop - 10);
       pathD = `M ${anchorX} ${anchorY} L ${targetX} ${elbowY} L ${targetX} ${targetY}`;
     } else {
-      // Window is to the left of anchor
+      // Cloud is to the left of anchor
       targetX = popLeft + popWidth;
-      targetY = popTop + 20;
+      targetY = popTop + Math.round(popHeight * 0.38);
       const elbowX = anchorX - Math.round((anchorX - targetX) * 0.42);
       pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
     }
