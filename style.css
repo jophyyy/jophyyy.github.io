@@ -2623,22 +2623,91 @@ body.booting {
   50% { opacity: 0.35; transform: scale(0.85); }
 }
 
-/* --- US 50 STATES MINI FLOATING WINDOW --- */
+/* --- US 50 STATES MINI FLOATING WINDOW & CALLOUT LEADER --- */
+
+/* Leader Line SVG Overlay */
+.us-callout-leader-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 34;
+  overflow: visible;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s;
+}
+
+.us-callout-leader-svg.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.leader-pulse {
+  fill: rgba(245, 158, 11, 0.22);
+  stroke: #d97706;
+  stroke-width: 1.5px;
+  transform-origin: center;
+  animation: leaderPulseRing 2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+@keyframes leaderPulseRing {
+  0% {
+    r: 4px;
+    opacity: 1;
+  }
+  60% {
+    r: 14px;
+    opacity: 0.4;
+  }
+  100% {
+    r: 18px;
+    opacity: 0;
+  }
+}
+
+.leader-dot {
+  fill: #f59e0b;
+  stroke: #121217;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.95));
+}
+
+.leader-line {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 4px rgba(18, 18, 23, 0.4));
+}
+
+.leader-target-dot {
+  fill: #f59e0b;
+  stroke: #121217;
+  stroke-width: 1.5px;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.85));
+}
+
+/* Mini Floating Window */
 .us-mini-window {
   position: absolute;
-  top: 16px;
-  right: 20px;
-  width: min(420px, 88vw);
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: min(340px, 86vw);
   background: #121217;
   border: 1.5px solid #2b2b3a;
   border-radius: 6px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 158, 11, 0.2);
   z-index: 35;
   display: flex;
   flex-direction: column;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-8px) scale(0.96);
+  transform: translateY(-6px) scale(0.96);
   transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s;
   pointer-events: none;
   font-family: var(--font-pixel, monospace);
@@ -2745,19 +2814,6 @@ body.booting {
   stroke-width: 1px;
 }
 
-@media (max-width: 640px) {
-  .us-mini-window {
-    top: auto;
-    bottom: 16px;
-    right: 50%;
-    transform: translate(50%, 8px) scale(0.96);
-    width: min(380px, 92vw);
-  }
-
-  .us-mini-window.is-open {
-    transform: translate(50%, 0) scale(1);
-  }
-}
 
 
 

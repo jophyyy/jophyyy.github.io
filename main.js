@@ -1676,11 +1676,14 @@ function initVerticalImageTrack() {
       let mapOpacity = 0;
       let mapScale = 0.97;
 
-      if (progress < 0.885) {
+      if (miniWindow && miniWindow.classList.contains("is-open")) {
+        mapOpacity = 1.0;
+        mapScale = 1.00;
+      } else if (progress < 0.880) {
         mapOpacity = 0;
         mapScale = 0.97;
-      } else if (progress < 0.925) {
-        const tMap = (progress - 0.885) / 0.040;
+      } else if (progress < 0.905) {
+        const tMap = (progress - 0.880) / 0.025;
         mapOpacity = tMap;
         mapScale = 0.97 + 0.03 * tMap;
       } else {
@@ -1754,24 +1757,130 @@ function initVerticalImageTrack() {
 }
 
 /* ==========================================================================
-   10. US 50 STATES MINI-WINDOW CONTROLLER
+   10. US 50 STATES MINI-WINDOW & CALLOUT LEADER CONTROLLER
    ========================================================================== */
 function initUSStatesDrawer() {
   const countryUSA = document.getElementById("country-usa");
   const mapShortcutBtn = document.getElementById("map-usa-shortcut-btn");
   const miniWindow = document.getElementById("us-mini-window");
   const closeBtn = document.getElementById("us-mini-window-close");
+  const leaderSvg = document.getElementById("us-callout-leader-svg");
+  const leaderPulse = document.getElementById("leader-anchor-pulse");
+  const leaderDot = document.getElementById("leader-anchor-dot");
+  const leaderLine = document.getElementById("leader-connector-line");
+  const leaderTargetDot = document.getElementById("leader-target-dot");
+  const worldSvg = document.querySelector(".world-map-svg");
+  const mapWrap = document.getElementById("map-viewport-wrap");
 
   if (!miniWindow) return;
 
+  function positionPopupAndLeader() {
+    if (!worldSvg || !mapWrap || !miniWindow) return;
+
+    const wrapRect = mapWrap.getBoundingClientRect();
+    if (wrapRect.width === 0 || wrapRect.height === 0) return;
+
+    // 1. Calculate USA CONUS center anchor in screen/DOM coordinates
+    // Mainland USA center in 1000x470 SVG viewBox is approx (248, 146)
+    const pt = worldSvg.createSVGPoint();
+    pt.x = 248;
+    pt.y = 146;
+    const screenPt = pt.matrixTransform(worldSvg.getScreenCTM());
+
+    const anchorX = Math.round(screenPt.x - wrapRect.left);
+    const anchorY = Math.round(screenPt.y - wrapRect.top);
+
+    // 2. Measure mini-window size
+    const popWidth = miniWindow.offsetWidth || Math.min(340, wrapRect.width * 0.85);
+    const popHeight = miniWindow.offsetHeight || 240;
+
+    // 3. Determine ideal position near the USA (over the North Atlantic ocean to the right)
+    // Offset far enough so the entire US East Coast remains cleanly visible
+    let popLeft = anchorX + 88;
+    let popTop = anchorY - 75;
+
+    // If placing to the right overflows the container, adapt position
+    if (popLeft + popWidth > wrapRect.width - 16) {
+      if (wrapRect.width - anchorX < popWidth * 0.75) {
+        popLeft = Math.max(12, Math.min(anchorX - popWidth / 2, wrapRect.width - popWidth - 12));
+        popTop = Math.min(anchorY + 55, wrapRect.height - popHeight - 12);
+      } else {
+        popLeft = Math.max(12, wrapRect.width - popWidth - 16);
+      }
+    }
+
+    // Vertical boundary clamping
+    popTop = Math.max(12, Math.min(popTop, wrapRect.height - popHeight - 12));
+
+    miniWindow.style.left = `${popLeft}px`;
+    miniWindow.style.top = `${popTop}px`;
+    miniWindow.style.right = "auto";
+    miniWindow.style.bottom = "auto";
+
+    // 4. Update Leader SVG elements
+    if (leaderPulse) {
+      leaderPulse.setAttribute("cx", anchorX);
+      leaderPulse.setAttribute("cy", anchorY);
+    }
+    if (leaderDot) {
+      leaderDot.setAttribute("cx", anchorX);
+      leaderDot.setAttribute("cy", anchorY);
+    }
+
+    // 5. Calculate leader connector line path
+    let targetX, targetY, pathD;
+
+    if (popLeft >= anchorX + 24) {
+      // Window is to the right of anchor on USA
+      targetX = popLeft;
+      targetY = popTop + 20; // Connect to window titlebar
+      const elbowX = anchorX + Math.round((popLeft - anchorX) * 0.42);
+      pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
+    } else if (popTop >= anchorY + 30) {
+      // Window is below anchor
+      targetX = Math.min(anchorX, popLeft + popWidth / 2);
+      targetY = popTop;
+      const elbowY = Math.min(anchorY + 24, popTop - 10);
+      pathD = `M ${anchorX} ${anchorY} L ${targetX} ${elbowY} L ${targetX} ${targetY}`;
+    } else {
+      // Window is to the left of anchor
+      targetX = popLeft + popWidth;
+      targetY = popTop + 20;
+      const elbowX = anchorX - Math.round((anchorX - targetX) * 0.42);
+      pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
+    }
+
+    if (leaderLine) {
+      leaderLine.setAttribute("d", pathD);
+    }
+    if (leaderTargetDot) {
+      leaderTargetDot.setAttribute("cx", targetX);
+      leaderTargetDot.setAttribute("cy", targetY);
+    }
+  }
+
   function openWindow() {
+    const worldMap = document.getElementById("world-map-backdrop");
+    if (worldMap) {
+      worldMap.style.opacity = "1.000";
+      worldMap.style.visibility = "visible";
+      worldMap.style.pointerEvents = "auto";
+    }
+    positionPopupAndLeader();
     miniWindow.classList.add("is-open");
     miniWindow.setAttribute("aria-hidden", "false");
+    leaderSvg?.classList.add("is-active");
+    countryUSA?.classList.add("is-active");
+
+    // Re-run on next frame in case initial layout size changed
+    requestAnimationFrame(positionPopupAndLeader);
   }
 
   function closeWindow() {
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
+    leaderSvg?.classList.remove("is-active");
+    countryUSA?.classList.remove("is-active");
   }
 
   function toggleWindow() {
@@ -1785,6 +1894,7 @@ function initUSStatesDrawer() {
   // Expose globally for CLI and external triggers
   window.openUSStatesDrawer = openWindow;
   window.closeUSStatesDrawer = closeWindow;
+  window.repositionUSCallout = positionPopupAndLeader;
 
   // Click on US country path on the world map
   countryUSA?.addEventListener("click", (e) => {
@@ -1804,12 +1914,13 @@ function initUSStatesDrawer() {
     closeWindow();
   });
 
-  // Close when clicking outside the mini-window
+  // Close when clicking outside the mini-window and outside USA
   document.addEventListener("click", (e) => {
     if (
       miniWindow.classList.contains("is-open") &&
       !miniWindow.contains(e.target) &&
       e.target !== countryUSA &&
+      !countryUSA?.contains(e.target) &&
       e.target !== mapShortcutBtn &&
       !mapShortcutBtn?.contains(e.target)
     ) {
@@ -1823,6 +1934,23 @@ function initUSStatesDrawer() {
       closeWindow();
     }
   });
+
+  // Dynamic reposition on resize and scroll
+  window.addEventListener("resize", () => {
+    if (miniWindow.classList.contains("is-open")) {
+      positionPopupAndLeader();
+    }
+  });
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (miniWindow.classList.contains("is-open")) {
+        positionPopupAndLeader();
+      }
+    },
+    { passive: true }
+  );
 }
 
 
