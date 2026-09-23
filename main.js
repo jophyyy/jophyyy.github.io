@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initProjectFilters();
   initInteractiveCLI();
   initSequenceActions();
+  initUSStatesDrawer();
 });
 
 /* ==========================================================================
@@ -836,6 +837,15 @@ function initInteractiveCLI() {
       case "boop":
       case "boopbot":
         appendHistoryLine("🤖 *boop!* boopbot is online and listening.");
+        break;
+
+      case "states":
+      case "usa":
+      case "map":
+        if (window.openUSStatesDrawer) {
+          window.openUSStatesDrawer();
+          appendHistoryLine("🗺️ Opening United States Interactive Directory & 50 States Atlas...");
+        }
         break;
 
       case "contact":
@@ -1742,6 +1752,288 @@ function initVerticalImageTrack() {
     { passive: true }
   );
 }
+
+/* ==========================================================================
+   10. US 50 STATES POP-OUT SIDE DRAWER & ATLAS
+   ========================================================================== */
+function initUSStatesDrawer() {
+  const countryUSA = document.getElementById("country-usa");
+  const mapShortcutBtn = document.getElementById("map-usa-shortcut-btn");
+  const statesDrawer = document.getElementById("states-drawer");
+  const statesBackdrop = document.getElementById("states-drawer-backdrop");
+  const closeBtn = document.getElementById("drawer-close-btn");
+  const resetBtn = document.getElementById("map-reset-btn");
+  const searchInput = document.getElementById("state-search-input");
+  const searchClearBtn = document.getElementById("search-clear-btn");
+  const filterChips = document.querySelectorAll("#drawer-filter-chips .filter-chip");
+  const stateCountEl = document.getElementById("drawer-state-count");
+
+  // Live HUD Elements
+  const hudNameEl = document.getElementById("hud-state-name");
+  const hudCodeEl = document.getElementById("hud-state-code");
+  const hudCapEl = document.getElementById("hud-meta-cap");
+  const hudRegEl = document.getElementById("hud-meta-reg");
+  const hudNickEl = document.getElementById("hud-meta-nick");
+
+  if (!statesDrawer || !statesBackdrop) return;
+
+  const statePaths = Array.from(document.querySelectorAll(".us-state-path"));
+  const stateCards = Array.from(document.querySelectorAll(".state-card"));
+
+  let activeStateCode = null;
+  let currentRegionFilter = "all";
+  let currentSearchQuery = "";
+
+  function updateHUD(name, code, cap, reg, nick) {
+    if (hudNameEl) hudNameEl.textContent = name || "SELECT OR HOVER A STATE";
+    if (hudCodeEl) hudCodeEl.textContent = code ? `// ${code}` : "--";
+    if (hudCapEl) hudCapEl.textContent = cap ? `CAPITAL: ${cap}` : "CAPITAL: —";
+    if (hudRegEl) hudRegEl.textContent = reg ? `REGION: ${reg.toUpperCase()}` : "REGION: ALL 50 STATES + DC";
+    if (hudNickEl) hudNickEl.textContent = nick || "CLICK TO FOCUS";
+  }
+
+  function resetHUD() {
+    if (activeStateCode) {
+      const activeCard = document.getElementById(`state-card-${activeStateCode.toLowerCase()}`);
+      if (activeCard) {
+        updateHUD(
+          activeCard.dataset.name,
+          activeCard.dataset.state,
+          activeCard.dataset.cap,
+          activeCard.dataset.region,
+          activeCard.dataset.nick
+        );
+        return;
+      }
+    }
+    updateHUD("SELECT OR HOVER A STATE", "", "", "", "CLICK TO FOCUS");
+  }
+
+  function openDrawer(initialCode = null) {
+    statesDrawer.classList.add("is-open");
+    statesBackdrop.classList.add("is-open");
+    statesDrawer.setAttribute("aria-hidden", "false");
+    statesBackdrop.setAttribute("aria-hidden", "false");
+    document.body.classList.add("states-drawer-open");
+
+    if (initialCode) {
+      setTimeout(() => {
+        selectState(initialCode, true);
+      }, 120);
+    }
+  }
+
+  function closeDrawer() {
+    statesDrawer.classList.remove("is-open");
+    statesBackdrop.classList.remove("is-open");
+    statesDrawer.setAttribute("aria-hidden", "true");
+    statesBackdrop.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("states-drawer-open");
+  }
+
+  // Expose globally for CLI or shortcuts
+  window.openUSStatesDrawer = openDrawer;
+  window.closeUSStatesDrawer = closeDrawer;
+
+  // Open triggers
+  countryUSA?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openDrawer("PA");
+  });
+
+  mapShortcutBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openDrawer("PA");
+  });
+
+  // Close triggers
+  closeBtn?.addEventListener("click", closeDrawer);
+  statesBackdrop?.addEventListener("click", closeDrawer);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && statesDrawer.classList.contains("is-open")) {
+      closeDrawer();
+    }
+  });
+
+  function selectState(code, scrollIntoView = true) {
+    if (!code) return;
+    const lowerCode = code.toLowerCase();
+    activeStateCode = code.toUpperCase();
+
+    // Update active classes on map paths
+    statePaths.forEach((path) => {
+      path.classList.toggle("is-active", path.dataset.state === activeStateCode);
+    });
+
+    // Update active classes on directory cards
+    stateCards.forEach((card) => {
+      const isCurrent = card.dataset.state === activeStateCode;
+      card.classList.toggle("is-active", isCurrent);
+      if (isCurrent && scrollIntoView) {
+        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    });
+
+    const targetCard = document.getElementById(`state-card-${lowerCode}`);
+    if (targetCard) {
+      updateHUD(
+        targetCard.dataset.name,
+        targetCard.dataset.state,
+        targetCard.dataset.cap,
+        targetCard.dataset.region,
+        targetCard.dataset.nick
+      );
+    }
+  }
+
+  // Two-way interaction on SVG Paths
+  statePaths.forEach((path) => {
+    const code = path.dataset.state;
+    const lowerCode = code ? code.toLowerCase() : "";
+
+    path.addEventListener("mouseenter", () => {
+      updateHUD(
+        path.dataset.name,
+        path.dataset.state,
+        path.dataset.cap,
+        path.dataset.region,
+        path.dataset.nick
+      );
+      const card = document.getElementById(`state-card-${lowerCode}`);
+      if (card) card.classList.add("is-hovered");
+    });
+
+    path.addEventListener("mouseleave", () => {
+      const card = document.getElementById(`state-card-${lowerCode}`);
+      if (card) card.classList.remove("is-hovered");
+      resetHUD();
+    });
+
+    path.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectState(code, true);
+    });
+  });
+
+  // Two-way interaction on Cards
+  stateCards.forEach((card) => {
+    const code = card.dataset.state;
+    const lowerCode = code ? code.toLowerCase() : "";
+
+    card.addEventListener("mouseenter", () => {
+      updateHUD(
+        card.dataset.name,
+        card.dataset.state,
+        card.dataset.cap,
+        card.dataset.region,
+        card.dataset.nick
+      );
+      const path = document.getElementById(`state-path-${lowerCode}`);
+      if (path) path.classList.add("is-hovered");
+    });
+
+    card.addEventListener("mouseleave", () => {
+      const path = document.getElementById(`state-path-${lowerCode}`);
+      if (path) path.classList.remove("is-hovered");
+      resetHUD();
+    });
+
+    card.addEventListener("click", () => {
+      selectState(code, false);
+    });
+
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectState(code, false);
+      }
+    });
+  });
+
+  // Search & Filter system
+  function applyFilters() {
+    let visibleCount = 0;
+    const query = currentSearchQuery.trim().toLowerCase();
+
+    stateCards.forEach((card) => {
+      const stateName = (card.dataset.name || "").toLowerCase();
+      const stateCode = (card.dataset.state || "").toLowerCase();
+      const stateCap = (card.dataset.cap || "").toLowerCase();
+      const stateReg = (card.dataset.region || "").toLowerCase();
+      const stateNick = (card.dataset.nick || "").toLowerCase();
+
+      const matchesRegion =
+        currentRegionFilter === "all" ||
+        card.dataset.region.toLowerCase() === currentRegionFilter.toLowerCase();
+
+      const matchesQuery =
+        !query ||
+        stateName.includes(query) ||
+        stateCode.includes(query) ||
+        stateCap.includes(query) ||
+        stateReg.includes(query) ||
+        stateNick.includes(query);
+
+      const isVisible = matchesRegion && matchesQuery;
+      card.style.display = isVisible ? "" : "none";
+
+      const lowerCode = (card.dataset.state || "").toLowerCase();
+      const path = document.getElementById(`state-path-${lowerCode}`);
+      if (path) {
+        path.classList.toggle("is-dimmed", !isVisible);
+      }
+
+      if (isVisible) visibleCount++;
+    });
+
+    if (stateCountEl) {
+      stateCountEl.textContent = `SHOWING ${visibleCount} / ${stateCards.length} TERRITORIES`;
+    }
+
+    if (searchClearBtn) {
+      searchClearBtn.style.display = query ? "block" : "none";
+    }
+  }
+
+  // Search input handler
+  searchInput?.addEventListener("input", (e) => {
+    currentSearchQuery = e.target.value;
+    applyFilters();
+  });
+
+  searchClearBtn?.addEventListener("click", () => {
+    if (searchInput) searchInput.value = "";
+    currentSearchQuery = "";
+    applyFilters();
+    searchInput?.focus();
+  });
+
+  // Filter chips handler
+  filterChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      filterChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentRegionFilter = chip.dataset.region || "all";
+      applyFilters();
+    });
+  });
+
+  // Reset button handler
+  resetBtn?.addEventListener("click", () => {
+    if (searchInput) searchInput.value = "";
+    currentSearchQuery = "";
+    currentRegionFilter = "all";
+    filterChips.forEach((c) => {
+      c.classList.toggle("active", c.dataset.region === "all");
+    });
+    activeStateCode = null;
+    statePaths.forEach((p) => p.classList.remove("is-active", "is-dimmed"));
+    stateCards.forEach((c) => c.classList.remove("is-active"));
+    resetHUD();
+    applyFilters();
+  });
+}
+
 
 
 

@@ -2552,3 +2552,583 @@ body.booting {
   }
 }
 
+/* ==========================================================================
+   9. US 50 STATES POP-OUT SIDE DRAWER & INTERACTIVE MAP STYLING
+   ========================================================================== */
+
+/* --- US Interactive Country on World Map --- */
+.country-usa.interactive-country {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: filter 0.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.country-usa.interactive-country:hover,
+.country-usa.interactive-country:focus {
+  stroke: #f59e0b !important;
+  stroke-width: 1.6px !important;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.18) saturate(1.25);
+}
+
+/* Tactical HUD Pill in Map Viewport */
+.map-usa-hint-pill {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(17, 17, 21, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #faf7ee;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.map-usa-hint-pill:hover,
+.map-usa-hint-pill:focus {
+  background: #f59e0b;
+  color: #111115;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.map-usa-hint-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+  animation: pulseDot 1.8s infinite;
+}
+
+.map-usa-hint-pill:hover .pill-dot {
+  background: #111115;
+  box-shadow: none;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+/* --- STATES DRAWER BACKDROP --- */
+.states-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 14, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s;
+}
+
+.states-drawer-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* --- STATES DRAWER PANEL --- */
+.states-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(620px, 94vw);
+  height: 100vh;
+  height: 100dvh;
+  background: #121217;
+  color: #faf7ee;
+  border-left: 2px solid #2b2b38;
+  box-shadow: -16px 0 52px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(105%);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  font-family: var(--font-pixel, monospace);
+  overflow: hidden;
+}
+
+.states-drawer.is-open {
+  transform: translateX(0);
+}
+
+body.states-drawer-open {
+  overflow: hidden !important;
+}
+
+/* Drawer Header */
+.drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  background: #181820;
+  border-bottom: 1px solid #2b2b38;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.drawer-sys-tag {
+  font-size: 10px;
+  color: #f59e0b;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #faf7ee;
+}
+
+.drawer-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #8e8e9f;
+  letter-spacing: 0.04em;
+}
+
+.drawer-close-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #23232e;
+  border: 1px solid #3d3d4e;
+  color: #faf7ee;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.drawer-close-btn:hover,
+.drawer-close-btn:focus {
+  background: #f59e0b;
+  color: #111115;
+  border-color: #f59e0b;
+}
+
+/* Live HUD Banner */
+.drawer-hud-banner {
+  background: #0d0d12;
+  border-bottom: 1px solid #262633;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hud-banner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-tag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+}
+
+.hud-target-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #faf7ee;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hud-target-code {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.hud-meta-row {
+  font-size: 11px;
+  color: #9da0b3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Tactical Vector Map Viewport */
+.drawer-map-container {
+  padding: 12px 20px 8px;
+  background: #14141b;
+  border-bottom: 1px solid #262633;
+  flex-shrink: 0;
+}
+
+.drawer-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.drawer-map-header .map-label {
+  font-size: 9px;
+  color: #727488;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.map-reset-btn {
+  background: none;
+  border: 1px solid #323242;
+  color: #8c8ea0;
+  font-family: inherit;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.map-reset-btn:hover {
+  background: #262636;
+  color: #faf7ee;
+  border-color: #484860;
+}
+
+.drawer-map-svg-wrap {
+  width: 100%;
+  aspect-ratio: 959 / 480;
+  max-height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d0d12;
+  border: 1px solid #232330;
+  border-radius: 4px;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.us-states-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.us-map-separator {
+  stroke: #333344;
+  stroke-width: 1.5px;
+  stroke-dasharray: 3 3;
+}
+
+.us-state-path {
+  fill: #1e1e28;
+  stroke: #36364a;
+  stroke-width: 1px;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.14s ease, stroke 0.14s ease, filter 0.14s ease, opacity 0.14s ease;
+}
+
+.us-state-path:hover,
+.us-state-path.is-hovered {
+  fill: #f59e0b;
+  stroke: #ffffff;
+  stroke-width: 1.6px;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7));
+}
+
+.us-state-path.is-active {
+  fill: #fbbf24;
+  stroke: #ffffff;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));
+}
+
+.us-state-path.is-special {
+  fill: #272a3b;
+  stroke: #f59e0b;
+}
+
+.us-state-path.is-dimmed {
+  opacity: 0.22;
+}
+
+.us-state-dc-circle {
+  stroke-width: 1.5px;
+}
+
+/* Toolbar: Search & Filter Chips */
+.drawer-toolbar {
+  padding: 12px 20px;
+  background: #16161f;
+  border-bottom: 1px solid #262633;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.drawer-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.drawer-search-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  color: #727488;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.state-search-input {
+  width: 100%;
+  background: #0d0d12;
+  border: 1px solid #2e2e3e;
+  color: #faf7ee;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 8px 34px 8px 32px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.state-search-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #8c8ea0;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.search-clear-btn:hover {
+  color: #faf7ee;
+}
+
+.drawer-filter-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.drawer-filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  background: #20202b;
+  border: 1px solid #303042;
+  color: #a4a6b8;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+
+.filter-chip:hover {
+  border-color: #4a4a62;
+  color: #faf7ee;
+}
+
+.filter-chip.active {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #111115;
+  font-weight: 700;
+}
+
+/* Cards Scroll Container */
+.drawer-cards-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 20px;
+  background: #111116;
+  scrollbar-width: thin;
+  scrollbar-color: #2b2b3a #111116;
+}
+
+.drawer-cards-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.drawer-cards-scroll::-webkit-scrollbar-track {
+  background: #111116;
+}
+.drawer-cards-scroll::-webkit-scrollbar-thumb {
+  background: #2b2b3a;
+  border-radius: 3px;
+}
+
+.drawer-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .drawer-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* State Card */
+.state-card {
+  background: #181822;
+  border: 1px solid #292938;
+  border-radius: 4px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.state-card:hover,
+.state-card.is-hovered {
+  background: #20202e;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.state-card.is-active {
+  background: #25241e;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+}
+
+.state-card.is-special-base {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: #1c1c28;
+}
+
+.state-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.state-code {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f59e0b;
+  letter-spacing: 0.05em;
+}
+
+.state-region-tag {
+  font-size: 9px;
+  color: #797c92;
+  letter-spacing: 0.06em;
+  background: #101016;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid #232332;
+}
+
+.state-badge-upenn {
+  font-size: 9px;
+  font-weight: 800;
+  color: #111115;
+  background: #f59e0b;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.state-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #faf7ee;
+  letter-spacing: 0.02em;
+}
+
+.state-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  color: #8c8fa3;
+}
+
+.state-cap {
+  color: #adadb8;
+}
+
+.state-nick {
+  color: #6a6c7e;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Drawer Footer */
+.drawer-footer {
+  padding: 10px 20px;
+  background: #14141c;
+  border-top: 1px solid #262633;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #727488;
+  flex-shrink: 0;
+}
+
+.footer-count {
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+
