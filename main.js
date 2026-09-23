@@ -1676,7 +1676,8 @@ function initVerticalImageTrack() {
       let mapOpacity = 0;
       let mapScale = 0.97;
 
-      if (miniWindow && miniWindow.classList.contains("is-open")) {
+      const usWindow = document.getElementById("us-mini-window");
+      if (usWindow && usWindow.classList.contains("is-open")) {
         mapOpacity = 1.0;
         mapScale = 1.00;
       } else if (progress < 0.880) {
