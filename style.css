@@ -2691,17 +2691,19 @@ body.booting {
 }
 
 /* Mini Floating Window */
+/* Mini Floating Window - 2.5x Expanded Scale */
 .us-mini-window {
   position: absolute;
   top: 0;
   left: 0;
   right: auto;
   bottom: auto;
-  width: min(340px, 86vw);
-  background: #121217;
-  border: 1.5px solid #2b2b3a;
-  border-radius: 6px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 158, 11, 0.2);
+  width: min(850px, 92vw);
+  max-height: min(92vh, 600px);
+  background: #11141c;
+  border: 1.5px solid #2a3346;
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(245, 158, 11, 0.25);
   z-index: 35;
   display: flex;
   flex-direction: column;
@@ -2725,89 +2727,199 @@ body.booting {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: #181822;
-  border-bottom: 1px solid #252534;
+  padding: 9px 14px;
+  background: #161c28;
+  border-bottom: 1px solid #242c3d;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .us-mini-window-title-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .us-mini-window-tag {
   background: rgba(245, 158, 11, 0.16);
   color: #f59e0b;
   border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 1px 5px;
-  font-size: 9px;
+  padding: 2px 7px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   border-radius: 3px;
 }
 
 .us-mini-window-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #faf7ee;
 }
 
+.us-mini-window-ny-badge {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  padding: 1px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  animation: nyBadgePulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes nyBadgePulse {
+  0% { opacity: 0.82; border-color: rgba(245, 158, 11, 0.4); }
+  100% { opacity: 1; border-color: rgba(245, 158, 11, 0.85); box-shadow: 0 0 8px rgba(245, 158, 11, 0.35); }
+}
+
 .us-mini-window-close {
   background: none;
   border: none;
-  color: #7d8096;
-  font-size: 13px;
-  padding: 2px 6px;
+  color: #7d859b;
+  font-size: 15px;
+  padding: 2px 7px;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 4px;
   line-height: 1;
   transition: color 0.15s ease, background 0.15s ease;
 }
 
 .us-mini-window-close:hover {
   color: #f59e0b;
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(245, 158, 11, 0.15);
 }
 
 .us-mini-window-body {
-  padding: 12px 14px 14px;
-  background: #0d0d12;
+  padding: 12px 16px 16px;
+  background: radial-gradient(circle at 55% 45%, #101826 0%, #080d16 100%);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .us-outline-svg {
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-height: 100%;
   aspect-ratio: 959 / 593;
   display: block;
-  overflow: visible;
 }
 
 .us-map-separator {
-  stroke: #333346;
+  stroke: rgba(255, 255, 255, 0.22);
   stroke-width: 1.2px;
-  stroke-dasharray: 3 3;
+  stroke-dasharray: 4 4;
 }
 
+/* Base Topographic State Outline */
 .state-outline {
-  fill: #191924;
-  stroke: #666980;
-  stroke-width: 1px;
+  stroke: #161a22;
+  stroke-width: 0.9px;
   stroke-linejoin: round;
-  transition: fill 0.15s ease, stroke 0.15s ease;
+  transition: filter 0.18s ease, stroke 0.18s ease, stroke-width 0.18s ease;
 }
 
 .state-outline:hover {
-  fill: #f59e0b;
+  filter: brightness(1.22) saturate(1.25);
   stroke: #ffffff;
-  stroke-width: 1.4px;
+  stroke-width: 1.8px;
+  cursor: pointer;
 }
 
-.state-outline.pa {
-  stroke: #f59e0b;
-  stroke-width: 1.2px;
+/* ==========================================================================
+   50 STATES TOPOGRAPHIC ELEVATION PALETTE (Authentic Hypsometric Tints)
+   ========================================================================== */
+
+/* --- Coastal Lowlands & Sea Level (0 - 500 ft) --- */
+.state-outline.fl { fill: #2d6e4e; }
+.state-outline.la { fill: #337a54; }
+.state-outline.ms { fill: #3c865d; }
+.state-outline.de { fill: #2d7650; }
+.state-outline.nj { fill: #39825b; }
+.state-outline.md { fill: #3f8b62; }
+.state-outline.ri { fill: #357f58; }
+.state-outline.sc { fill: #449267; }
+.state-outline.dc { fill: #3a855c; }
+
+/* --- Eastern Rolling Lowlands & River Valleys (200 - 1000 ft) --- */
+.state-outline.al { fill: #4d9a6b; }
+.state-outline.ga { fill: #55a272; }
+.state-outline.nc { fill: #5ba777; }
+.state-outline.va { fill: #63ac7e; }
+.state-outline.ct { fill: #489567; }
+.state-outline.ma { fill: #469265; }
+
+/* --- Interior Basins & Great Lakes Plains (500 - 1200 ft) --- */
+.state-outline.il { fill: #6ca267; }
+.state-outline.in { fill: #75aa6e; }
+.state-outline.oh { fill: #7db275; }
+.state-outline.mi { fill: #539468; }
+.state-outline.wi { fill: #5f9c6c; }
+.state-outline.ia { fill: #80b471; }
+.state-outline.mo { fill: #89bc77; }
+.state-outline.ky { fill: #71a66a; }
+.state-outline.tn { fill: #6aa064; }
+.state-outline.ar { fill: #579a6c; }
+
+/* --- Appalachian Uplands & Northeast Highlands (1000 - 4000 ft) --- */
+.state-outline.wv { fill: #7b8d50; }
+.state-outline.pa { fill: #709857; } /* Pennsylvania: Regular topographic elevation, NOT highlighted */
+.state-outline.vt { fill: #5b8e5c; }
+.state-outline.nh { fill: #639664; }
+.state-outline.me { fill: #4b815d; }
+
+/* --- Prairie & Mid Plains (1200 - 3000 ft) --- */
+.state-outline.mn { fill: #8da55e; }
+.state-outline.nd { fill: #a6b763; }
+.state-outline.sd { fill: #b4bd67; }
+.state-outline.ne { fill: #c3bd67; }
+.state-outline.ks { fill: #cbbe69; }
+.state-outline.ok { fill: #c7a95c; }
+.state-outline.tx { fill: #bea158; }
+
+/* --- High Plains, Plateaus & Basin Ranges (3000 - 6000 ft) --- */
+.state-outline.nm { fill: #c87a47; }
+.state-outline.az { fill: #ca733f; }
+.state-outline.ut { fill: #be6737; }
+.state-outline.nv { fill: #c58149; }
+.state-outline.id { fill: #ac683b; }
+
+/* --- Continental Divide & High Mountain Ranges (6000 - 14,000+ ft) --- */
+.state-outline.co { fill: #9b4227; }
+.state-outline.wy { fill: #a34c2c; }
+.state-outline.mt { fill: #9d4929; }
+
+/* --- Pacific Northwest & California --- */
+.state-outline.wa { fill: #397457; }
+.state-outline.or { fill: #52855c; }
+.state-outline.ca { fill: #868d4d; }
+
+/* --- Non-Contiguous --- */
+.state-outline.ak { fill: #417769; }
+.state-outline.hi { fill: #2e7253; }
+
+/* ==========================================================================
+   HIGHLIGHTED STATE: NEW YORK (Luminous Amber / Glowing Topographic Focus)
+   ========================================================================== */
+.state-outline.ny {
+  fill: #f59e0b;
+  stroke: #ffffff;
+  stroke-width: 2.2px;
+  filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 1px #ffffff);
+  cursor: pointer;
+}
+
+.state-outline.ny:hover {
+  fill: #fbbf24;
+  stroke: #ffffff;
+  stroke-width: 2.6px;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 1)) drop-shadow(0 0 2px #ffffff);
 }
 
 .state-dc-circle {

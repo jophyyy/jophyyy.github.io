@@ -1792,19 +1792,19 @@ function initUSStatesDrawer() {
     const anchorY = Math.round(screenPt.y - wrapRect.top);
 
     // 2. Measure mini-window size
-    const popWidth = miniWindow.offsetWidth || Math.min(340, wrapRect.width * 0.85);
-    const popHeight = miniWindow.offsetHeight || 240;
+    const popWidth = miniWindow.offsetWidth || Math.min(850, wrapRect.width * 0.92);
+    const popHeight = miniWindow.offsetHeight || 540;
 
     // 3. Determine ideal position near the USA (over the North Atlantic ocean to the right)
     // Offset far enough so the entire US East Coast remains cleanly visible
-    let popLeft = anchorX + 88;
-    let popTop = anchorY - 75;
+    let popLeft = anchorX + 68;
+    let popTop = Math.round(anchorY - popHeight * 0.35);
 
     // If placing to the right overflows the container, adapt position
     if (popLeft + popWidth > wrapRect.width - 16) {
-      if (wrapRect.width - anchorX < popWidth * 0.75) {
+      if (wrapRect.width - anchorX < popWidth * 0.65) {
         popLeft = Math.max(12, Math.min(anchorX - popWidth / 2, wrapRect.width - popWidth - 12));
-        popTop = Math.min(anchorY + 55, wrapRect.height - popHeight - 12);
+        popTop = Math.min(anchorY + 40, wrapRect.height - popHeight - 12);
       } else {
         popLeft = Math.max(12, wrapRect.width - popWidth - 16);
       }
