@@ -2575,81 +2575,20 @@ body.booting {
   display: none !important;
 }
 
-/* --- US 50 STATES MINI FLOATING WINDOW & CALLOUT LEADER --- */
+/* --- US 50 STATES MINI FLOATING WINDOW --- */
 
-/* Leader Line SVG Overlay */
+/* Leader line removed per user request */
 .us-callout-leader-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 36;
-  overflow: visible;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.22s ease, visibility 0.22s;
+  display: none !important;
 }
 
-.us-callout-leader-svg.is-active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.leader-pulse {
-  fill: rgba(245, 158, 11, 0.22);
-  stroke: #d97706;
-  stroke-width: 1.5px;
-  transform-origin: center;
-  animation: leaderPulseRing 2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
-}
-
-@keyframes leaderPulseRing {
-  0% {
-    r: 4px;
-    opacity: 1;
-  }
-  60% {
-    r: 14px;
-    opacity: 0.4;
-  }
-  100% {
-    r: 18px;
-    opacity: 0;
-  }
-}
-
-.leader-dot {
-  fill: #f59e0b;
-  stroke: #121217;
-  stroke-width: 2px;
-  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.95));
-}
-
-.leader-line {
-  fill: none;
-  stroke: #d97706;
-  stroke-width: 2px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 1px 4px rgba(18, 18, 23, 0.4));
-}
-
-.leader-target-dot {
-  fill: #f59e0b;
-  stroke: #121217;
-  stroke-width: 1.5px;
-  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.85));
-}
-
-/* Mini Floating Window */
+/* Mini Floating Window - Centered over Map Viewport */
 /* US 50 States Floating Cloud Callout - Invisible Box with Soft Cloud Aura */
 .us-mini-window {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: auto;
-  bottom: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
   width: min(1040px, 94vw);
   max-height: min(92vh, 620px);
   background: transparent;
@@ -2660,7 +2599,6 @@ body.booting {
   flex-direction: column;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-8px) scale(0.96);
   transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s;
   pointer-events: none;
   overflow: visible;
@@ -2669,11 +2607,11 @@ body.booting {
 .us-mini-window.is-open {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0) scale(1);
+  transform: translate(-50%, -50%) scale(1);
   pointer-events: auto;
 }
 
-/* Vast Cloud Backdrop Aura - Softly covers the world map with dense white fade closest to the 50 states */
+/* Vast Cloud Backdrop Aura - Softly covers the world map with dense background parchment fade closest to the 50 states */
 .us-cloud-backdrop {
   position: absolute;
   left: 50%;
@@ -2684,14 +2622,14 @@ body.booting {
   border-radius: 50%;
   background: radial-gradient(
     circle at 50% 50%,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 255, 255, 0.96) 12%,
-    rgba(255, 255, 255, 0.91) 20%,
-    rgba(255, 255, 255, 0.78) 32%,
-    rgba(255, 255, 255, 0.56) 48%,
-    rgba(255, 255, 255, 0.32) 65%,
-    rgba(255, 255, 255, 0.14) 80%,
-    rgba(255, 255, 255, 0.03) 93%,
+    rgba(250, 247, 238, 0.99) 0%,
+    rgba(250, 247, 238, 0.98) 12%,
+    rgba(250, 247, 238, 0.94) 22%,
+    rgba(250, 247, 238, 0.84) 34%,
+    rgba(250, 247, 238, 0.65) 48%,
+    rgba(250, 247, 238, 0.40) 64%,
+    rgba(250, 247, 238, 0.18) 78%,
+    rgba(250, 247, 238, 0.05) 90%,
     transparent 100%
   );
   backdrop-filter: blur(14px) saturate(1.15);
@@ -2700,20 +2638,20 @@ body.booting {
     circle at 50% 50%,
     black 0%,
     black 18%,
-    rgba(0, 0, 0, 0.92) 28%,
-    rgba(0, 0, 0, 0.74) 44%,
-    rgba(0, 0, 0, 0.44) 65%,
-    rgba(0, 0, 0, 0.16) 84%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
     transparent 100%
   );
   -webkit-mask-image: radial-gradient(
     circle at 50% 50%,
     black 0%,
     black 18%,
-    rgba(0, 0, 0, 0.92) 28%,
-    rgba(0, 0, 0, 0.74) 44%,
-    rgba(0, 0, 0, 0.44) 65%,
-    rgba(0, 0, 0, 0.16) 84%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
     transparent 100%
   );
   pointer-events: none;
@@ -2725,11 +2663,11 @@ body.booting {
   position: absolute;
   top: 8px;
   right: 18px;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(250, 247, 238, 0.94);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: #374151;
@@ -2739,7 +2677,7 @@ body.booting {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   transition: all 0.18s ease;
   z-index: 25;
   line-height: 1;

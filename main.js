@@ -1765,11 +1765,6 @@ function initUSStatesDrawer() {
   const mapShortcutBtn = document.getElementById("map-usa-shortcut-btn");
   const miniWindow = document.getElementById("us-mini-window");
   const closeBtn = document.getElementById("us-mini-window-close");
-  const leaderSvg = document.getElementById("us-callout-leader-svg");
-  const leaderPulse = document.getElementById("leader-anchor-pulse");
-  const leaderDot = document.getElementById("leader-anchor-dot");
-  const leaderLine = document.getElementById("leader-connector-line");
-  const leaderTargetDot = document.getElementById("leader-target-dot");
   const worldSvg = document.querySelector(".world-map-svg");
   const mapWrap = document.getElementById("map-viewport-wrap");
 
@@ -1798,14 +1793,74 @@ function initUSStatesDrawer() {
 
       const opt = closestCard.getAttribute("data-option");
       if (nationalParksLayer) {
-        if (opt === "national-parks") {
-          nationalParksLayer.classList.add("is-visible");
-        } else {
-          nationalParksLayer.classList.remove("is-visible");
-        }
+        nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
       }
     }
   }
+
+  function navigateOption(direction) {
+    if (!scrollerWrap || optionCards.length === 0) return;
+    const cards = Array.from(optionCards);
+    const currentIdx = cards.findIndex((c) => c.classList.contains("is-active"));
+    const baseIdx = currentIdx >= 0 ? currentIdx : 0;
+    const targetIdx = Math.max(0, Math.min(cards.length - 1, baseIdx + direction));
+
+    if (targetIdx !== currentIdx) {
+      const targetCard = cards[targetIdx];
+      scrollerWrap.scrollTo({ top: targetCard.offsetTop, behavior: "smooth" });
+      cards.forEach((c) => c.classList.remove("is-active"));
+      targetCard.classList.add("is-active");
+      const opt = targetCard.getAttribute("data-option");
+      if (nationalParksLayer) {
+        nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
+      }
+    }
+  }
+
+  // Scrolling anywhere on the page when 50 states is open scrolls through options
+  let accumulatedDelta = 0;
+  let isNavigatingOption = false;
+
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open") || !scrollerWrap) return;
+
+      // Prevent background page from scrolling away
+      e.preventDefault();
+
+      accumulatedDelta += e.deltaY;
+
+      if (isNavigatingOption) return;
+
+      // Step threshold of 35px accumulated delta to advance option
+      if (Math.abs(accumulatedDelta) >= 35) {
+        const direction = accumulatedDelta > 0 ? 1 : -1;
+        accumulatedDelta = 0;
+        isNavigatingOption = true;
+
+        navigateOption(direction);
+
+        setTimeout(() => {
+          isNavigatingOption = false;
+          accumulatedDelta = 0;
+        }, 260);
+      }
+    },
+    { passive: false }
+  );
+
+  // Keyboard ArrowDown / ArrowUp navigation
+  window.addEventListener("keydown", (e) => {
+    if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      navigateOption(1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      navigateOption(-1);
+    }
+  });
 
   if (scrollerWrap) {
     scrollerWrap.addEventListener("scroll", updateActiveOption, { passive: true });
@@ -1817,11 +1872,7 @@ function initUSStatesDrawer() {
         card.classList.add("is-active");
         const opt = card.getAttribute("data-option");
         if (nationalParksLayer) {
-          if (opt === "national-parks") {
-            nationalParksLayer.classList.add("is-visible");
-          } else {
-            nationalParksLayer.classList.remove("is-visible");
-          }
+          nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
         }
       });
       card.addEventListener("keydown", (e) => {
@@ -1835,101 +1886,6 @@ function initUSStatesDrawer() {
 
   if (!miniWindow) return;
 
-  function positionPopupAndLeader() {
-    if (!worldSvg || !mapWrap || !miniWindow) return;
-
-    const wrapRect = mapWrap.getBoundingClientRect();
-    if (wrapRect.width === 0 || wrapRect.height === 0) return;
-
-    // 1. Calculate USA CONUS center anchor in screen/DOM coordinates
-    // Mainland USA center in 1000x470 SVG viewBox is approx (248, 146)
-    const pt = worldSvg.createSVGPoint();
-    pt.x = 248;
-    pt.y = 146;
-    const screenPt = pt.matrixTransform(worldSvg.getScreenCTM());
-
-    const anchorX = Math.round(screenPt.x - wrapRect.left);
-    const anchorY = Math.round(screenPt.y - wrapRect.top);
-
-    // 2. Measure mini-window size
-    const popWidth = miniWindow.offsetWidth || Math.min(850, wrapRect.width * 0.92);
-    const popHeight = miniWindow.offsetHeight || 540;
-
-    // 3. Determine ideal position near the USA (over the North Atlantic ocean to the right)
-    // Offset far enough so the entire US East Coast remains cleanly visible
-    let popLeft = anchorX + 68;
-    let popTop = Math.round(anchorY - popHeight * 0.35);
-
-    // If placing to the right overflows the container, adapt position
-    if (popLeft + popWidth > wrapRect.width - 16) {
-      if (wrapRect.width - anchorX < popWidth * 0.65) {
-        popLeft = Math.max(12, Math.min(anchorX - popWidth / 2, wrapRect.width - popWidth - 12));
-        popTop = Math.min(anchorY + 40, wrapRect.height - popHeight - 12);
-      } else {
-        popLeft = Math.max(12, wrapRect.width - popWidth - 16);
-      }
-    }
-
-    // Vertical boundary clamping
-    popTop = Math.max(12, Math.min(popTop, wrapRect.height - popHeight - 12));
-
-    miniWindow.style.left = `${popLeft}px`;
-    miniWindow.style.top = `${popTop}px`;
-    miniWindow.style.right = "auto";
-    miniWindow.style.bottom = "auto";
-
-    // 4. Update Leader SVG elements
-    if (leaderPulse) {
-      leaderPulse.setAttribute("cx", anchorX);
-      leaderPulse.setAttribute("cy", anchorY);
-    }
-    if (leaderDot) {
-      leaderDot.setAttribute("cx", anchorX);
-      leaderDot.setAttribute("cy", anchorY);
-    }
-
-    // 5. Calculate leader connector line path
-    let targetX, targetY, pathD = "";
-    const isAnchorCovered = (anchorX >= popLeft - 10 && anchorX <= popLeft + popWidth + 10 &&
-                             anchorY >= popTop - 10 && anchorY <= popTop + popHeight + 10);
-
-    if (!isAnchorCovered) {
-      if (anchorX < popLeft) {
-        // Anchor is to the left of the popup -> connect cleanly to left edge of popup
-        targetX = popLeft;
-        targetY = popTop + Math.round(popHeight * 0.38);
-        const elbowX = anchorX + Math.round((targetX - anchorX) * 0.42);
-        pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
-      } else if (anchorX > popLeft + popWidth) {
-        // Anchor is to the right of the popup -> connect to right edge of popup
-        targetX = popLeft + popWidth;
-        targetY = popTop + Math.round(popHeight * 0.38);
-        const elbowX = anchorX - Math.round((anchorX - targetX) * 0.42);
-        pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
-      }
-    }
-
-    if (leaderLine) {
-      leaderLine.setAttribute("d", pathD);
-      leaderLine.style.display = pathD ? "block" : "none";
-    }
-    if (leaderTargetDot) {
-      if (pathD && targetX !== undefined) {
-        leaderTargetDot.setAttribute("cx", targetX);
-        leaderTargetDot.setAttribute("cy", targetY);
-        leaderTargetDot.style.display = "block";
-      } else {
-        leaderTargetDot.style.display = "none";
-      }
-    }
-    if (leaderPulse) {
-      leaderPulse.style.display = isAnchorCovered ? "none" : "block";
-    }
-    if (leaderDot) {
-      leaderDot.style.display = isAnchorCovered ? "none" : "block";
-    }
-  }
-
   function openWindow() {
     const worldMap = document.getElementById("world-map-backdrop");
     if (worldMap) {
@@ -1937,10 +1893,8 @@ function initUSStatesDrawer() {
       worldMap.style.visibility = "visible";
       worldMap.style.pointerEvents = "auto";
     }
-    positionPopupAndLeader();
     miniWindow.classList.add("is-open");
     miniWindow.setAttribute("aria-hidden", "false");
-    leaderSvg?.classList.add("is-active");
     countryUSA?.classList.add("is-active");
 
     // Reset scroller to top option (national parks)
@@ -1948,16 +1902,14 @@ function initUSStatesDrawer() {
       scrollerWrap.scrollTop = 0;
       updateActiveOption();
     }
-
-    // Re-run on next frame in case initial layout size changed
-    requestAnimationFrame(positionPopupAndLeader);
   }
 
   function closeWindow() {
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
-    leaderSvg?.classList.remove("is-active");
     countryUSA?.classList.remove("is-active");
+    accumulatedDelta = 0;
+    isNavigatingOption = false;
   }
 
   function toggleWindow() {
@@ -1971,7 +1923,7 @@ function initUSStatesDrawer() {
   // Expose globally for CLI and external triggers
   window.openUSStatesDrawer = openWindow;
   window.closeUSStatesDrawer = closeWindow;
-  window.repositionUSCallout = positionPopupAndLeader;
+  window.repositionUSCallout = () => {};
 
   // Click on US country path on the world map
   countryUSA?.addEventListener("click", (e) => {
