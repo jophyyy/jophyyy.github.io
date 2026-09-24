@@ -2828,29 +2828,43 @@ body.booting {
 
 .us-park-pin {
   cursor: pointer;
-  transform-origin: 0 0;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
 }
 
-.us-park-pin:hover {
-  transform: scale(1.4) translateY(-2px);
+.us-park-pin circle,
+.us-park-pin line,
+.us-park-pin ellipse {
+  transition: filter 0.2s ease;
 }
 
-@media (max-width: 768px) {
-  .us-window-content-row {
-    flex-direction: column;
-    gap: 12px;
-  }
+.us-park-pin:hover circle:first-of-type {
+  filter: url(#ballpoint-shadow) brightness(1.15) drop-shadow(0 0 4px rgba(239, 68, 68, 0.75));
+}
 
-  .us-side-scroller-wrap {
-    width: min(220px, 80vw);
-    height: 104px;
-    padding: 24px 0;
-  }
+/* Tiny National Park Swallowtail Flag Badge */
+.us-park-flag {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2.5px) scale(0.92);
+  transform-origin: -2.5px -10.5px;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.24));
+}
 
-  .us-option-card {
-    height: 54px;
-  }
+.us-park-flag.is-visible,
+.us-park-flag.is-hovered,
+.us-park-pin:hover .us-park-flag {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.us-park-flag text {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
 }
 
 .us-map-separator {

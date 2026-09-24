@@ -1758,6 +1758,185 @@ function initVerticalImageTrack() {
 }
 
 /* ==========================================================================
+   9b. US NATIONAL PARKS ROTATING FLAGS CONTROLLER (8 at a time, looping)
+   ========================================================================== */
+function initNationalParksFlagCycle() {
+  const layer = document.getElementById("us-national-parks-layer");
+  if (!layer) return null;
+
+  const pins = Array.from(layer.querySelectorAll(".us-park-pin"));
+  if (!pins.length) return null;
+
+  // Short display names for cleaner, crisper flag badges
+  const displayNames = {
+    "Black Canyon of the Gunnison": "Black Canyon",
+    "Great Smoky Mountains": "Great Smoky Mtns",
+    "Guadalupe Mountains": "Guadalupe Mtns",
+    "Gates of the Arctic": "Gates of Arctic",
+    "Wrangell-St. Elias": "Wrangell-St Elias",
+  };
+
+  // Build the tiny flag SVG for each pin
+  pins.forEach((pin) => {
+    if (pin.querySelector(".us-park-flag")) return;
+
+    const rawName = pin.getAttribute("data-park") || "";
+    const name = displayNames[rawName] || rawName;
+
+    // Read pin X coordinate from translate(x, y)
+    const transformAttr = pin.getAttribute("transform") || "";
+    const match = transformAttr.match(/translate\(\s*([\d.-]+)\s*,\s*([\d.-]+)\s*\)/);
+    const pinX = match ? parseFloat(match[1]) : 500;
+
+    // If near the East Coast (pinX > 720), wave flag to the LEFT so it stays cleanly on the map
+    const waveLeft = pinX > 720;
+
+    // Sizing: font-size 7.5, ~4.5 units per char
+    const textWidth = Math.max(22, name.length * 4.6);
+    const flagW = Math.round(textWidth + 11);
+
+    const flagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    flagGroup.setAttribute("class", "us-park-flag");
+
+    let bannerPath = "";
+    let stripeLine = "";
+    let textElem = "";
+
+    if (waveLeft) {
+      // Banner waving left
+      bannerPath = `M -2.5 -25 L ${-flagW - 2.5} -25 L ${-flagW + 2} -18.5 L ${-flagW - 2.5} -12 L -2.5 -12 Z`;
+      stripeLine = `<line x1="-4.5" y1="-24" x2="-4.5" y2="-13" stroke="#e11d48" stroke-width="1.3" stroke-linecap="round" />`;
+      textElem = `<text x="${-flagW + 2.5}" y="-18.5" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="7.5" font-weight="700" fill="#0f172a" letter-spacing="0.25">${name}</text>`;
+    } else {
+      // Banner waving right
+      bannerPath = `M -2.5 -25 L ${flagW - 2.5} -25 L ${flagW - 7} -18.5 L ${flagW - 2.5} -12 L -2.5 -12 Z`;
+      stripeLine = `<line x1="-0.5" y1="-24" x2="-0.5" y2="-13" stroke="#e11d48" stroke-width="1.3" stroke-linecap="round" />`;
+      textElem = `<text x="3" y="-18.5" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="7.5" font-weight="700" fill="#0f172a" letter-spacing="0.25">${name}</text>`;
+    }
+
+    flagGroup.innerHTML = `
+      <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-25.5" stroke="#1e293b" stroke-width="0.85" stroke-linecap="round" />
+      <circle cx="-2.5" cy="-26" r="1.1" fill="#f59e0b" />
+      <path d="${bannerPath}" fill="#fffef8" stroke="#0f172a" stroke-width="0.8" stroke-linejoin="round" />
+      ${stripeLine}
+      ${textElem}
+    `;
+
+    pin.appendChild(flagGroup);
+
+    // Hover listeners: any pin reveals its flag on demand and brings pin to top
+    pin.addEventListener("mouseenter", () => {
+      flagGroup.classList.add("is-hovered");
+      pin.parentNode.appendChild(pin);
+    });
+    pin.addEventListener("mouseleave", () => {
+      flagGroup.classList.remove("is-hovered");
+    });
+  });
+
+  // 8 Geographically balanced batches (7-8 parks per batch spread across US regions)
+  const batches = [
+    // Batch 1 (8 parks: East, South, Midwest, Rockies, Southwest, PNW, Texas, Alaska)
+    ["Acadia", "Great Smoky Mountains", "Gateway Arch", "Yellowstone", "Grand Canyon", "Olympic", "Big Bend", "Denali"],
+    // Batch 2 (8 parks: Mid-Atlantic, Florida, Great Lakes, Rockies, Utah, California, Montana, Hawaii)
+    ["Shenandoah", "Everglades", "Cuyahoga Valley", "Rocky Mountain", "Zion", "Yosemite", "Glacier", "Hawaii Volcanoes"],
+    // Batch 3 (8 parks)
+    ["New River Gorge", "Biscayne", "Indiana Dunes", "Grand Teton", "Arches", "Mount Rainier", "Carlsbad Caverns", "Glacier Bay"],
+    // Batch 4 (8 parks)
+    ["Congaree", "Mammoth Cave", "Isle Royale", "Bryce Canyon", "Joshua Tree", "Crater Lake", "Badlands", "Haleakala"],
+    // Batch 5 (8 parks)
+    ["Hot Springs", "Dry Tortugas", "Voyageurs", "Capitol Reef", "Death Valley", "North Cascades", "White Sands", "Kenai Fjords"],
+    // Batch 6 (7 parks)
+    ["Great Basin", "Theodore Roosevelt", "Mesa Verde", "Sequoia", "Redwood", "Saguaro", "Katmai"],
+    // Batch 7 (7 parks)
+    ["Canyonlands", "Wind Cave", "Black Canyon of the Gunnison", "Kings Canyon", "Lassen Volcanic", "Guadalupe Mountains", "Wrangell-St. Elias"],
+    // Batch 8 (7 parks)
+    ["Great Sand Dunes", "Petrified Forest", "Pinnacles", "Channel Islands", "Gates of the Arctic", "Lake Clark", "Kobuk Valley"]
+  ];
+
+  const pinMap = new Map();
+  pins.forEach((pin) => {
+    const rawName = pin.getAttribute("data-park");
+    if (rawName) pinMap.set(rawName, pin);
+  });
+
+  let currentBatchIdx = 0;
+  let cycleTimer = null;
+  let fadeTimer = null;
+  let isRunning = false;
+
+  function showBatch(batchIdx) {
+    pins.forEach((p) => {
+      const f = p.querySelector(".us-park-flag");
+      if (f) f.classList.remove("is-visible");
+    });
+
+    const targetBatch = batches[batchIdx % batches.length];
+    targetBatch.forEach((parkName) => {
+      const pin = pinMap.get(parkName);
+      if (pin) {
+        const flag = pin.querySelector(".us-park-flag");
+        if (flag) flag.classList.add("is-visible");
+      }
+    });
+  }
+
+  function advanceCycle() {
+    if (!isRunning) return;
+
+    showBatch(currentBatchIdx);
+
+    // Keep visible for 2.6 seconds, then fade out
+    fadeTimer = setTimeout(() => {
+      if (!isRunning) return;
+
+      const targetBatch = batches[currentBatchIdx % batches.length];
+      targetBatch.forEach((parkName) => {
+        const pin = pinMap.get(parkName);
+        if (pin) {
+          const flag = pin.querySelector(".us-park-flag");
+          if (flag) flag.classList.remove("is-visible");
+        }
+      });
+
+      // Brief 0.4s breathing pause between batches before next 8 appear
+      cycleTimer = setTimeout(() => {
+        if (!isRunning) return;
+        currentBatchIdx = (currentBatchIdx + 1) % batches.length;
+        advanceCycle();
+      }, 420);
+    }, 2600);
+  }
+
+  function start() {
+    if (isRunning) return;
+    isRunning = true;
+    currentBatchIdx = 0;
+    advanceCycle();
+  }
+
+  function stop() {
+    isRunning = false;
+    clearTimeout(cycleTimer);
+    clearTimeout(fadeTimer);
+    cycleTimer = null;
+    fadeTimer = null;
+    pins.forEach((p) => {
+      const f = p.querySelector(".us-park-flag");
+      if (f) f.classList.remove("is-visible");
+    });
+  }
+
+  return {
+    start,
+    stop,
+    get isRunning() {
+      return isRunning;
+    }
+  };
+}
+
+/* ==========================================================================
    10. US 50 STATES MINI-WINDOW & CALLOUT LEADER CONTROLLER
    ========================================================================== */
 function initUSStatesDrawer() {
@@ -1770,6 +1949,7 @@ function initUSStatesDrawer() {
   const optionCards = scrollerWrap ? Array.from(scrollerWrap.querySelectorAll(".us-option-card")) : [];
   const track = document.getElementById("us-side-scroller-track");
   const nationalParksLayer = document.getElementById("us-national-parks-layer");
+  const flagCycleController = initNationalParksFlagCycle();
 
   // Continuous fluid scrolling (like the number line)
   const totalOptions = optionCards.length;
@@ -1810,12 +1990,19 @@ function initUSStatesDrawer() {
       }
     });
 
-    // 3. Continuous cross-fade of National Parks ballpoint pins
+    // 3. Continuous cross-fade of National Parks ballpoint pins & flags
     if (nationalParksLayer) {
       // Pins fully visible at progress 0, smoothly dissolving away as you scroll towards option 2
       const pinsOpacity = Math.max(0, Math.min(1, 1 - progress * 1.4));
       nationalParksLayer.style.opacity = pinsOpacity.toFixed(3);
       nationalParksLayer.style.visibility = pinsOpacity > 0.01 ? "visible" : "hidden";
+
+      // Pause flag rotation when scrolled away to Option 2 or 3
+      if (progress >= 0.45 && flagCycleController?.isRunning) {
+        flagCycleController.stop();
+      } else if (progress < 0.25 && !flagCycleController?.isRunning && miniWindow?.classList.contains("is-open")) {
+        flagCycleController.start();
+      }
     }
   }
 
@@ -1915,6 +2102,7 @@ function initUSStatesDrawer() {
     }
     clearTimeout(snapTimer);
     updateVisuals(0);
+    flagCycleController?.start();
   }
 
   function closeWindow() {
@@ -1926,6 +2114,7 @@ function initUSStatesDrawer() {
       rafId = null;
     }
     clearTimeout(snapTimer);
+    flagCycleController?.stop();
   }
 
   function toggleWindow() {
