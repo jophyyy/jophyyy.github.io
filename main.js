@@ -1830,10 +1830,10 @@ function initNationalParksFlagCycle() {
     ]);
     const waveLeft = waveLeftParks.has(rawName);
 
-    // Noticeably bigger flags: font-size 10.5px bold
+    // Noticeably bigger flags: font-size 11px bold, generous banner width & height so text never touches edges
     const textLen = name.length;
-    const textWidth = Math.max(34, textLen * 6.4);
-    const flagW = Math.round(textWidth + 18);
+    const textWidth = Math.max(36, textLen * 7.2);
+    const flagW = Math.round(textWidth + 30);
 
     const flagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     flagGroup.setAttribute("class", "us-park-flag");
@@ -1845,23 +1845,25 @@ function initNationalParksFlagCycle() {
     let textElem = "";
 
     if (waveLeft) {
-      // Banner waving left
-      bannerPath = `M -2.5 -32.5 L ${-flagW - 2.5} -32.5 L ${-flagW + 6.5} -22.75 L ${-flagW - 2.5} -13 L -2.5 -13 Z`;
-      stripeLine = `<line x1="-5.5" y1="-31" x2="-5.5" y2="-14.5" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" />`;
-      textElem = `<text x="${-flagW + 7}" y="-22.75" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="10.5" font-weight="700" fill="#0f172a" letter-spacing="0.3">${name}</text>`;
+      // Banner waving left (height 24px: y from -37 to -13, finial tip at -38.5)
+      bannerPath = `M -2.5 -37 L ${-flagW - 2.5} -37 L ${-flagW + 6.5} -25 L ${-flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="-5.5" y1="-35.5" x2="-5.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+      const centerX = Math.round((-flagW + 4) / 2);
+      textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${name}</text>`;
     } else {
-      // Banner waving right
-      bannerPath = `M -2.5 -32.5 L ${flagW - 2.5} -32.5 L ${flagW - 11.5} -22.75 L ${flagW - 2.5} -13 L -2.5 -13 Z`;
-      stripeLine = `<line x1="0.5" y1="-31" x2="0.5" y2="-14.5" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" />`;
-      textElem = `<text x="5.5" y="-22.75" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="10.5" font-weight="700" fill="#0f172a" letter-spacing="0.3">${name}</text>`;
+      // Banner waving right (height 24px: y from -37 to -13, finial tip at -38.5)
+      bannerPath = `M -2.5 -37 L ${flagW - 2.5} -37 L ${flagW - 11.5} -25 L ${flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="0.5" y1="-35.5" x2="0.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+      const centerX = Math.round((flagW - 14) / 2);
+      textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${name}</text>`;
     }
 
     // Solid opaque white fill (#ffffff) with crisp border and drop shadow hides any pins behind it
     flagGroup.innerHTML = `
       <g class="us-flag-body">
-        <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-33" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round" />
-        <circle cx="-2.5" cy="-33.5" r="1.5" fill="#f59e0b" stroke="#b45309" stroke-width="0.5" />
-        <path d="${bannerPath}" fill="#ffffff" stroke="#0f172a" stroke-width="1" stroke-linejoin="round" />
+        <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-38" stroke="#0f172a" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="-2.5" cy="-38.5" r="1.8" fill="#f59e0b" stroke="#b45309" stroke-width="0.6" />
+        <path d="${bannerPath}" fill="#ffffff" stroke="#0f172a" stroke-width="1.1" stroke-linejoin="round" />
         ${stripeLine}
         ${textElem}
       </g>
@@ -1934,12 +1936,9 @@ function initNationalParksFlagCycle() {
     targetBatch.forEach((parkName) => {
       const pin = pinMap.get(parkName);
       const flag = flagMap.get(parkName);
-      // Pin expands to scale(1.36), Flag expands to scale(1)
+      // Pin expands to scale(1.52), Flag expands to scale(1)
       if (pin) pin.classList.add("is-present");
-      if (flag) {
-        flag.classList.add("is-visible");
-        flagsLayer.appendChild(flag); // latest batch rendered on top
-      }
+      if (flag) flag.classList.add("is-visible");
     });
   }
 
@@ -1948,7 +1947,7 @@ function initNationalParksFlagCycle() {
 
     showBatch(currentBatchIdx);
 
-    // Keep visible and expanded for 3.4s, then smoothly shrink pin & flag and fade out
+    // Keep visible and expanded for 3.6s, then smoothly shrink pin & flag and fade out
     fadeTimer = setTimeout(() => {
       if (!isRunning) return;
 
@@ -1961,13 +1960,13 @@ function initNationalParksFlagCycle() {
         if (flag) flag.classList.remove("is-visible");
       });
 
-      // 0.65s pause while shrinking and fading completes, before next batch slowly expands up
+      // 0.75s pause while shrinking and fading completes, before next batch slowly expands up
       cycleTimer = setTimeout(() => {
         if (!isRunning) return;
         currentBatchIdx = (currentBatchIdx + 1) % batches.length;
         advanceCycle();
-      }, 650);
-    }, 3400);
+      }, 750);
+    }, 3600);
   }
 
   function start() {
