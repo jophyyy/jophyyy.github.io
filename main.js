@@ -1764,125 +1764,134 @@ function initUSStatesDrawer() {
   const countryUSA = document.getElementById("country-usa");
   const mapShortcutBtn = document.getElementById("map-usa-shortcut-btn");
   const miniWindow = document.getElementById("us-mini-window");
-  const closeBtn = document.getElementById("us-mini-window-close");
-  const worldSvg = document.querySelector(".world-map-svg");
-  const mapWrap = document.getElementById("map-viewport-wrap");
+  const miniWindowBody = document.querySelector(".us-mini-window-body");
 
   const scrollerWrap = document.getElementById("us-side-scroller-wrap");
-  const optionCards = scrollerWrap ? scrollerWrap.querySelectorAll(".us-option-card") : [];
+  const optionCards = scrollerWrap ? Array.from(scrollerWrap.querySelectorAll(".us-option-card")) : [];
+  const track = document.getElementById("us-side-scroller-track");
   const nationalParksLayer = document.getElementById("us-national-parks-layer");
 
-  function updateActiveOption() {
-    if (!scrollerWrap || optionCards.length === 0) return;
-    const currentScroll = scrollerWrap.scrollTop;
+  // Continuous fluid scrolling (like the number line)
+  const totalOptions = optionCards.length;
+  const maxProgress = Math.max(0, totalOptions - 1);
+  const cardStep = 46; // 38px card + 8px gap
 
-    let closestCard = null;
-    let minDiff = Infinity;
+  let currentProgress = 0;
+  let targetProgress = 0;
+  let rafId = null;
+  let snapTimer = null;
 
-    optionCards.forEach((card) => {
-      const diff = Math.abs(card.offsetTop - currentScroll);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestCard = card;
+  function updateVisuals(progress) {
+    // 1. Fluid translation of track with sub-pixel precision
+    if (track) {
+      track.style.transform = `translateY(${(-progress * cardStep).toFixed(2)}px)`;
+    }
+
+    // 2. Continuous interpolation for each card
+    optionCards.forEach((card, idx) => {
+      const dist = Math.abs(progress - idx);
+      // Smooth Hermite curve (smoothstep)
+      const factor = Math.max(0, 1 - dist);
+      const smooth = factor * factor * (3 - 2 * factor);
+
+      const opacity = 0.38 + 0.62 * smooth;
+      const scale = 0.93 + 0.07 * smooth;
+
+      card.style.opacity = opacity.toFixed(3);
+      card.style.transform = `scale(${scale.toFixed(3)})`;
+
+      const dot = card.querySelector(".us-option-dot");
+      if (dist < 0.5) {
+        card.classList.add("is-active");
+        if (dot && idx > 0) dot.classList.remove("secondary");
+      } else {
+        card.classList.remove("is-active");
+        if (dot && idx > 0) dot.classList.add("secondary");
       }
     });
 
-    if (closestCard) {
-      optionCards.forEach((c) => c.classList.remove("is-active"));
-      closestCard.classList.add("is-active");
-
-      const opt = closestCard.getAttribute("data-option");
-      if (nationalParksLayer) {
-        nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
-      }
+    // 3. Continuous cross-fade of National Parks ballpoint pins
+    if (nationalParksLayer) {
+      // Pins fully visible at progress 0, smoothly dissolving away as you scroll towards option 2
+      const pinsOpacity = Math.max(0, Math.min(1, 1 - progress * 1.4));
+      nationalParksLayer.style.opacity = pinsOpacity.toFixed(3);
+      nationalParksLayer.style.visibility = pinsOpacity > 0.01 ? "visible" : "hidden";
     }
   }
 
-  function navigateOption(direction) {
-    if (!scrollerWrap || optionCards.length === 0) return;
-    const cards = Array.from(optionCards);
-    const currentIdx = cards.findIndex((c) => c.classList.contains("is-active"));
-    const baseIdx = currentIdx >= 0 ? currentIdx : 0;
-    const targetIdx = Math.max(0, Math.min(cards.length - 1, baseIdx + direction));
-
-    if (targetIdx !== currentIdx) {
-      const targetCard = cards[targetIdx];
-      scrollerWrap.scrollTo({ top: targetCard.offsetTop, behavior: "smooth" });
-      cards.forEach((c) => c.classList.remove("is-active"));
-      targetCard.classList.add("is-active");
-      const opt = targetCard.getAttribute("data-option");
-      if (nationalParksLayer) {
-        nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
+  function startPhysics() {
+    if (rafId) return;
+    function loop() {
+      const diff = targetProgress - currentProgress;
+      if (Math.abs(diff) > 0.001) {
+        // Buttery smooth exponential spring dampening (like the number line)
+        currentProgress += diff * 0.12;
+        updateVisuals(currentProgress);
+        rafId = requestAnimationFrame(loop);
+      } else {
+        currentProgress = targetProgress;
+        updateVisuals(currentProgress);
+        rafId = null;
       }
     }
+    rafId = requestAnimationFrame(loop);
   }
 
-  // Scrolling anywhere on the page when 50 states is open scrolls through options
-  let accumulatedDelta = 0;
-  let isNavigatingOption = false;
+  function setTarget(val) {
+    targetProgress = Math.max(0, Math.min(maxProgress, val));
+    startPhysics();
+  }
 
+  // Scrolling anywhere on the page smoothly scrolls options
   window.addEventListener(
     "wheel",
     (e) => {
-      if (!miniWindow || !miniWindow.classList.contains("is-open") || !scrollerWrap) return;
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
 
-      // Prevent background page from scrolling away
+      // Prevent background page from scrolling
       e.preventDefault();
 
-      accumulatedDelta += e.deltaY;
+      // Fluid continuous scroll proportional to wheel delta (smooth like number line)
+      // Normalization: ~240px of wheel distance moves 1 full option
+      const progressDelta = e.deltaY * 0.0032;
+      targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + progressDelta));
+      startPhysics();
 
-      if (isNavigatingOption) return;
-
-      // Step threshold of 35px accumulated delta to advance option
-      if (Math.abs(accumulatedDelta) >= 35) {
-        const direction = accumulatedDelta > 0 ? 1 : -1;
-        accumulatedDelta = 0;
-        isNavigatingOption = true;
-
-        navigateOption(direction);
-
-        setTimeout(() => {
-          isNavigatingOption = false;
-          accumulatedDelta = 0;
-        }, 260);
-      }
+      // Gentle auto-glide to nearest option when scrolling settles
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const nearest = Math.round(targetProgress);
+        setTarget(nearest);
+      }, 220);
     },
     { passive: false }
   );
 
-  // Keyboard ArrowDown / ArrowUp navigation
+  // Keyboard navigation
   window.addEventListener("keydown", (e) => {
     if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      navigateOption(1);
+      setTarget(Math.min(maxProgress, Math.round(targetProgress) + 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      navigateOption(-1);
+      setTarget(Math.max(0, Math.round(targetProgress) - 1));
     }
   });
 
-  if (scrollerWrap) {
-    scrollerWrap.addEventListener("scroll", updateActiveOption, { passive: true });
-    optionCards.forEach((card) => {
-      card.addEventListener("click", (e) => {
-        e.stopPropagation();
-        scrollerWrap.scrollTo({ top: card.offsetTop, behavior: "smooth" });
-        optionCards.forEach((c) => c.classList.remove("is-active"));
-        card.classList.add("is-active");
-        const opt = card.getAttribute("data-option");
-        if (nationalParksLayer) {
-          nationalParksLayer.classList.toggle("is-visible", opt === "national-parks");
-        }
-      });
-      card.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          scrollerWrap.scrollTo({ top: card.offsetTop, behavior: "smooth" });
-        }
-      });
+  // Direct card clicks glide smoothly to selected option
+  optionCards.forEach((card, idx) => {
+    card.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setTarget(idx);
     });
-  }
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setTarget(idx);
+      }
+    });
+  });
 
   if (!miniWindow) return;
 
@@ -1898,18 +1907,25 @@ function initUSStatesDrawer() {
     countryUSA?.classList.add("is-active");
 
     // Reset scroller to top option (national parks)
-    if (scrollerWrap) {
-      scrollerWrap.scrollTop = 0;
-      updateActiveOption();
+    currentProgress = 0;
+    targetProgress = 0;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
     }
+    clearTimeout(snapTimer);
+    updateVisuals(0);
   }
 
   function closeWindow() {
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
     countryUSA?.classList.remove("is-active");
-    accumulatedDelta = 0;
-    isNavigatingOption = false;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    clearTimeout(snapTimer);
   }
 
   function toggleWindow() {
@@ -1937,22 +1953,15 @@ function initUSStatesDrawer() {
     toggleWindow();
   });
 
-  // Close button
-  closeBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    closeWindow();
-  });
-
-  // Close when clicking outside the mini-window and outside USA
+  // Close when clicking outside the 50 states map and scroller (no X button needed)
   document.addEventListener("click", (e) => {
-    if (
-      miniWindow.classList.contains("is-open") &&
-      !miniWindow.contains(e.target) &&
-      e.target !== countryUSA &&
-      !countryUSA?.contains(e.target) &&
-      e.target !== mapShortcutBtn &&
-      !mapShortcutBtn?.contains(e.target)
-    ) {
+    if (!miniWindow.classList.contains("is-open")) return;
+    const isInsideMap = miniWindowBody && miniWindowBody.contains(e.target);
+    const isInsideScroller = scrollerWrap && scrollerWrap.contains(e.target);
+    const isUSA = e.target === countryUSA || countryUSA?.contains(e.target);
+    const isShortcut = e.target === mapShortcutBtn || mapShortcutBtn?.contains(e.target);
+
+    if (!isInsideMap && !isInsideScroller && !isUSA && !isShortcut) {
       closeWindow();
     }
   });
@@ -1964,18 +1973,12 @@ function initUSStatesDrawer() {
     }
   });
 
-  // Dynamic reposition on resize and scroll
-  window.addEventListener("resize", () => {
-    if (miniWindow.classList.contains("is-open")) {
-      positionPopupAndLeader();
-    }
-  });
-
+  // Resize handler
   window.addEventListener(
-    "scroll",
+    "resize",
     () => {
       if (miniWindow.classList.contains("is-open")) {
-        positionPopupAndLeader();
+        updateVisuals(currentProgress);
       }
     },
     { passive: true }
