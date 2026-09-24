@@ -1773,6 +1773,66 @@ function initUSStatesDrawer() {
   const worldSvg = document.querySelector(".world-map-svg");
   const mapWrap = document.getElementById("map-viewport-wrap");
 
+  const scrollerWrap = document.getElementById("us-side-scroller-wrap");
+  const optionCards = scrollerWrap ? scrollerWrap.querySelectorAll(".us-option-card") : [];
+  const nationalParksLayer = document.getElementById("us-national-parks-layer");
+
+  function updateActiveOption() {
+    if (!scrollerWrap || optionCards.length === 0) return;
+    const currentScroll = scrollerWrap.scrollTop;
+
+    let closestCard = null;
+    let minDiff = Infinity;
+
+    optionCards.forEach((card) => {
+      const diff = Math.abs(card.offsetTop - currentScroll);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestCard = card;
+      }
+    });
+
+    if (closestCard) {
+      optionCards.forEach((c) => c.classList.remove("is-active"));
+      closestCard.classList.add("is-active");
+
+      const opt = closestCard.getAttribute("data-option");
+      if (nationalParksLayer) {
+        if (opt === "national-parks") {
+          nationalParksLayer.classList.add("is-visible");
+        } else {
+          nationalParksLayer.classList.remove("is-visible");
+        }
+      }
+    }
+  }
+
+  if (scrollerWrap) {
+    scrollerWrap.addEventListener("scroll", updateActiveOption, { passive: true });
+    optionCards.forEach((card) => {
+      card.addEventListener("click", (e) => {
+        e.stopPropagation();
+        scrollerWrap.scrollTo({ top: card.offsetTop, behavior: "smooth" });
+        optionCards.forEach((c) => c.classList.remove("is-active"));
+        card.classList.add("is-active");
+        const opt = card.getAttribute("data-option");
+        if (nationalParksLayer) {
+          if (opt === "national-parks") {
+            nationalParksLayer.classList.add("is-visible");
+          } else {
+            nationalParksLayer.classList.remove("is-visible");
+          }
+        }
+      });
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          scrollerWrap.scrollTo({ top: card.offsetTop, behavior: "smooth" });
+        }
+      });
+    });
+  }
+
   if (!miniWindow) return;
 
   function positionPopupAndLeader() {
@@ -1829,34 +1889,44 @@ function initUSStatesDrawer() {
     }
 
     // 5. Calculate leader connector line path
-    let targetX, targetY, pathD;
+    let targetX, targetY, pathD = "";
+    const isAnchorCovered = (anchorX >= popLeft - 10 && anchorX <= popLeft + popWidth + 10 &&
+                             anchorY >= popTop - 10 && anchorY <= popTop + popHeight + 10);
 
-    if (popLeft >= anchorX + 24) {
-      // Cloud is to the right of anchor on USA
-      targetX = popLeft;
-      targetY = popTop + Math.round(popHeight * 0.38);
-      const elbowX = anchorX + Math.round((popLeft - anchorX) * 0.42);
-      pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
-    } else if (popTop >= anchorY + 30) {
-      // Cloud is below anchor
-      targetX = Math.min(anchorX, popLeft + popWidth / 2);
-      targetY = popTop;
-      const elbowY = Math.min(anchorY + 24, popTop - 10);
-      pathD = `M ${anchorX} ${anchorY} L ${targetX} ${elbowY} L ${targetX} ${targetY}`;
-    } else {
-      // Cloud is to the left of anchor
-      targetX = popLeft + popWidth;
-      targetY = popTop + Math.round(popHeight * 0.38);
-      const elbowX = anchorX - Math.round((anchorX - targetX) * 0.42);
-      pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
+    if (!isAnchorCovered) {
+      if (anchorX < popLeft) {
+        // Anchor is to the left of the popup -> connect cleanly to left edge of popup
+        targetX = popLeft;
+        targetY = popTop + Math.round(popHeight * 0.38);
+        const elbowX = anchorX + Math.round((targetX - anchorX) * 0.42);
+        pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
+      } else if (anchorX > popLeft + popWidth) {
+        // Anchor is to the right of the popup -> connect to right edge of popup
+        targetX = popLeft + popWidth;
+        targetY = popTop + Math.round(popHeight * 0.38);
+        const elbowX = anchorX - Math.round((anchorX - targetX) * 0.42);
+        pathD = `M ${anchorX} ${anchorY} L ${elbowX} ${targetY} L ${targetX} ${targetY}`;
+      }
     }
 
     if (leaderLine) {
       leaderLine.setAttribute("d", pathD);
+      leaderLine.style.display = pathD ? "block" : "none";
     }
     if (leaderTargetDot) {
-      leaderTargetDot.setAttribute("cx", targetX);
-      leaderTargetDot.setAttribute("cy", targetY);
+      if (pathD && targetX !== undefined) {
+        leaderTargetDot.setAttribute("cx", targetX);
+        leaderTargetDot.setAttribute("cy", targetY);
+        leaderTargetDot.style.display = "block";
+      } else {
+        leaderTargetDot.style.display = "none";
+      }
+    }
+    if (leaderPulse) {
+      leaderPulse.style.display = isAnchorCovered ? "none" : "block";
+    }
+    if (leaderDot) {
+      leaderDot.style.display = isAnchorCovered ? "none" : "block";
     }
   }
 
@@ -1872,6 +1942,12 @@ function initUSStatesDrawer() {
     miniWindow.setAttribute("aria-hidden", "false");
     leaderSvg?.classList.add("is-active");
     countryUSA?.classList.add("is-active");
+
+    // Reset scroller to top option (national parks)
+    if (scrollerWrap) {
+      scrollerWrap.scrollTop = 0;
+      updateActiveOption();
+    }
 
     // Re-run on next frame in case initial layout size changed
     requestAnimationFrame(positionPopupAndLeader);

@@ -2650,8 +2650,8 @@ body.booting {
   left: 0;
   right: auto;
   bottom: auto;
-  width: min(850px, 92vw);
-  max-height: min(92vh, 600px);
+  width: min(1040px, 94vw);
+  max-height: min(92vh, 620px);
   background: transparent;
   border: none;
   box-shadow: none;
@@ -2741,7 +2741,7 @@ body.booting {
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transition: all 0.18s ease;
-  z-index: 10;
+  z-index: 25;
   line-height: 1;
 }
 
@@ -2752,13 +2752,26 @@ body.booting {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
 }
 
+/* Horizontal Content Split: Map + Side Options Scroller */
+.us-window-content-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 26px);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .us-mini-window-body {
   position: relative;
   z-index: 1;
-  padding: 8px 12px;
+  padding: 4px 8px;
   background: none;
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 760px;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2773,6 +2786,151 @@ body.booting {
   display: block;
   overflow: visible;
   filter: drop-shadow(0 10px 24px rgba(18, 28, 45, 0.18));
+}
+
+/* Side Options Scroller - 1.5 visible items with halfway fade */
+.us-side-scroller-wrap {
+  position: relative;
+  z-index: 15;
+  flex: 0 0 clamp(152px, 17vw, 184px);
+  width: clamp(152px, 17vw, 184px);
+  height: 98px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 1px 2px;
+  box-sizing: border-box;
+}
+
+.us-side-scroller-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.us-side-scroller-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.us-option-card {
+  height: 56px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: start;
+  user-select: none;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0.45;
+  transform: scale(0.96);
+}
+
+.us-option-card.is-active {
+  opacity: 1;
+  transform: scale(1);
+  background: #ffffff;
+  border-color: rgba(225, 29, 72, 0.32);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: default;
+}
+
+.us-option-card:hover:not(.is-active) {
+  opacity: 0.72;
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.us-option-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.us-option-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #e11d48;
+  box-shadow: 0 0 8px rgba(225, 29, 72, 0.65);
+  flex-shrink: 0;
+}
+
+.us-option-dot.secondary {
+  background: #94a3b8;
+  box-shadow: none;
+}
+
+.us-option-title {
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.us-option-sub {
+  font-size: 9.5px;
+  color: #64748b;
+  letter-spacing: 0.02em;
+  margin-top: 3px;
+  margin-left: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* National Parks Ballpoint Pins Layer */
+.us-national-parks-layer {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s;
+}
+
+.us-national-parks-layer.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.us-park-pin {
+  cursor: pointer;
+  transform-origin: 0 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.us-park-pin:hover {
+  transform: scale(1.4) translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .us-window-content-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .us-side-scroller-wrap {
+    width: min(220px, 80vw);
+    height: 104px;
+    padding: 24px 0;
+  }
+
+  .us-option-card {
+    height: 54px;
+  }
 }
 
 .us-map-separator {
