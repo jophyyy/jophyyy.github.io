@@ -2812,7 +2812,8 @@ body.booting {
 }
 
 /* National Parks Ballpoint Pins Layer */
-.us-national-parks-layer {
+.us-national-parks-layer,
+.us-national-parks-flags-layer {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -2820,7 +2821,8 @@ body.booting {
   will-change: opacity;
 }
 
-.us-national-parks-layer.is-visible {
+.us-national-parks-layer.is-visible,
+.us-national-parks-flags-layer.is-visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -2831,6 +2833,22 @@ body.booting {
   pointer-events: auto;
 }
 
+/* Pushpin body expand & shrink animation */
+.us-pin-body {
+  transform-origin: -2.5px -10.5px;
+  transform: scale(1);
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+  will-change: transform, filter;
+}
+
+.us-park-pin.is-present .us-pin-body,
+.us-park-pin:hover .us-pin-body,
+.us-park-pin.is-always-present .us-pin-body {
+  transform: scale(1.42);
+  filter: drop-shadow(0 2px 6px rgba(225, 29, 72, 0.68));
+  transition: transform 0.48s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.35s ease;
+}
+
 .us-park-pin circle,
 .us-park-pin line,
 .us-park-pin ellipse {
@@ -2838,27 +2856,48 @@ body.booting {
 }
 
 .us-park-pin:hover circle:first-of-type {
-  filter: url(#ballpoint-shadow) brightness(1.15) drop-shadow(0 0 4px rgba(239, 68, 68, 0.75));
+  filter: url(#ballpoint-shadow) brightness(1.15) drop-shadow(0 0 5px rgba(239, 68, 68, 0.85));
 }
 
-/* Tiny National Park Swallowtail Flag Badge */
+/* Dedicated National Park Swallowtail Flag Badge */
 .us-park-flag {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(2.5px) scale(0.92);
-  transform-origin: -2.5px -10.5px;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s;
   pointer-events: none;
-  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.24));
+  cursor: pointer;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.42));
 }
 
 .us-park-flag.is-visible,
-.us-park-flag.is-hovered,
-.us-park-pin:hover .us-park-flag {
+.us-park-flag.is-hovered {
+  pointer-events: auto;
+}
+
+.us-flag-body {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px) scale(0.35);
+  transform-origin: -2.5px -10.5px;
+  transition: opacity 0.42s cubic-bezier(0.4, 0, 1, 1),
+              transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.42s;
+  will-change: transform, opacity;
+}
+
+/* Active / Present / Hovered: flag expands into place with bounce pop */
+.us-park-flag.is-visible .us-flag-body,
+.us-park-flag.is-hovered .us-flag-body {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);
-  pointer-events: auto;
+  transition: opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.48s cubic-bezier(0.34, 1.45, 0.64, 1),
+              visibility 0.48s;
+}
+
+/* Yosemite Flag is Always Present and Expanded */
+.us-park-flag.is-always-present .us-flag-body {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
 }
 
 .us-park-flag text {

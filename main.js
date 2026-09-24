@@ -1767,36 +1767,72 @@ function initNationalParksFlagCycle() {
   const pins = Array.from(layer.querySelectorAll(".us-park-pin"));
   if (!pins.length) return null;
 
-  // Short display names for cleaner, crisper flag badges
+  // Dedicated flags layer positioned after pins in DOM so flags render in front of all pins
+  let flagsLayer = document.getElementById("us-national-parks-flags-layer");
+  if (!flagsLayer) {
+    flagsLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    flagsLayer.setAttribute("class", "us-national-parks-flags-layer is-visible");
+    flagsLayer.setAttribute("id", "us-national-parks-flags-layer");
+    layer.parentNode.appendChild(flagsLayer);
+  }
+
+  // Short display names for clean, authentic typography
   const displayNames = {
     "Black Canyon of the Gunnison": "Black Canyon",
     "Great Smoky Mountains": "Great Smoky Mtns",
     "Guadalupe Mountains": "Guadalupe Mtns",
     "Gates of the Arctic": "Gates of Arctic",
     "Wrangell-St. Elias": "Wrangell-St Elias",
+    "Hawaii Volcanoes": "HI Volcanoes",
+    "Theodore Roosevelt": "Theo Roosevelt",
   };
 
-  // Build the tiny flag SVG for each pin
-  pins.forEach((pin) => {
-    if (pin.querySelector(".us-park-flag")) return;
+  const pinMap = new Map();
+  const flagMap = new Map();
 
+  // 1. Wrap each pin's graphics into a .us-pin-body group so it can expand & shrink smoothly
+  //    around its pin head without overriding the SVG transform="translate(x,y)"
+  pins.forEach((pin) => {
+    const rawName = pin.getAttribute("data-park") || "";
+    if (rawName) pinMap.set(rawName, pin);
+
+    if (!pin.querySelector(".us-pin-body")) {
+      const body = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      body.setAttribute("class", "us-pin-body");
+      const children = Array.from(pin.childNodes);
+      children.forEach((child) => {
+        if (child.nodeName.toLowerCase() !== "title") {
+          body.appendChild(child);
+        }
+      });
+      pin.appendChild(body);
+    }
+  });
+
+  // 2. Build dedicated flag elements in flagsLayer (guaranteed in front of all pins & states)
+  pins.forEach((pin) => {
     const rawName = pin.getAttribute("data-park") || "";
     const name = displayNames[rawName] || rawName;
+    const isYosemite = rawName === "Yosemite";
 
-    // Read pin X coordinate from translate(x, y)
+    // Read pin X & Y coordinate from translate(x, y)
     const transformAttr = pin.getAttribute("transform") || "";
     const match = transformAttr.match(/translate\(\s*([\d.-]+)\s*,\s*([\d.-]+)\s*\)/);
     const pinX = match ? parseFloat(match[1]) : 500;
+    const pinY = match ? parseFloat(match[2]) : 300;
 
-    // If near the East Coast (pinX > 720), wave flag to the LEFT so it stays cleanly on the map
-    const waveLeft = pinX > 720;
+    // Near East Coast or Pacific border parks, wave flag toward the ocean so it never overlaps interior flags
+    const waveLeft = pinX > 710 || ["Sequoia", "Kings Canyon", "Channel Islands", "Pinnacles"].includes(rawName);
 
-    // Sizing: font-size 7.5, ~4.5 units per char
-    const textWidth = Math.max(22, name.length * 4.6);
-    const flagW = Math.round(textWidth + 11);
+    // Noticeably bigger flags: font-size 10.5px bold
+    const textLen = name.length;
+    const textWidth = Math.max(34, textLen * 6.4);
+    const flagW = Math.round(textWidth + 18);
 
     const flagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     flagGroup.setAttribute("class", "us-park-flag");
+    flagGroup.setAttribute("data-park", rawName);
+    flagGroup.setAttribute("transform", `translate(${pinX}, ${pinY})`);
 
     let bannerPath = "";
     let stripeLine = "";
@@ -1804,48 +1840,68 @@ function initNationalParksFlagCycle() {
 
     if (waveLeft) {
       // Banner waving left
-      bannerPath = `M -2.5 -25 L ${-flagW - 2.5} -25 L ${-flagW + 2} -18.5 L ${-flagW - 2.5} -12 L -2.5 -12 Z`;
-      stripeLine = `<line x1="-4.5" y1="-24" x2="-4.5" y2="-13" stroke="#e11d48" stroke-width="1.3" stroke-linecap="round" />`;
-      textElem = `<text x="${-flagW + 2.5}" y="-18.5" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="7.5" font-weight="700" fill="#0f172a" letter-spacing="0.25">${name}</text>`;
+      bannerPath = `M -2.5 -32.5 L ${-flagW - 2.5} -32.5 L ${-flagW + 6.5} -22.75 L ${-flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="-5.5" y1="-31" x2="-5.5" y2="-14.5" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" />`;
+      textElem = `<text x="${-flagW + 7}" y="-22.75" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="10.5" font-weight="700" fill="#0f172a" letter-spacing="0.3">${name}</text>`;
     } else {
       // Banner waving right
-      bannerPath = `M -2.5 -25 L ${flagW - 2.5} -25 L ${flagW - 7} -18.5 L ${flagW - 2.5} -12 L -2.5 -12 Z`;
-      stripeLine = `<line x1="-0.5" y1="-24" x2="-0.5" y2="-13" stroke="#e11d48" stroke-width="1.3" stroke-linecap="round" />`;
-      textElem = `<text x="3" y="-18.5" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="7.5" font-weight="700" fill="#0f172a" letter-spacing="0.25">${name}</text>`;
+      bannerPath = `M -2.5 -32.5 L ${flagW - 2.5} -32.5 L ${flagW - 11.5} -22.75 L ${flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="0.5" y1="-31" x2="0.5" y2="-14.5" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" />`;
+      textElem = `<text x="5.5" y="-22.75" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="10.5" font-weight="700" fill="#0f172a" letter-spacing="0.3">${name}</text>`;
     }
 
+    // Solid opaque white fill (#ffffff) with crisp border and drop shadow hides any pins behind it
     flagGroup.innerHTML = `
-      <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-25.5" stroke="#1e293b" stroke-width="0.85" stroke-linecap="round" />
-      <circle cx="-2.5" cy="-26" r="1.1" fill="#f59e0b" />
-      <path d="${bannerPath}" fill="#fffef8" stroke="#0f172a" stroke-width="0.8" stroke-linejoin="round" />
-      ${stripeLine}
-      ${textElem}
+      <g class="us-flag-body">
+        <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-33" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round" />
+        <circle cx="-2.5" cy="-33.5" r="1.5" fill="#f59e0b" stroke="#b45309" stroke-width="0.5" />
+        <path d="${bannerPath}" fill="#ffffff" stroke="#0f172a" stroke-width="1" stroke-linejoin="round" />
+        ${stripeLine}
+        ${textElem}
+      </g>
     `;
 
-    pin.appendChild(flagGroup);
+    // Append to dedicated flags layer
+    flagsLayer.appendChild(flagGroup);
+    flagMap.set(rawName, flagGroup);
 
-    // Hover listeners: any pin reveals its flag on demand and brings pin to top
-    pin.addEventListener("mouseenter", () => {
+    // Yosemite flag is ALWAYS present and expanded
+    if (isYosemite) {
+      flagGroup.classList.add("is-visible", "is-always-present");
+      pin.classList.add("is-present", "is-always-present");
+    }
+
+    // Hover interactions: hover either pin or flag to bring flag to front and expand
+    const onEnter = () => {
       flagGroup.classList.add("is-hovered");
-      pin.parentNode.appendChild(pin);
-    });
-    pin.addEventListener("mouseleave", () => {
+      pin.classList.add("is-present");
+      flagsLayer.appendChild(flagGroup); // elevate to absolute front among flags
+    };
+    const onLeave = () => {
       flagGroup.classList.remove("is-hovered");
-    });
+      if (!isYosemite && !isParkInCurrentBatch(rawName)) {
+        pin.classList.remove("is-present");
+      }
+    };
+
+    pin.addEventListener("mouseenter", onEnter);
+    pin.addEventListener("mouseleave", onLeave);
+    flagGroup.addEventListener("mouseenter", onEnter);
+    flagGroup.addEventListener("mouseleave", onLeave);
   });
 
-  // 8 Geographically balanced batches (7-8 parks per batch spread across US regions)
+  // 8 Geographically balanced batches of rotating parks (60 rotating parks; Yosemite is always present)
   const batches = [
     // Batch 1 (8 parks: East, South, Midwest, Rockies, Southwest, PNW, Texas, Alaska)
     ["Acadia", "Great Smoky Mountains", "Gateway Arch", "Yellowstone", "Grand Canyon", "Olympic", "Big Bend", "Denali"],
-    // Batch 2 (8 parks: Mid-Atlantic, Florida, Great Lakes, Rockies, Utah, California, Montana, Hawaii)
-    ["Shenandoah", "Everglades", "Cuyahoga Valley", "Rocky Mountain", "Zion", "Yosemite", "Glacier", "Hawaii Volcanoes"],
+    // Batch 2 (8 parks: Mid-Atlantic, Florida, Great Lakes, Rockies, Utah, Montana, Hawaii, Upper Midwest)
+    ["Shenandoah", "Everglades", "Cuyahoga Valley", "Rocky Mountain", "Zion", "Glacier", "Hawaii Volcanoes", "Voyageurs"],
     // Batch 3 (8 parks)
     ["New River Gorge", "Biscayne", "Indiana Dunes", "Grand Teton", "Arches", "Mount Rainier", "Carlsbad Caverns", "Glacier Bay"],
     // Batch 4 (8 parks)
     ["Congaree", "Mammoth Cave", "Isle Royale", "Bryce Canyon", "Joshua Tree", "Crater Lake", "Badlands", "Haleakala"],
-    // Batch 5 (8 parks)
-    ["Hot Springs", "Dry Tortugas", "Voyageurs", "Capitol Reef", "Death Valley", "North Cascades", "White Sands", "Kenai Fjords"],
+    // Batch 5 (7 parks)
+    ["Hot Springs", "Dry Tortugas", "Death Valley", "Capitol Reef", "North Cascades", "White Sands", "Kenai Fjords"],
     // Batch 6 (7 parks)
     ["Great Basin", "Theodore Roosevelt", "Mesa Verde", "Sequoia", "Redwood", "Saguaro", "Katmai"],
     // Batch 7 (7 parks)
@@ -1854,29 +1910,40 @@ function initNationalParksFlagCycle() {
     ["Great Sand Dunes", "Petrified Forest", "Pinnacles", "Channel Islands", "Gates of the Arctic", "Lake Clark", "Kobuk Valley"]
   ];
 
-  const pinMap = new Map();
-  pins.forEach((pin) => {
-    const rawName = pin.getAttribute("data-park");
-    if (rawName) pinMap.set(rawName, pin);
-  });
-
   let currentBatchIdx = 0;
   let cycleTimer = null;
   let fadeTimer = null;
   let isRunning = false;
 
+  function isParkInCurrentBatch(parkName) {
+    if (parkName === "Yosemite") return true;
+    if (!isRunning) return false;
+    const currentBatch = batches[currentBatchIdx % batches.length];
+    return currentBatch && currentBatch.includes(parkName);
+  }
+
   function showBatch(batchIdx) {
+    // Clear previous batch (leave Yosemite untouched)
     pins.forEach((p) => {
-      const f = p.querySelector(".us-park-flag");
-      if (f) f.classList.remove("is-visible");
+      if (p.getAttribute("data-park") !== "Yosemite") {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".us-park-flag").forEach((f) => {
+      if (f.getAttribute("data-park") !== "Yosemite") {
+        f.classList.remove("is-visible");
+      }
     });
 
     const targetBatch = batches[batchIdx % batches.length];
     targetBatch.forEach((parkName) => {
       const pin = pinMap.get(parkName);
-      if (pin) {
-        const flag = pin.querySelector(".us-park-flag");
-        if (flag) flag.classList.add("is-visible");
+      const flag = flagMap.get(parkName);
+      // Pin expands to scale(1.42), Flag expands to scale(1)
+      if (pin) pin.classList.add("is-present");
+      if (flag) {
+        flag.classList.add("is-visible");
+        flagsLayer.appendChild(flag); // latest batch rendered on top
       }
     });
   }
@@ -1886,26 +1953,30 @@ function initNationalParksFlagCycle() {
 
     showBatch(currentBatchIdx);
 
-    // Keep visible for 2.6 seconds, then fade out
+    // Keep visible and expanded for 2.8s, then shrink pin & flag and fade out
     fadeTimer = setTimeout(() => {
       if (!isRunning) return;
 
       const targetBatch = batches[currentBatchIdx % batches.length];
       targetBatch.forEach((parkName) => {
         const pin = pinMap.get(parkName);
-        if (pin) {
-          const flag = pin.querySelector(".us-park-flag");
-          if (flag) flag.classList.remove("is-visible");
+        const flag = flagMap.get(parkName);
+        // Pin shrinks back to regular size scale(1); flag shrinks to scale(0.35) and fades
+        if (pin && parkName !== "Yosemite") {
+          pin.classList.remove("is-present");
+        }
+        if (flag && parkName !== "Yosemite") {
+          flag.classList.remove("is-visible");
         }
       });
 
-      // Brief 0.4s breathing pause between batches before next 8 appear
+      // Brief 0.45s pause while shrinking and fading completes, before next batch appears
       cycleTimer = setTimeout(() => {
         if (!isRunning) return;
         currentBatchIdx = (currentBatchIdx + 1) % batches.length;
         advanceCycle();
-      }, 420);
-    }, 2600);
+      }, 450);
+    }, 2800);
   }
 
   function start() {
@@ -1922,8 +1993,14 @@ function initNationalParksFlagCycle() {
     cycleTimer = null;
     fadeTimer = null;
     pins.forEach((p) => {
-      const f = p.querySelector(".us-park-flag");
-      if (f) f.classList.remove("is-visible");
+      if (p.getAttribute("data-park") !== "Yosemite") {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".us-park-flag").forEach((f) => {
+      if (f.getAttribute("data-park") !== "Yosemite") {
+        f.classList.remove("is-visible");
+      }
     });
   }
 
@@ -1992,10 +2069,16 @@ function initUSStatesDrawer() {
 
     // 3. Continuous cross-fade of National Parks ballpoint pins & flags
     if (nationalParksLayer) {
-      // Pins fully visible at progress 0, smoothly dissolving away as you scroll towards option 2
+      // Pins and flags fully visible at progress 0, smoothly dissolving away as you scroll towards option 2
       const pinsOpacity = Math.max(0, Math.min(1, 1 - progress * 1.4));
       nationalParksLayer.style.opacity = pinsOpacity.toFixed(3);
       nationalParksLayer.style.visibility = pinsOpacity > 0.01 ? "visible" : "hidden";
+
+      const flagsLayer = document.getElementById("us-national-parks-flags-layer");
+      if (flagsLayer) {
+        flagsLayer.style.opacity = pinsOpacity.toFixed(3);
+        flagsLayer.style.visibility = pinsOpacity > 0.01 ? "visible" : "hidden";
+      }
 
       // Pause flag rotation when scrolled away to Option 2 or 3
       if (progress >= 0.45 && flagCycleController?.isRunning) {
