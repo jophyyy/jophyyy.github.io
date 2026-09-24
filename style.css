@@ -2842,8 +2842,7 @@ body.booting {
 }
 
 .us-park-pin.is-present .us-pin-body,
-.us-park-pin:hover .us-pin-body,
-.us-park-pin.is-always-present .us-pin-body {
+.us-park-pin:hover .us-pin-body {
   transform: scale(1.42);
   filter: drop-shadow(0 2px 6px rgba(225, 29, 72, 0.68));
   transition: transform 0.48s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.35s ease;
@@ -2891,13 +2890,6 @@ body.booting {
   transition: opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.48s cubic-bezier(0.34, 1.45, 0.64, 1),
               visibility 0.48s;
-}
-
-/* Yosemite Flag is Always Present and Expanded */
-.us-park-flag.is-always-present .us-flag-body {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateY(0) scale(1) !important;
 }
 
 .us-park-flag text {

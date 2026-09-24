@@ -1813,7 +1813,6 @@ function initNationalParksFlagCycle() {
   pins.forEach((pin) => {
     const rawName = pin.getAttribute("data-park") || "";
     const name = displayNames[rawName] || rawName;
-    const isYosemite = rawName === "Yosemite";
 
     // Read pin X & Y coordinate from translate(x, y)
     const transformAttr = pin.getAttribute("transform") || "";
@@ -1865,12 +1864,6 @@ function initNationalParksFlagCycle() {
     flagsLayer.appendChild(flagGroup);
     flagMap.set(rawName, flagGroup);
 
-    // Yosemite flag is ALWAYS present and expanded
-    if (isYosemite) {
-      flagGroup.classList.add("is-visible", "is-always-present");
-      pin.classList.add("is-present", "is-always-present");
-    }
-
     // Hover interactions: hover either pin or flag to bring flag to front and expand
     const onEnter = () => {
       flagGroup.classList.add("is-hovered");
@@ -1879,7 +1872,7 @@ function initNationalParksFlagCycle() {
     };
     const onLeave = () => {
       flagGroup.classList.remove("is-hovered");
-      if (!isYosemite && !isParkInCurrentBatch(rawName)) {
+      if (!isParkInCurrentBatch(rawName)) {
         pin.classList.remove("is-present");
       }
     };
@@ -1890,7 +1883,7 @@ function initNationalParksFlagCycle() {
     flagGroup.addEventListener("mouseleave", onLeave);
   });
 
-  // 8 Geographically balanced batches of rotating parks (60 rotating parks; Yosemite is always present)
+  // 8 Geographically balanced batches of rotating parks (61 parks total)
   const batches = [
     // Batch 1 (8 parks: East, South, Midwest, Rockies, Southwest, PNW, Texas, Alaska)
     ["Acadia", "Great Smoky Mountains", "Gateway Arch", "Yellowstone", "Grand Canyon", "Olympic", "Big Bend", "Denali"],
@@ -1900,12 +1893,12 @@ function initNationalParksFlagCycle() {
     ["New River Gorge", "Biscayne", "Indiana Dunes", "Grand Teton", "Arches", "Mount Rainier", "Carlsbad Caverns", "Glacier Bay"],
     // Batch 4 (8 parks)
     ["Congaree", "Mammoth Cave", "Isle Royale", "Bryce Canyon", "Joshua Tree", "Crater Lake", "Badlands", "Haleakala"],
-    // Batch 5 (7 parks)
-    ["Hot Springs", "Dry Tortugas", "Death Valley", "Capitol Reef", "North Cascades", "White Sands", "Kenai Fjords"],
+    // Batch 5 (8 parks)
+    ["Yosemite", "Hot Springs", "Dry Tortugas", "Capitol Reef", "North Cascades", "White Sands", "Kenai Fjords", "Guadalupe Mountains"],
     // Batch 6 (7 parks)
     ["Great Basin", "Theodore Roosevelt", "Mesa Verde", "Sequoia", "Redwood", "Saguaro", "Katmai"],
     // Batch 7 (7 parks)
-    ["Canyonlands", "Wind Cave", "Black Canyon of the Gunnison", "Kings Canyon", "Lassen Volcanic", "Guadalupe Mountains", "Wrangell-St. Elias"],
+    ["Canyonlands", "Wind Cave", "Black Canyon of the Gunnison", "Kings Canyon", "Lassen Volcanic", "Death Valley", "Wrangell-St. Elias"],
     // Batch 8 (7 parks)
     ["Great Sand Dunes", "Petrified Forest", "Pinnacles", "Channel Islands", "Gates of the Arctic", "Lake Clark", "Kobuk Valley"]
   ];
@@ -1916,23 +1909,18 @@ function initNationalParksFlagCycle() {
   let isRunning = false;
 
   function isParkInCurrentBatch(parkName) {
-    if (parkName === "Yosemite") return true;
     if (!isRunning) return false;
     const currentBatch = batches[currentBatchIdx % batches.length];
     return currentBatch && currentBatch.includes(parkName);
   }
 
   function showBatch(batchIdx) {
-    // Clear previous batch (leave Yosemite untouched)
+    // Clear previous batch
     pins.forEach((p) => {
-      if (p.getAttribute("data-park") !== "Yosemite") {
-        p.classList.remove("is-present");
-      }
+      p.classList.remove("is-present");
     });
     flagsLayer.querySelectorAll(".us-park-flag").forEach((f) => {
-      if (f.getAttribute("data-park") !== "Yosemite") {
-        f.classList.remove("is-visible");
-      }
+      f.classList.remove("is-visible");
     });
 
     const targetBatch = batches[batchIdx % batches.length];
@@ -1962,12 +1950,8 @@ function initNationalParksFlagCycle() {
         const pin = pinMap.get(parkName);
         const flag = flagMap.get(parkName);
         // Pin shrinks back to regular size scale(1); flag shrinks to scale(0.35) and fades
-        if (pin && parkName !== "Yosemite") {
-          pin.classList.remove("is-present");
-        }
-        if (flag && parkName !== "Yosemite") {
-          flag.classList.remove("is-visible");
-        }
+        if (pin) pin.classList.remove("is-present");
+        if (flag) flag.classList.remove("is-visible");
       });
 
       // Brief 0.45s pause while shrinking and fading completes, before next batch appears
@@ -1993,14 +1977,10 @@ function initNationalParksFlagCycle() {
     cycleTimer = null;
     fadeTimer = null;
     pins.forEach((p) => {
-      if (p.getAttribute("data-park") !== "Yosemite") {
-        p.classList.remove("is-present");
-      }
+      p.classList.remove("is-present");
     });
     flagsLayer.querySelectorAll(".us-park-flag").forEach((f) => {
-      if (f.getAttribute("data-park") !== "Yosemite") {
-        f.classList.remove("is-visible");
-      }
+      f.classList.remove("is-visible");
     });
   }
 
