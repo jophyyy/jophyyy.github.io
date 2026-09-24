@@ -2011,8 +2011,19 @@ function initUSStatesDrawer() {
   const scrollerWrap = document.getElementById("us-side-scroller-wrap");
   const optionCards = scrollerWrap ? Array.from(scrollerWrap.querySelectorAll(".us-option-card")) : [];
   const track = document.getElementById("us-side-scroller-track");
+  const scrollCue = document.getElementById("us-scroll-cue");
   const nationalParksLayer = document.getElementById("us-national-parks-layer");
   const flagCycleController = initNationalParksFlagCycle();
+
+  let scrollCueDismissed = false;
+
+  function dismissScrollCue() {
+    if (scrollCueDismissed) return;
+    scrollCueDismissed = true;
+    if (scrollCue) {
+      scrollCue.classList.add("is-dismissed");
+    }
+  }
 
   // Continuous fluid scrolling (like the number line)
   const totalOptions = optionCards.length;
@@ -2030,14 +2041,14 @@ function initUSStatesDrawer() {
       track.style.transform = `translateY(${(-progress * cardStep).toFixed(2)}px)`;
     }
 
-    // 2. Continuous interpolation for each card
+    // 2. Continuous interpolation for each card (faded peek for adjacent cards)
     optionCards.forEach((card, idx) => {
       const dist = Math.abs(progress - idx);
       // Smooth Hermite curve (smoothstep)
       const factor = Math.max(0, 1 - dist);
       const smooth = factor * factor * (3 - 2 * factor);
 
-      const opacity = 0.38 + 0.62 * smooth;
+      const opacity = 0.26 + 0.74 * smooth;
       const scale = 0.93 + 0.07 * smooth;
 
       card.style.opacity = opacity.toFixed(3);
@@ -2095,14 +2106,20 @@ function initUSStatesDrawer() {
 
   function setTarget(val) {
     targetProgress = Math.max(0, Math.min(maxProgress, val));
+    if (targetProgress > 0.02) {
+      dismissScrollCue();
+    }
     startPhysics();
   }
 
-  // Scrolling anywhere on the page smoothly scrolls options
+  // Scrolling anywhere on the page smoothly scrolls options and dismisses scroll cue
   window.addEventListener(
     "wheel",
     (e) => {
       if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+
+      // Dismiss cue as soon as user begins scrolling
+      dismissScrollCue();
 
       // Prevent background page from scrolling
       e.preventDefault();
@@ -2128,9 +2145,11 @@ function initUSStatesDrawer() {
     if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      dismissScrollCue();
       setTarget(Math.min(maxProgress, Math.round(targetProgress) + 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      dismissScrollCue();
       setTarget(Math.max(0, Math.round(targetProgress) - 1));
     }
   });
@@ -2139,15 +2158,27 @@ function initUSStatesDrawer() {
   optionCards.forEach((card, idx) => {
     card.addEventListener("click", (e) => {
       e.stopPropagation();
+      dismissScrollCue();
       setTarget(idx);
     });
     card.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
+        dismissScrollCue();
         setTarget(idx);
       }
     });
   });
+
+  // Clicking on the cue advances to the next option
+  if (scrollCue) {
+    scrollCue.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissScrollCue();
+      const nextTarget = Math.round(targetProgress) >= maxProgress ? 0 : Math.round(targetProgress) + 1;
+      setTarget(nextTarget);
+    });
+  }
 
   if (!miniWindow) return;
 
@@ -2161,6 +2192,12 @@ function initUSStatesDrawer() {
     miniWindow.classList.add("is-open");
     miniWindow.setAttribute("aria-hidden", "false");
     countryUSA?.classList.add("is-active");
+
+    // Reset scroll cue state so the user is guided again upon opening
+    scrollCueDismissed = false;
+    if (scrollCue) {
+      scrollCue.classList.remove("is-dismissed");
+    }
 
     // Reset scroller to top option (national parks)
     currentProgress = 0;

@@ -2699,21 +2699,29 @@ body.booting {
   filter: drop-shadow(0 10px 24px rgba(18, 28, 45, 0.18));
 }
 
-/* Side Options Scroller - Floating comfortably in the Atlantic Ocean to the right of the East Coast */
-.us-side-scroller-wrap {
+/* Side Options Menu - Floating comfortably in the Atlantic Ocean to the right of the East Coast */
+.us-side-menu-wrap {
   position: absolute;
   z-index: 15;
   left: calc(50% + min(440px, 39vw) + clamp(14px, 1.8vw, 32px));
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.us-side-scroller-wrap {
+  position: relative;
   width: 156px;
-  height: 84px;
+  height: 114px;
   overflow: hidden;
-  padding: 23px 4px;
+  padding: 38px 4px;
   box-sizing: border-box;
   pointer-events: auto;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 28%, black 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 28%, black 72%, transparent 100%);
 }
 
 .us-side-scroller-track {
@@ -2740,7 +2748,7 @@ body.booting {
   border: 1px solid rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  opacity: 0.40;
+  opacity: 0.28;
   transform: scale(0.93);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   will-change: transform, opacity;
@@ -2760,23 +2768,86 @@ body.booting {
   background: rgba(255, 255, 255, 0.95);
 }
 
+/* Double Vertical Arrow Scroll Cue */
+.us-scroll-cue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #64748b;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s ease,
+              border-color 0.2s ease,
+              background 0.2s ease,
+              visibility 0.3s;
+  animation: cueDoubleArrowBounce 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.us-scroll-cue:hover {
+  color: #e11d48;
+  border-color: rgba(225, 29, 72, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.12);
+}
+
+.us-scroll-cue.is-dismissed {
+  opacity: 0 !important;
+  transform: scale(0.8) !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  animation: none !important;
+}
+
+@keyframes cueDoubleArrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-3.5px);
+  }
+  70% {
+    transform: translateY(3.5px);
+  }
+}
+
 @media (max-width: 1220px) {
-  .us-side-scroller-wrap {
+  .us-side-menu-wrap {
     left: auto;
     right: clamp(14px, 2.5vw, 32px);
   }
 }
 
 @media (max-width: 768px) {
-  .us-side-scroller-wrap {
+  .us-side-menu-wrap {
     left: 50%;
     right: auto;
     top: auto;
     bottom: 16px;
     transform: translateX(-50%);
-    width: min(200px, 75vw);
-    height: 76px;
-    padding: 19px 4px;
+    gap: 6px;
+  }
+
+  .us-side-scroller-wrap {
+    width: min(180px, 68vw);
+    height: 104px;
+    padding: 33px 4px;
+  }
+
+  .us-scroll-cue {
+    width: 22px;
+    height: 34px;
   }
 }
 
