@@ -1820,8 +1820,15 @@ function initNationalParksFlagCycle() {
     const pinX = match ? parseFloat(match[1]) : 500;
     const pinY = match ? parseFloat(match[2]) : 300;
 
-    // Near East Coast or Pacific border parks, wave flag toward the ocean so it never overlaps interior flags
-    const waveLeft = pinX > 710 || ["Sequoia", "Kings Canyon", "Channel Islands", "Pinnacles"].includes(rawName);
+    // Precise wave direction map to guarantee zero collisions with adjacent pins and map boundaries
+    const waveLeftParks = new Set([
+      "Acadia", "Bryce Canyon", "Capitol Reef", "Channel Islands", "Crater Lake",
+      "Dry Tortugas", "Grand Canyon", "Katmai", "Kings Canyon", "Mount Rainier",
+      "New River Gorge", "Olympic", "Pinnacles", "Redwood", "Sequoia",
+      "Voyageurs", "White Sands", "Yellowstone", "Yosemite", "Zion",
+      "Kobuk Valley", "Lake Clark"
+    ]);
+    const waveLeft = waveLeftParks.has(rawName);
 
     // Noticeably bigger flags: font-size 10.5px bold
     const textLen = name.length;
@@ -1883,24 +1890,24 @@ function initNationalParksFlagCycle() {
     flagGroup.addEventListener("mouseleave", onLeave);
   });
 
-  // 8 Geographically balanced batches of rotating parks (61 parks total)
+  // 8 Geographically separated batches: zero overlapping flags, zero covered pins in each cycle
   const batches = [
-    // Batch 1 (8 parks: East, South, Midwest, Rockies, Southwest, PNW, Texas, Alaska)
-    ["Acadia", "Great Smoky Mountains", "Gateway Arch", "Yellowstone", "Grand Canyon", "Olympic", "Big Bend", "Denali"],
-    // Batch 2 (8 parks: Mid-Atlantic, Florida, Great Lakes, Rockies, Utah, Montana, Hawaii, Upper Midwest)
-    ["Shenandoah", "Everglades", "Cuyahoga Valley", "Rocky Mountain", "Zion", "Glacier", "Hawaii Volcanoes", "Voyageurs"],
-    // Batch 3 (8 parks)
-    ["New River Gorge", "Biscayne", "Indiana Dunes", "Grand Teton", "Arches", "Mount Rainier", "Carlsbad Caverns", "Glacier Bay"],
-    // Batch 4 (8 parks)
-    ["Congaree", "Mammoth Cave", "Isle Royale", "Bryce Canyon", "Joshua Tree", "Crater Lake", "Badlands", "Haleakala"],
-    // Batch 5 (8 parks)
-    ["Yosemite", "Hot Springs", "Dry Tortugas", "Capitol Reef", "North Cascades", "White Sands", "Kenai Fjords", "Guadalupe Mountains"],
-    // Batch 6 (7 parks)
-    ["Great Basin", "Theodore Roosevelt", "Mesa Verde", "Sequoia", "Redwood", "Saguaro", "Katmai"],
-    // Batch 7 (7 parks)
-    ["Canyonlands", "Wind Cave", "Black Canyon of the Gunnison", "Kings Canyon", "Lassen Volcanic", "Death Valley", "Wrangell-St. Elias"],
-    // Batch 8 (7 parks)
-    ["Great Sand Dunes", "Petrified Forest", "Pinnacles", "Channel Islands", "Gates of the Arctic", "Lake Clark", "Kobuk Valley"]
+    // Batch 1 (8 parks: AZ, AK, CO, SD, KY, OH, WA, TX)
+    ["Grand Canyon", "Wrangell-St. Elias", "Black Canyon of the Gunnison", "Wind Cave", "Mammoth Cave", "Cuyahoga Valley", "Olympic", "Big Bend"],
+    // Batch 2 (8 parks: UT, AK, SoCal, NorCal, WY, WA, VA, HI)
+    ["Bryce Canyon", "Lake Clark", "Joshua Tree", "Lassen Volcanic", "Grand Teton", "Mount Rainier", "Shenandoah", "Hawaii Volcanoes"],
+    // Batch 3 (8 parks: UT, CA, AK, MO, OR, MN, HI, SC)
+    ["Arches", "Sequoia", "Kenai Fjords", "Gateway Arch", "Crater Lake", "Voyageurs", "Haleakala", "Congaree"],
+    // Batch 4 (8 parks: CA, AZ, AK, NC/TN, TX, CA Coast, FL, MI)
+    ["Death Valley", "Petrified Forest", "Denali", "Great Smoky Mountains", "Guadalupe Mountains", "Channel Islands", "Biscayne", "Isle Royale"],
+    // Batch 5 (8 parks: UT, CA, AK, ND, AK SE, NM, IN, AR)
+    ["Canyonlands", "Pinnacles", "Kobuk Valley", "Theodore Roosevelt", "Glacier Bay", "White Sands", "Indiana Dunes", "Hot Springs"],
+    // Batch 6 (7 parks: UT, CO, WV, AK, CA, WA, FL)
+    ["Capitol Reef", "Rocky Mountain", "New River Gorge", "Gates of the Arctic", "Redwood", "North Cascades", "Dry Tortugas"],
+    // Batch 7 (7 parks: CO, NV, CA, SD, WY, AZ, MT)
+    ["Mesa Verde", "Great Basin", "Yosemite", "Badlands", "Yellowstone", "Saguaro", "Glacier"],
+    // Batch 8 (7 parks: UT, AK, CO, CA, NM, FL, ME)
+    ["Zion", "Katmai", "Great Sand Dunes", "Kings Canyon", "Carlsbad Caverns", "Everglades", "Acadia"]
   ];
 
   let currentBatchIdx = 0;
@@ -1927,7 +1934,7 @@ function initNationalParksFlagCycle() {
     targetBatch.forEach((parkName) => {
       const pin = pinMap.get(parkName);
       const flag = flagMap.get(parkName);
-      // Pin expands to scale(1.42), Flag expands to scale(1)
+      // Pin expands to scale(1.36), Flag expands to scale(1)
       if (pin) pin.classList.add("is-present");
       if (flag) {
         flag.classList.add("is-visible");
@@ -1941,7 +1948,7 @@ function initNationalParksFlagCycle() {
 
     showBatch(currentBatchIdx);
 
-    // Keep visible and expanded for 2.8s, then shrink pin & flag and fade out
+    // Keep visible and expanded for 3.4s, then smoothly shrink pin & flag and fade out
     fadeTimer = setTimeout(() => {
       if (!isRunning) return;
 
@@ -1949,18 +1956,18 @@ function initNationalParksFlagCycle() {
       targetBatch.forEach((parkName) => {
         const pin = pinMap.get(parkName);
         const flag = flagMap.get(parkName);
-        // Pin shrinks back to regular size scale(1); flag shrinks to scale(0.35) and fades
+        // Pin and flag smoothly shrink back to regular size and fade out
         if (pin) pin.classList.remove("is-present");
         if (flag) flag.classList.remove("is-visible");
       });
 
-      // Brief 0.45s pause while shrinking and fading completes, before next batch appears
+      // 0.65s pause while shrinking and fading completes, before next batch slowly expands up
       cycleTimer = setTimeout(() => {
         if (!isRunning) return;
         currentBatchIdx = (currentBatchIdx + 1) % batches.length;
         advanceCycle();
-      }, 450);
-    }, 2800);
+      }, 650);
+    }, 3400);
   }
 
   function start() {
