@@ -3337,20 +3337,20 @@ body.booting {
 
 .china-flag-body {
   opacity: 0;
-  transform: translateY(16px) scale(0.68);
+  transform: translateY(12px) scale(0.72);
   transform-origin: -2.5px -10.5px;
-  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.18s ease-out,
+              transform 0.22s ease-out;
   will-change: transform, opacity;
 }
 
-/* Active / Hovered: flag slowly and smoothly expands up */
+/* Active / Hovered: flag smoothly expands up */
 .china-dest-flag.is-visible .china-flag-body,
 .china-dest-flag.is-hovered .china-flag-body {
   opacity: 1;
   transform: translateY(0) scale(1);
-  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .china-dest-flag text {
@@ -3586,13 +3586,13 @@ body.booting {
 
 .europe-dest-flag .europe-flag-body {
   transform-origin: -2.5px -10.5px;
-  transform: translateY(8px) scale(0.68) scaleY(0.4);
+  transform: translateY(6px) scale(0.72) scaleY(0.5);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.55s;
+  transition: opacity 0.18s ease-out,
+              transform 0.22s ease-out,
+              visibility 0.18s;
   will-change: transform, opacity;
 }
 
@@ -3602,8 +3602,8 @@ body.booting {
   visibility: visible;
   pointer-events: auto;
   transform: translateY(0) scale(1) scaleY(1);
-  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .europe-dest-flag text {

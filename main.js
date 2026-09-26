@@ -1792,6 +1792,31 @@ function initNationalParksFlagCycle() {
 
   const pinMap = new Map();
   const flagMap = new Map();
+  const destMap = new Map();
+  let activeDestId = null;
+
+  function setActiveDest(id) {
+    if (activeDestId === id) return;
+    if (activeDestId) {
+      const prev = destMap.get(activeDestId);
+      if (prev) {
+        prev.flagGroup.classList.remove("is-hovered");
+        prev.pin.classList.remove("is-present");
+      }
+    }
+    activeDestId = id;
+    if (id) {
+      const curr = destMap.get(id);
+      if (curr) {
+        curr.flagGroup.classList.add("is-hovered");
+        curr.pin.classList.add("is-present");
+      }
+    }
+  }
+
+  function clearActiveDest() {
+    setActiveDest(null);
+  }
 
   // 1. Wrap each pin's graphics into a .us-pin-body group so it can expand & shrink smoothly
   //    around its pin head without overriding the SVG transform="translate(x,y)"
@@ -2217,6 +2242,7 @@ function initUSStatesDrawer() {
   }
 
   function closeWindow() {
+    clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
     countryUSA?.classList.remove("is-active");
@@ -2341,6 +2367,31 @@ function initChinaDrawer() {
   };
 
   const flagMap = new Map();
+  const destMap = new Map();
+  let activeDestId = null;
+
+  function setActiveDest(id) {
+    if (activeDestId === id) return;
+    if (activeDestId) {
+      const prev = destMap.get(activeDestId);
+      if (prev) {
+        prev.flagGroup.classList.remove("is-hovered");
+        prev.pin.classList.remove("is-present");
+      }
+    }
+    activeDestId = id;
+    if (id) {
+      const curr = destMap.get(id);
+      if (curr) {
+        curr.flagGroup.classList.add("is-hovered");
+        curr.pin.classList.add("is-present");
+      }
+    }
+  }
+
+  function clearActiveDest() {
+    setActiveDest(null);
+  }
 
   pins.forEach((pin) => {
     const rawDest = pin.getAttribute("data-dest") || "";
@@ -2391,37 +2442,57 @@ function initChinaDrawer() {
 
     flagMap.set(rawDest, flagGroup);
 
-    // Hover interactions: hover either pin or flag to expand pin and raise flag smoothly
-    const onEnter = () => {
-      flagGroup.classList.add("is-hovered");
-      pin.classList.add("is-present");
-      flagsLayer.appendChild(flagGroup); // elevate to absolute front
-    };
-    const onLeave = () => {
-      flagGroup.classList.remove("is-hovered");
-      pin.classList.remove("is-present");
-    };
+    destMap.set(rawDest, { pin, flagGroup });
 
-    pin.addEventListener("mouseenter", onEnter);
-    pin.addEventListener("mouseleave", onLeave);
-    pin.addEventListener("pointerenter", onEnter);
-    pin.addEventListener("pointerleave", onLeave);
+    pin.addEventListener("pointerenter", () => {
+      setActiveDest(rawDest);
+    });
+    pin.addEventListener("pointerleave", (e) => {
+      if (e.relatedTarget && flagGroup.contains(e.relatedTarget)) return;
+      if (activeDestId === rawDest) {
+        clearActiveDest();
+      }
+    });
 
-    flagGroup.addEventListener("mouseenter", onEnter);
-    flagGroup.addEventListener("mouseleave", onLeave);
-    flagGroup.addEventListener("pointerenter", onEnter);
-    flagGroup.addEventListener("pointerleave", onLeave);
+    flagGroup.addEventListener("pointerenter", () => {
+      setActiveDest(rawDest);
+    });
+    flagGroup.addEventListener("pointerleave", (e) => {
+      if (e.relatedTarget && pin.contains(e.relatedTarget)) return;
+      if (activeDestId === rawDest) {
+        clearActiveDest();
+      }
+    });
 
     // Touch support for mobile devices
     pin.addEventListener("touchstart", (e) => {
       e.stopPropagation();
-      const isHovered = flagGroup.classList.contains("is-hovered");
-      flagsLayer.querySelectorAll(".china-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
-      pins.forEach((p) => p.classList.remove("is-present"));
-      if (!isHovered) {
-        onEnter();
+      if (activeDestId === rawDest) {
+        clearActiveDest();
+      } else {
+        setActiveDest(rawDest);
       }
     }, { passive: true });
+  });
+
+  // Container guard: instantly clear flags if cursor moves away from active pin/flag
+  const chinaSvg = document.querySelector(".china-outline-svg");
+  if (chinaSvg) {
+    chinaSvg.addEventListener("pointermove", (e) => {
+      if (!activeDestId) return;
+      const curr = destMap.get(activeDestId);
+      if (curr) {
+        if (!curr.pin.contains(e.target) && !curr.flagGroup.contains(e.target)) {
+          clearActiveDest();
+        }
+      }
+    });
+    chinaSvg.addEventListener("pointerleave", () => {
+      clearActiveDest();
+    });
+  }
+  miniWindow?.addEventListener("pointerleave", () => {
+    clearActiveDest();
   });
 
   function openWindow() {
@@ -2439,6 +2510,7 @@ function initChinaDrawer() {
   }
 
   function closeWindow() {
+    clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
     countryChina?.classList.remove("is-active");
@@ -2509,6 +2581,13 @@ function initEuropeDrawer() {
 
   const EUROPE_DESTINATIONS = {
   "major-cities": [
+      {
+        "id": "London",
+        "name": "London",
+        "x": 328.0,
+        "y": 146.4,
+        "waveLeft": true
+      },
     {
       "id": "Madrid",
       "name": "Madrid",
@@ -2678,10 +2757,38 @@ function initEuropeDrawer() {
     }
   }
 
+  let activeDestId = null;
+  const destMap = new Map();
+
+  function setActiveDest(id) {
+    if (activeDestId === id) return;
+    if (activeDestId) {
+      const prev = destMap.get(activeDestId);
+      if (prev) {
+        prev.flagGroup.classList.remove("is-hovered");
+        prev.pin.classList.remove("is-present");
+      }
+    }
+    activeDestId = id;
+    if (id) {
+      const curr = destMap.get(id);
+      if (curr) {
+        curr.flagGroup.classList.add("is-hovered");
+        curr.pin.classList.add("is-present");
+      }
+    }
+  }
+
+  function clearActiveDest() {
+    setActiveDest(null);
+  }
+
   function renderCategory(catKey) {
     const items = EUROPE_DESTINATIONS[catKey] || [];
     pinsLayer.innerHTML = "";
     flagsLayer.innerHTML = "";
+    destMap.clear();
+    clearActiveDest();
 
     items.forEach((it) => {
       // 1. Create Pin Group
@@ -2752,35 +2859,35 @@ function initEuropeDrawer() {
         </g>
       `;
 
-      // Hover interactions
-      const onEnter = () => {
-        flagGroup.classList.add("is-hovered");
-        pin.classList.add("is-present");
-        flagsLayer.appendChild(flagGroup); // bring to front
-      };
-      const onLeave = () => {
-        flagGroup.classList.remove("is-hovered");
-        pin.classList.remove("is-present");
-      };
+      destMap.set(it.id, { pin, flagGroup });
 
-      pin.addEventListener("mouseenter", onEnter);
-      pin.addEventListener("mouseleave", onLeave);
-      pin.addEventListener("pointerenter", onEnter);
-      pin.addEventListener("pointerleave", onLeave);
+      pin.addEventListener("pointerenter", () => {
+        setActiveDest(it.id);
+      });
+      pin.addEventListener("pointerleave", (e) => {
+        if (e.relatedTarget && flagGroup.contains(e.relatedTarget)) return;
+        if (activeDestId === it.id) {
+          clearActiveDest();
+        }
+      });
 
-      flagGroup.addEventListener("mouseenter", onEnter);
-      flagGroup.addEventListener("mouseleave", onLeave);
-      flagGroup.addEventListener("pointerenter", onEnter);
-      flagGroup.addEventListener("pointerleave", onLeave);
+      flagGroup.addEventListener("pointerenter", () => {
+        setActiveDest(it.id);
+      });
+      flagGroup.addEventListener("pointerleave", (e) => {
+        if (e.relatedTarget && pin.contains(e.relatedTarget)) return;
+        if (activeDestId === it.id) {
+          clearActiveDest();
+        }
+      });
 
       // Touch support
       pin.addEventListener("touchstart", (e) => {
         e.stopPropagation();
-        const isHovered = flagGroup.classList.contains("is-hovered");
-        flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
-        pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => p.classList.remove("is-present"));
-        if (!isHovered) {
-          onEnter();
+        if (activeDestId === it.id) {
+          clearActiveDest();
+        } else {
+          setActiveDest(it.id);
         }
       }, { passive: true });
     });
@@ -2885,6 +2992,26 @@ function initEuropeDrawer() {
     }
   });
 
+  // Container guard: instantly clear flags if cursor moves away from active pin/flag
+  const europeSvg = document.querySelector(".europe-outline-svg");
+  if (europeSvg) {
+    europeSvg.addEventListener("pointermove", (e) => {
+      if (!activeDestId) return;
+      const curr = destMap.get(activeDestId);
+      if (curr) {
+        if (!curr.pin.contains(e.target) && !curr.flagGroup.contains(e.target)) {
+          clearActiveDest();
+        }
+      }
+    });
+    europeSvg.addEventListener("pointerleave", () => {
+      clearActiveDest();
+    });
+  }
+  miniWindow?.addEventListener("pointerleave", () => {
+    clearActiveDest();
+  });
+
   // Direct card clicks glide smoothly to selected option
   optionCards.forEach((card, idx) => {
     card.addEventListener("click", (e) => {
@@ -2942,6 +3069,7 @@ function initEuropeDrawer() {
   }
 
   function closeWindow() {
+    clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
     regionEurope?.classList.remove("is-active");
