@@ -3459,8 +3459,8 @@ body.booting {
   z-index: 1;
   padding: 0;
   background: none;
-  width: min(860px, 78vw);
-  max-height: min(85vh, 550px);
+  width: min(720px, 68vw);
+  max-height: min(84vh, 640px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3472,8 +3472,8 @@ body.booting {
 .europe-outline-svg {
   width: 100%;
   height: 100%;
-  max-height: min(85vh, 550px);
-  aspect-ratio: 860 / 500;
+  max-height: min(84vh, 640px);
+  aspect-ratio: 750 / 768;
   display: block;
   overflow: visible;
   filter: drop-shadow(0 10px 24px rgba(18, 28, 45, 0.18));
@@ -3481,64 +3481,76 @@ body.booting {
 
 /* Base Country Vector Path */
 .europe-country-outline {
-  fill: #2a3447;
-  stroke: #475569;
-  stroke-width: 0.85px;
+  fill: #64748b;
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 0.8px;
   stroke-linejoin: round;
   stroke-linecap: round;
   cursor: pointer;
   pointer-events: all;
   transition: fill 0.22s ease, stroke 0.22s ease, filter 0.22s ease;
+  vector-effect: non-scaling-stroke;
 }
 
 .europe-country-outline:hover,
 .europe-country-outline:focus {
   stroke: #f59e0b !important;
-  stroke-width: 1.6px !important;
-  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.22);
+  stroke-width: 1.8px !important;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.85)) brightness(1.18);
 }
 
-/* Curated Hypsometric & Cultural European Country Palettes */
-.europe-country-outline.france { fill: #2d3748; }
-.europe-country-outline.germany { fill: #334155; }
-.europe-country-outline.spain { fill: #92400e; }
-.europe-country-outline.portugal { fill: #78350f; }
-.europe-country-outline.italy { fill: #b45309; }
-.europe-country-outline.austria { fill: #475569; }
-.europe-country-outline.switzerland { fill: #3b4252; }
-.europe-country-outline.netherlands { fill: #1e293b; }
-.europe-country-outline.belgium { fill: #374151; }
-.europe-country-outline.luxembourg { fill: #4b5563; }
-.europe-country-outline.czech-republic { fill: #3f3f46; }
-.europe-country-outline.poland { fill: #334155; }
-.europe-country-outline.hungary { fill: #434c5e; }
-.europe-country-outline.slovakia { fill: #475569; }
-.europe-country-outline.slovenia { fill: #0d9488; }
+/* Vibrant European Regional & Cultural Palette */
+/* --- Western & Atlantic Europe --- */
+.europe-country-outline.france { fill: #4d9a6b; }
+.europe-country-outline.germany { fill: #c79a3b; }
+.europe-country-outline.spain { fill: #c86d3b; }
+.europe-country-outline.portugal { fill: #b45309; }
+.europe-country-outline.italy { fill: #7da054; }
+.europe-country-outline.austria { fill: #c28e46; }
+.europe-country-outline.switzerland { fill: #be5a43; }
+.europe-country-outline.netherlands { fill: #0891b2; }
+.europe-country-outline.belgium { fill: #d97706; }
+.europe-country-outline.luxembourg { fill: #f59e0b; }
+
+/* --- Central & Alpine Europe --- */
+.europe-country-outline.czech-republic { fill: #84cc16; }
+.europe-country-outline.poland { fill: #2d7a8d; }
+.europe-country-outline.hungary { fill: #f97316; }
+.europe-country-outline.slovakia { fill: #10b981; }
+
+/* --- Balkans & Adriatic --- */
+.europe-country-outline.slovenia { fill: #06b6d4; }
 .europe-country-outline.croatia { fill: #059669; }
-.europe-country-outline.bosnia-and-herzegovina { fill: #15803d; }
-.europe-country-outline.serbia { fill: #334155; }
-.europe-country-outline.montenegro { fill: #047857; }
+.europe-country-outline.bosnia-and-herzegovina { fill: #84cc16; }
+.europe-country-outline.serbia { fill: #eab308; }
+.europe-country-outline.montenegro { fill: #0f766e; }
 .europe-country-outline.albania { fill: #0284c7; }
-.europe-country-outline.macedonia { fill: #0369a1; }
+.europe-country-outline.macedonia { fill: #f43f5e; }
 .europe-country-outline.greece { fill: #0284c7; }
-.europe-country-outline.bulgaria { fill: #78350f; }
-.europe-country-outline.romania { fill: #92400e; }
+.europe-country-outline.bulgaria { fill: #be185d; }
+.europe-country-outline.romania { fill: #d97706; }
+
+/* --- Nordic & Baltic --- */
 .europe-country-outline.denmark { fill: #0284c7; }
-.europe-country-outline.sweden { fill: #0369a1; }
-.europe-country-outline.norway { fill: #075985; }
+.europe-country-outline.sweden { fill: #f59e0b; }
+.europe-country-outline.norway { fill: #0369a1; }
 .europe-country-outline.finland { fill: #0284c7; }
-.europe-country-outline.estonia { fill: #38bdf8; }
-.europe-country-outline.latvia { fill: #0284c7; }
-.europe-country-outline.lithuania { fill: #0369a1; }
-.europe-country-outline.belarus { fill: #3f3f46; }
-.europe-country-outline.ukraine { fill: #334155; }
-.europe-country-outline.moldova { fill: #475569; }
-.europe-country-outline.united-kingdom { fill: #1e293b; }
-.europe-country-outline.ireland { fill: #166534; }
+.europe-country-outline.estonia { fill: #06b6d4; }
+.europe-country-outline.latvia { fill: #eab308; }
+.europe-country-outline.lithuania { fill: #65a30d; }
+
+/* --- Eastern Europe & British Isles --- */
+.europe-country-outline.belarus { fill: #22c55e; }
+.europe-country-outline.ukraine { fill: #38bdf8; }
+.europe-country-outline.moldova { fill: #ec4899; }
+.europe-country-outline.united-kingdom { fill: #357f8d; }
+.europe-country-outline.ireland { fill: #22c55e; }
+
+/* --- Microstates --- */
 .europe-country-outline.andorra,
 .europe-country-outline.monaco,
 .europe-country-outline.san-marino,
-.europe-country-outline.liechtenstein { fill: #f59e0b; }
+.europe-country-outline.liechtenstein { fill: #ef4444; stroke: #ffffff; stroke-width: 1.4px; }
 
 /* European Destination Pins (Ballpoint 3D Style) */
 .europe-dest-pin {
@@ -3604,7 +3616,7 @@ body.booting {
 .europe-side-menu-wrap {
   position: absolute;
   z-index: 15;
-  left: calc(50% + min(430px, 39vw) + clamp(14px, 1.8vw, 32px));
+  left: calc(50% + min(360px, 34vw) + clamp(16px, 2vw, 36px));
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -3697,6 +3709,11 @@ body.booting {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.europe-option-card.is-blank .europe-option-title {
+  color: #94a3b8;
+  letter-spacing: 2px;
 }
 
 /* Double Vertical Arrow Scroll Cue */

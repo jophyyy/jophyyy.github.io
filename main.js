@@ -2512,7 +2512,7 @@ function initEuropeDrawer() {
     {
       "id": "Madrid",
       "name": "Madrid",
-      "x": 246.7,
+      "x": 246.8,
       "y": 359.6,
       "waveLeft": false
     },
@@ -2548,7 +2548,7 @@ function initEuropeDrawer() {
       "id": "Amsterdam",
       "name": "Amsterdam",
       "x": 390.3,
-      "y": 134.9,
+      "y": 135.0,
       "waveLeft": false
     },
     {
@@ -2568,7 +2568,7 @@ function initEuropeDrawer() {
     {
       "id": "Barcelona",
       "name": "Barcelona",
-      "x": 336.0,
+      "x": 336.1,
       "y": 352.1,
       "waveLeft": false
     },
@@ -2577,6 +2577,27 @@ function initEuropeDrawer() {
       "name": "Athens",
       "x": 664.8,
       "y": 407.4,
+      "waveLeft": false
+    },
+    {
+      "id": "Stockholm",
+      "name": "Stockholm",
+      "x": 534.3,
+      "y": -5.4,
+      "waveLeft": false
+    },
+    {
+      "id": "Oslo",
+      "name": "Oslo",
+      "x": 459.1,
+      "y": -12.7,
+      "waveLeft": true
+    },
+    {
+      "id": "Helsinki",
+      "name": "Helsinki",
+      "x": 601.2,
+      "y": -31.6,
       "waveLeft": false
     },
     {
@@ -2604,8 +2625,8 @@ function initEuropeDrawer() {
       "id": "Copenhagen",
       "name": "Copenhagen",
       "x": 480.2,
-      "y": 70.3,
-      "waveLeft": false
+      "y": 70.4,
+      "waveLeft": true
     },
     {
       "id": "Zurich",
@@ -2617,8 +2638,8 @@ function initEuropeDrawer() {
     {
       "id": "Lisbon",
       "name": "Lisbon",
-      "x": 158.8,
-      "y": 375.8,
+      "x": 158.9,
+      "y": 375.9,
       "waveLeft": false
     },
     {
@@ -2629,171 +2650,22 @@ function initEuropeDrawer() {
       "waveLeft": false
     },
     {
+      "id": "Warsaw",
+      "name": "Warsaw",
+      "x": 583.7,
+      "y": 130.6,
+      "waveLeft": false
+    },
+    {
       "id": "Dubrovnik",
       "name": "Dubrovnik",
       "x": 568.2,
-      "y": 326.4,
+      "y": 326.5,
       "waveLeft": true
     }
   ],
-  "iconic-places": [
-    {
-      "id": "EiffelTower",
-      "name": "Eiffel Tower",
-      "x": 352.2,
-      "y": 202.6,
-      "waveLeft": true
-    },
-    {
-      "id": "Colosseum",
-      "name": "Colosseum",
-      "x": 487.9,
-      "y": 347.0,
-      "waveLeft": false
-    },
-    {
-      "id": "SagradaFamilia",
-      "name": "Sagrada Fam\u00edlia",
-      "x": 336.1,
-      "y": 351.7,
-      "waveLeft": false
-    },
-    {
-      "id": "Neuschwanstein",
-      "name": "Neuschwanstein",
-      "x": 461.4,
-      "y": 233.6,
-      "waveLeft": false
-    },
-    {
-      "id": "Acropolis",
-      "name": "Acropolis",
-      "x": 664.8,
-      "y": 407.6,
-      "waveLeft": false
-    },
-    {
-      "id": "Matterhorn",
-      "name": "Matterhorn",
-      "x": 420.8,
-      "y": 265.0,
-      "waveLeft": true
-    },
-    {
-      "id": "Schonbrunn",
-      "name": "Sch\u00f6nbrunn Palace",
-      "x": 533.8,
-      "y": 217.7,
-      "waveLeft": false
-    },
-    {
-      "id": "PlitviceLakes",
-      "name": "Plitvice Lakes",
-      "x": 529.3,
-      "y": 285.1,
-      "waveLeft": true
-    },
-    {
-      "id": "AmsterdamCanals",
-      "name": "Canals of Amsterdam",
-      "x": 390.2,
-      "y": 134.9,
-      "waveLeft": false
-    },
-    {
-      "id": "Alhambra",
-      "name": "The Alhambra",
-      "x": 237.5,
-      "y": 423.5,
-      "waveLeft": false
-    },
-    {
-      "id": "AmalfiCoast",
-      "name": "Amalfi Coast",
-      "x": 520.3,
-      "y": 370.8,
-      "waveLeft": false
-    },
-    {
-      "id": "MontSaintMichel",
-      "name": "Mont Saint-Michel",
-      "x": 302.9,
-      "y": 201.2,
-      "waveLeft": true
-    }
-  ],
-  "scenic-escapes": [
-    {
-      "id": "SwissAlps",
-      "name": "Swiss Alps",
-      "x": 424.7,
-      "y": 253.6,
-      "waveLeft": true
-    },
-    {
-      "id": "Dolomites",
-      "name": "The Dolomites",
-      "x": 476.4,
-      "y": 256.6,
-      "waveLeft": false
-    },
-    {
-      "id": "Santorini",
-      "name": "Santorini Caldera",
-      "x": 697.0,
-      "y": 433.6,
-      "waveLeft": false
-    },
-    {
-      "id": "LakeComo",
-      "name": "Lake Como",
-      "x": 441.4,
-      "y": 264.7,
-      "waveLeft": true
-    },
-    {
-      "id": "FrenchRiviera",
-      "name": "French Riviera",
-      "x": 412.6,
-      "y": 310.4,
-      "waveLeft": true
-    },
-    {
-      "id": "BlackForest",
-      "name": "Black Forest",
-      "x": 427.3,
-      "y": 218.4,
-      "waveLeft": true
-    },
-    {
-      "id": "CinqueTerre",
-      "name": "Cinque Terre",
-      "x": 447.6,
-      "y": 302.6,
-      "waveLeft": true
-    },
-    {
-      "id": "Geirangerfjord",
-      "name": "Norwegian Fjords",
-      "x": 424.5,
-      "y": -55.5,
-      "waveLeft": false
-    },
-    {
-      "id": "Capri",
-      "name": "Isle of Capri",
-      "x": 514.9,
-      "y": 372.8,
-      "waveLeft": false
-    },
-    {
-      "id": "Pyrenees",
-      "name": "The Pyrenees",
-      "x": 314.3,
-      "y": 325.2,
-      "waveLeft": true
-    }
-  ]
+  "blank-2": [],
+  "blank-3": []
 };
 
   let scrollCueDismissed = false;
@@ -2807,7 +2679,7 @@ function initEuropeDrawer() {
   }
 
   function renderCategory(catKey) {
-    const items = EUROPE_DESTINATIONS[catKey] || EUROPE_DESTINATIONS["major-cities"];
+    const items = EUROPE_DESTINATIONS[catKey] || [];
     pinsLayer.innerHTML = "";
     flagsLayer.innerHTML = "";
 
@@ -2958,6 +2830,12 @@ function initEuropeDrawer() {
       activeCat = cat;
       renderCategory(activeCat);
     }
+
+    if (pinsLayer && flagsLayer) {
+      const pinsOpacity = Math.max(0, Math.min(1, 1 - progress * 1.5));
+      pinsLayer.style.opacity = pinsOpacity.toFixed(3);
+      flagsLayer.style.opacity = pinsOpacity.toFixed(3);
+    }
   }
 
   function setTarget(val) {
@@ -3098,11 +2976,11 @@ function initEuropeDrawer() {
   document.addEventListener("click", (e) => {
     if (!miniWindow.classList.contains("is-open")) return;
     const isInsideMap = miniWindowBody && miniWindowBody.contains(e.target);
-    const isMenu = scrollerWrap && scrollerWrap.contains(e.target);
-    const isCue = scrollCue && scrollCue.contains(e.target);
+    const menuWrap = document.getElementById("europe-side-menu-wrap");
+    const isMenu = menuWrap && menuWrap.contains(e.target);
     const isRegion = e.target === regionEurope || regionEurope?.contains(e.target);
 
-    if (!isInsideMap && !isMenu && !isCue && !isRegion) {
+    if (!isInsideMap && !isMenu && !isRegion) {
       closeWindow();
     }
   });
