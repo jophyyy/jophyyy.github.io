@@ -2242,7 +2242,6 @@ function initUSStatesDrawer() {
   }
 
   function closeWindow() {
-    clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
     countryUSA?.classList.remove("is-active");
@@ -2277,6 +2276,13 @@ function initUSStatesDrawer() {
   mapShortcutBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleWindow();
+  });
+
+  // Click on cloud aura backdrop closes window
+  const cloudBackdrop = miniWindow.querySelector(".us-cloud-backdrop");
+  cloudBackdrop?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeWindow();
   });
 
   // Close when clicking outside the 50 states map and scroller (no X button needed)
@@ -2534,6 +2540,13 @@ function initChinaDrawer() {
   countryChina?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleWindow();
+  });
+
+  // Click on cloud aura backdrop closes window
+  const cloudBackdrop = miniWindow.querySelector(".china-cloud-backdrop");
+  cloudBackdrop?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeWindow();
   });
 
   // Close when clicking outside the China map body
@@ -3098,6 +3111,13 @@ function initEuropeDrawer() {
   regionEurope?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleWindow();
+  });
+
+  // Click on cloud aura backdrop closes window
+  const cloudBackdrop = miniWindow.querySelector(".europe-cloud-backdrop");
+  cloudBackdrop?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeWindow();
   });
 
   // Close when clicking outside the Europe map body
