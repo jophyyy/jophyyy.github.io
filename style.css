@@ -2556,15 +2556,20 @@ body.booting {
    9. US 50 STATES MINI-WINDOW & INTERACTIVE OUTLINE MAP
    ========================================================================== */
 
-/* --- US Interactive Country on World Map --- */
-.country-usa.interactive-country {
+/* --- US & China Interactive Countries on World Map --- */
+.country-usa.interactive-country,
+.country-china.interactive-country {
   cursor: pointer;
   pointer-events: auto;
   transition: filter 0.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease, stroke-width 0.2s ease;
 }
 
 .country-usa.interactive-country:hover,
-.country-usa.interactive-country:focus {
+.country-usa.interactive-country:focus,
+.country-usa.interactive-country.is-active,
+.country-china.interactive-country:hover,
+.country-china.interactive-country:focus,
+.country-china.interactive-country.is-active {
   stroke: #f59e0b !important;
   stroke-width: 1.6px !important;
   filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.18) saturate(1.25);
@@ -3080,6 +3085,269 @@ body.booting {
   stroke-width: 1px;
 }
 
+/* ==========================================================================
+   10. CHINA PROVINCES MINI-WINDOW & INTERACTIVE OUTLINE MAP
+   ========================================================================== */
 
+/* Mini Floating Window - Centered over Map Viewport */
+.china-mini-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s;
+  pointer-events: none;
+  overflow: visible;
+}
 
+.china-mini-window.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
 
+/* Vast Cloud Backdrop Aura */
+.china-cloud-backdrop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(250vw, 2600px);
+  height: max(250vh, 2600px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(250, 247, 238, 0.99) 0%,
+    rgba(250, 247, 238, 0.98) 12%,
+    rgba(250, 247, 238, 0.94) 22%,
+    rgba(250, 247, 238, 0.84) 34%,
+    rgba(250, 247, 238, 0.65) 48%,
+    rgba(250, 247, 238, 0.40) 64%,
+    rgba(250, 247, 238, 0.18) 78%,
+    rgba(250, 247, 238, 0.05) 90%,
+    transparent 100%
+  );
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 18%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 18%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Centered Content Row */
+.china-window-content-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* The China Map Body - Centered in screen without side menu */
+.china-mini-window-body {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: none;
+  width: min(880px, 82vw);
+  max-height: min(85vh, 620px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.china-outline-svg {
+  width: 100%;
+  height: 100%;
+  max-height: min(85vh, 620px);
+  aspect-ratio: 774 / 569;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 10px 24px rgba(18, 28, 45, 0.18));
+}
+
+/* Base Province Outlines */
+.province-outline {
+  stroke: #161a22;
+  stroke-width: 0.9px;
+  stroke-linejoin: round;
+  transition: filter 0.18s ease, stroke 0.18s ease, stroke-width 0.18s ease;
+  cursor: pointer;
+}
+
+.province-outline:hover {
+  filter: brightness(1.22) saturate(1.25);
+  stroke: #ffffff;
+  stroke-width: 1.8px;
+}
+
+/* ==========================================================================
+   CHINA REGIONAL TOPOGRAPHIC & CULTURAL PALETTE
+   ========================================================================== */
+
+/* --- Eastern & Coastal Lowlands (Jiangnan & Southeast) --- */
+.province-outline.zhejiang   { fill: #3c865d; }
+.province-outline.jiangsu    { fill: #4d9a6b; }
+.province-outline.shanghai   { fill: #f59e0b; stroke: #ffffff; stroke-width: 1.6px; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)); }
+.province-outline.anhui      { fill: #6ca267; }
+.province-outline.fujian     { fill: #357f58; }
+.province-outline.jiangxi    { fill: #5ba777; }
+.province-outline.taiwan     { fill: #397457; }
+
+/* --- Southern Maritime (Lingnan) --- */
+.province-outline.guangdong  { fill: #2d6e4e; }
+.province-outline.guangxi-zhuang { fill: #337a54; }
+.province-outline.hainan     { fill: #2e7253; }
+.province-outline.hong-kong  { fill: #f59e0b; stroke: #ffffff; stroke-width: 1.4px; }
+.province-outline.macau      { fill: #f59e0b; stroke: #ffffff; stroke-width: 1.4px; }
+
+/* --- Central Plains & River Basins --- */
+.province-outline.hubei      { fill: #75aa6e; }
+.province-outline.hunan      { fill: #5f9c6c; }
+.province-outline.henan      { fill: #7db275; }
+.province-outline.shandong   { fill: #80b471; }
+
+/* --- Southwest & Sichuan Basin --- */
+.province-outline.sichuan    { fill: #89bc77; }
+.province-outline.chongqing  { fill: #71a66a; }
+.province-outline.guizhou    { fill: #579a6c; }
+.province-outline.yunnan     { fill: #6aa064; }
+
+/* --- North & Capital Region --- */
+.province-outline.beijing    { fill: #f59e0b; stroke: #ffffff; stroke-width: 1.6px; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)); }
+.province-outline.tianjin    { fill: #a6b763; }
+.province-outline.hebei      { fill: #b4bd67; }
+.province-outline.shanxi     { fill: #c3bd67; }
+.province-outline.nei-mongol { fill: #bea158; }
+
+/* --- Northeast Highlands & Forest --- */
+.province-outline.liaoning     { fill: #4b815d; }
+.province-outline.jilin        { fill: #539468; }
+.province-outline.heilongjiang { fill: #417769; }
+
+/* --- Northwest & Ancient Silk Road --- */
+.province-outline.shaanxi  { fill: #c7a95c; }
+.province-outline.ningxia,
+.province-outline.ningxia-hui { fill: #cbbe69; }
+.province-outline.gansu    { fill: #c87a47; }
+.province-outline.qinghai,
+.province-outline.quinghai { fill: #ca733f; }
+.province-outline.xinjiang,
+.province-outline.xinjiang-uygur { fill: #ac683b; }
+
+/* --- High Plateau / Roof of the World --- */
+.province-outline.xizang   { fill: #9b4227; }
+
+/* ==========================================================================
+   DESTINATION BALLPOINT PINS & SWALLOWTAIL HOVER FLAGS
+   ========================================================================== */
+
+.china-destinations-layer,
+.china-destinations-flags-layer {
+  pointer-events: auto;
+}
+
+.china-dest-pin {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Pin body expand & shrink transition */
+.china-pin-body {
+  transform-origin: -2.5px -10.5px;
+  transform: scale(1);
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1), filter 0.5s ease;
+  will-change: transform, filter;
+}
+
+.china-dest-pin.is-present .china-pin-body,
+.china-dest-pin:hover .china-pin-body {
+  transform: scale(1.52);
+  filter: drop-shadow(0 3px 9px rgba(225, 29, 72, 0.72));
+  transition: transform 1.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+}
+
+.china-dest-pin circle,
+.china-dest-pin line,
+.china-dest-pin ellipse {
+  transition: filter 0.25s ease;
+}
+
+.china-dest-pin:hover circle:first-of-type {
+  filter: url(#ballpoint-shadow-china) brightness(1.15) drop-shadow(0 0 5px rgba(239, 68, 68, 0.85));
+}
+
+/* Dedicated Swallowtail Flag Badge */
+.china-dest-flag {
+  pointer-events: none;
+  cursor: pointer;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.42));
+}
+
+.china-dest-flag.is-visible,
+.china-dest-flag.is-hovered {
+  pointer-events: auto;
+}
+
+.china-flag-body {
+  opacity: 0;
+  transform: translateY(16px) scale(0.68);
+  transform-origin: -2.5px -10.5px;
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Active / Hovered: flag slowly and smoothly expands up */
+.china-dest-flag.is-visible .china-flag-body,
+.china-dest-flag.is-hovered .china-flag-body {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.china-dest-flag text {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}

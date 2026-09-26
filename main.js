@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initInteractiveCLI();
   initSequenceActions();
   initUSStatesDrawer();
+  initChinaDrawer();
 });
 
 /* ==========================================================================
@@ -1677,7 +1678,8 @@ function initVerticalImageTrack() {
       let mapScale = 0.97;
 
       const usWindow = document.getElementById("us-mini-window");
-      if (usWindow && usWindow.classList.contains("is-open")) {
+      const chinaWindow = document.getElementById("china-mini-window");
+      if ((usWindow && usWindow.classList.contains("is-open")) || (chinaWindow && chinaWindow.classList.contains("is-open"))) {
         mapOpacity = 1.0;
         mapScale = 1.00;
       } else if (progress < 0.880) {
@@ -2183,6 +2185,7 @@ function initUSStatesDrawer() {
   if (!miniWindow) return;
 
   function openWindow() {
+    window.closeChinaDrawer?.();
     const worldMap = document.getElementById("world-map-backdrop");
     if (worldMap) {
       worldMap.style.opacity = "1.000";
@@ -2278,6 +2281,203 @@ function initUSStatesDrawer() {
     },
     { passive: true }
   );
+}
+
+/* ==========================================================================
+   11. CHINA PROVINCES MINI-WINDOW & DESTINATION PINS CONTROLLER
+   ========================================================================== */
+function initChinaDrawer() {
+  const countryChina = document.getElementById("country-china");
+  const miniWindow = document.getElementById("china-mini-window");
+  const miniWindowBody = document.querySelector(".china-mini-window-body");
+  const flagsLayer = document.getElementById("china-destinations-flags-layer");
+
+  if (!miniWindow || !flagsLayer) return;
+
+  const pins = Array.from(document.querySelectorAll(".china-dest-pin"));
+
+  // 1. Wrap pin graphics inside .china-pin-body for smooth scale transitions
+  pins.forEach((pin) => {
+    if (!pin.querySelector(".china-pin-body")) {
+      const body = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      body.setAttribute("class", "china-pin-body");
+      const children = Array.from(pin.childNodes);
+      children.forEach((child) => {
+        if (child.nodeName.toLowerCase() !== "title") {
+          body.appendChild(child);
+        }
+      });
+      pin.appendChild(body);
+    }
+    // Add generous invisible hover & touch target (32px diameter)
+    if (!pin.querySelector(".china-pin-hit")) {
+      const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      hit.setAttribute("class", "china-pin-hit");
+      hit.setAttribute("cx", "-2.5");
+      hit.setAttribute("cy", "-10.5");
+      hit.setAttribute("r", "16");
+      hit.setAttribute("fill", "transparent");
+      hit.setAttribute("pointer-events", "all");
+      hit.style.cursor = "pointer";
+      pin.appendChild(hit);
+    }
+  });
+
+  // 2. Build dedicated swallowtail flags in flagsLayer (guaranteed on top of all pins & provinces)
+  const CHINA_DEST_CONFIG = {
+    Beijing: { name: "Beijing", waveLeft: false },
+    Shanghai: { name: "Shanghai", waveLeft: false },
+    Chongqing: { name: "Chongqing", waveLeft: true },
+    Wenzhou: { name: "Wenzhou", waveLeft: false },
+    Xian: { name: "Xi'an", waveLeft: true },
+    Chengdu: { name: "Chengdu", waveLeft: true },
+    Guilin: { name: "Guilin", waveLeft: true },
+    Zhangjiajie: { name: "Zhangjiajie", waveLeft: false },
+    Hangzhou: { name: "Hangzhou", waveLeft: true },
+    Lhasa: { name: "Lhasa", waveLeft: false },
+    HongKong: { name: "Hong Kong", waveLeft: false }
+  };
+
+  const flagMap = new Map();
+
+  pins.forEach((pin) => {
+    const rawDest = pin.getAttribute("data-dest") || "";
+    const config = CHINA_DEST_CONFIG[rawDest] || { name: pin.getAttribute("data-name") || rawDest, waveLeft: false };
+    const name = config.name;
+    const waveLeft = config.waveLeft;
+
+    const transformAttr = pin.getAttribute("transform") || "";
+    const match = transformAttr.match(/translate\(\s*([\d.-]+)\s*,\s*([\d.-]+)\s*\)/);
+    const pinX = match ? parseFloat(match[1]) : 400;
+    const pinY = match ? parseFloat(match[2]) : 300;
+
+    const textLen = name.length;
+    const textWidth = Math.max(38, textLen * 7.5);
+    const flagW = Math.round(textWidth + 28);
+
+    const flagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    flagGroup.setAttribute("class", "china-dest-flag");
+    flagGroup.setAttribute("data-dest", rawDest);
+    flagGroup.setAttribute("transform", `translate(${pinX}, ${pinY})`);
+
+    let bannerPath = "";
+    let stripeLine = "";
+    let textElem = "";
+
+    if (waveLeft) {
+      bannerPath = `M -2.5 -37 L ${-flagW - 2.5} -37 L ${-flagW + 6.5} -25 L ${-flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="-5.5" y1="-35.5" x2="-5.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+      const centerX = Math.round((-flagW + 4) / 2);
+      textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${name}</text>`;
+    } else {
+      bannerPath = `M -2.5 -37 L ${flagW - 2.5} -37 L ${flagW - 11.5} -25 L ${flagW - 2.5} -13 L -2.5 -13 Z`;
+      stripeLine = `<line x1="0.5" y1="-35.5" x2="0.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+      const centerX = Math.round((flagW - 14) / 2);
+      textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${name}</text>`;
+    }
+
+    flagsLayer.appendChild(flagGroup);
+    flagGroup.innerHTML = `
+      <g class="china-flag-body">
+        <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-38" stroke="#0f172a" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="-2.5" cy="-38.5" r="1.8" fill="#f59e0b" stroke="#b45309" stroke-width="0.6" />
+        <path d="${bannerPath}" fill="#ffffff" stroke="#0f172a" stroke-width="1.1" stroke-linejoin="round" />
+        ${stripeLine}
+        ${textElem}
+      </g>
+    `;
+
+    flagMap.set(rawDest, flagGroup);
+
+    // Hover interactions: hover either pin or flag to expand pin and raise flag smoothly
+    const onEnter = () => {
+      flagGroup.classList.add("is-hovered");
+      pin.classList.add("is-present");
+      flagsLayer.appendChild(flagGroup); // elevate to absolute front
+    };
+    const onLeave = () => {
+      flagGroup.classList.remove("is-hovered");
+      pin.classList.remove("is-present");
+    };
+
+    pin.addEventListener("mouseenter", onEnter);
+    pin.addEventListener("mouseleave", onLeave);
+    pin.addEventListener("pointerenter", onEnter);
+    pin.addEventListener("pointerleave", onLeave);
+
+    flagGroup.addEventListener("mouseenter", onEnter);
+    flagGroup.addEventListener("mouseleave", onLeave);
+    flagGroup.addEventListener("pointerenter", onEnter);
+    flagGroup.addEventListener("pointerleave", onLeave);
+
+    // Touch support for mobile devices
+    pin.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      const isHovered = flagGroup.classList.contains("is-hovered");
+      flagsLayer.querySelectorAll(".china-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+      pins.forEach((p) => p.classList.remove("is-present"));
+      if (!isHovered) {
+        onEnter();
+      }
+    }, { passive: true });
+  });
+
+  function openWindow() {
+    window.closeUSStatesDrawer?.();
+    const worldMap = document.getElementById("world-map-backdrop");
+    if (worldMap) {
+      worldMap.style.opacity = "1.000";
+      worldMap.style.visibility = "visible";
+      worldMap.style.pointerEvents = "auto";
+    }
+    miniWindow.classList.add("is-open");
+    miniWindow.setAttribute("aria-hidden", "false");
+    countryChina?.classList.add("is-active");
+  }
+
+  function closeWindow() {
+    miniWindow.classList.remove("is-open");
+    miniWindow.setAttribute("aria-hidden", "true");
+    countryChina?.classList.remove("is-active");
+    pins.forEach((p) => p.classList.remove("is-present"));
+    flagsLayer.querySelectorAll(".china-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+  }
+
+  function toggleWindow() {
+    if (miniWindow.classList.contains("is-open")) {
+      closeWindow();
+    } else {
+      openWindow();
+    }
+  }
+
+  // Expose globally
+  window.openChinaDrawer = openWindow;
+  window.closeChinaDrawer = closeWindow;
+
+  // Click on China path on world map
+  countryChina?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleWindow();
+  });
+
+  // Close when clicking outside the China map body
+  document.addEventListener("click", (e) => {
+    if (!miniWindow.classList.contains("is-open")) return;
+    const isInsideMap = miniWindowBody && miniWindowBody.contains(e.target);
+    const isChina = e.target === countryChina || countryChina?.contains(e.target);
+
+    if (!isInsideMap && !isChina) {
+      closeWindow();
+    }
+  });
+
+  // Escape key closes window
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && miniWindow.classList.contains("is-open")) {
+      closeWindow();
+    }
+  });
 }
 
 
