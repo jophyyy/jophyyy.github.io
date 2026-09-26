@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSequenceActions();
   initUSStatesDrawer();
   initChinaDrawer();
+  initEuropeDrawer();
 });
 
 /* ==========================================================================
@@ -2186,6 +2187,7 @@ function initUSStatesDrawer() {
 
   function openWindow() {
     window.closeChinaDrawer?.();
+    window.closeEuropeDrawer?.();
     const worldMap = document.getElementById("world-map-backdrop");
     if (worldMap) {
       worldMap.style.opacity = "1.000";
@@ -2424,6 +2426,7 @@ function initChinaDrawer() {
 
   function openWindow() {
     window.closeUSStatesDrawer?.();
+    window.closeEuropeDrawer?.();
     const worldMap = document.getElementById("world-map-backdrop");
     if (worldMap) {
       worldMap.style.opacity = "1.000";
@@ -2486,3 +2489,628 @@ function initChinaDrawer() {
 
 
 
+
+
+/* ==========================================================================
+   10. CONTINENTAL EUROPE MINI-WINDOW & DESTINATIONS CONTROLLER
+   ========================================================================== */
+function initEuropeDrawer() {
+  const regionEurope = document.getElementById("region-europe");
+  const miniWindow = document.getElementById("europe-mini-window");
+  const miniWindowBody = document.querySelector(".europe-mini-window-body");
+  const pinsLayer = document.getElementById("europe-destinations-layer");
+  const flagsLayer = document.getElementById("europe-destinations-flags-layer");
+  const scrollerWrap = document.getElementById("europe-side-scroller-wrap");
+  const track = document.getElementById("europe-side-scroller-track");
+  const scrollCue = document.getElementById("europe-scroll-cue");
+  const optionCards = scrollerWrap ? Array.from(scrollerWrap.querySelectorAll(".europe-option-card")) : [];
+
+  if (!miniWindow || !flagsLayer || !pinsLayer) return;
+
+  const EUROPE_DESTINATIONS = {
+  "major-cities": [
+    {
+      "id": "Madrid",
+      "name": "Madrid",
+      "x": 246.7,
+      "y": 359.6,
+      "waveLeft": false
+    },
+    {
+      "id": "Paris",
+      "name": "Paris",
+      "x": 353.0,
+      "y": 202.8,
+      "waveLeft": true
+    },
+    {
+      "id": "Vienna",
+      "name": "Vienna",
+      "x": 534.6,
+      "y": 217.2,
+      "waveLeft": false
+    },
+    {
+      "id": "Rome",
+      "name": "Rome",
+      "x": 488.0,
+      "y": 346.8,
+      "waveLeft": false
+    },
+    {
+      "id": "Berlin",
+      "name": "Berlin",
+      "x": 492.2,
+      "y": 133.0,
+      "waveLeft": false
+    },
+    {
+      "id": "Amsterdam",
+      "name": "Amsterdam",
+      "x": 390.3,
+      "y": 134.9,
+      "waveLeft": false
+    },
+    {
+      "id": "Prague",
+      "name": "Prague",
+      "x": 507.3,
+      "y": 181.4,
+      "waveLeft": false
+    },
+    {
+      "id": "Budapest",
+      "name": "Budapest",
+      "x": 570.8,
+      "y": 228.1,
+      "waveLeft": false
+    },
+    {
+      "id": "Barcelona",
+      "name": "Barcelona",
+      "x": 336.0,
+      "y": 352.1,
+      "waveLeft": false
+    },
+    {
+      "id": "Athens",
+      "name": "Athens",
+      "x": 664.8,
+      "y": 407.4,
+      "waveLeft": false
+    },
+    {
+      "id": "Venice",
+      "name": "Venice",
+      "x": 483.3,
+      "y": 275.8,
+      "waveLeft": true
+    },
+    {
+      "id": "Florence",
+      "name": "Florence",
+      "x": 469.2,
+      "y": 309.7,
+      "waveLeft": true
+    },
+    {
+      "id": "Brussels",
+      "name": "Brussels",
+      "x": 381.5,
+      "y": 164.9,
+      "waveLeft": true
+    },
+    {
+      "id": "Copenhagen",
+      "name": "Copenhagen",
+      "x": 480.2,
+      "y": 70.3,
+      "waveLeft": false
+    },
+    {
+      "id": "Zurich",
+      "name": "Zurich",
+      "x": 432.1,
+      "y": 237.1,
+      "waveLeft": true
+    },
+    {
+      "id": "Lisbon",
+      "name": "Lisbon",
+      "x": 158.8,
+      "y": 375.8,
+      "waveLeft": false
+    },
+    {
+      "id": "Munich",
+      "name": "Munich",
+      "x": 472.1,
+      "y": 221.8,
+      "waveLeft": false
+    },
+    {
+      "id": "Dubrovnik",
+      "name": "Dubrovnik",
+      "x": 568.2,
+      "y": 326.4,
+      "waveLeft": true
+    }
+  ],
+  "iconic-places": [
+    {
+      "id": "EiffelTower",
+      "name": "Eiffel Tower",
+      "x": 352.2,
+      "y": 202.6,
+      "waveLeft": true
+    },
+    {
+      "id": "Colosseum",
+      "name": "Colosseum",
+      "x": 487.9,
+      "y": 347.0,
+      "waveLeft": false
+    },
+    {
+      "id": "SagradaFamilia",
+      "name": "Sagrada Fam\u00edlia",
+      "x": 336.1,
+      "y": 351.7,
+      "waveLeft": false
+    },
+    {
+      "id": "Neuschwanstein",
+      "name": "Neuschwanstein",
+      "x": 461.4,
+      "y": 233.6,
+      "waveLeft": false
+    },
+    {
+      "id": "Acropolis",
+      "name": "Acropolis",
+      "x": 664.8,
+      "y": 407.6,
+      "waveLeft": false
+    },
+    {
+      "id": "Matterhorn",
+      "name": "Matterhorn",
+      "x": 420.8,
+      "y": 265.0,
+      "waveLeft": true
+    },
+    {
+      "id": "Schonbrunn",
+      "name": "Sch\u00f6nbrunn Palace",
+      "x": 533.8,
+      "y": 217.7,
+      "waveLeft": false
+    },
+    {
+      "id": "PlitviceLakes",
+      "name": "Plitvice Lakes",
+      "x": 529.3,
+      "y": 285.1,
+      "waveLeft": true
+    },
+    {
+      "id": "AmsterdamCanals",
+      "name": "Canals of Amsterdam",
+      "x": 390.2,
+      "y": 134.9,
+      "waveLeft": false
+    },
+    {
+      "id": "Alhambra",
+      "name": "The Alhambra",
+      "x": 237.5,
+      "y": 423.5,
+      "waveLeft": false
+    },
+    {
+      "id": "AmalfiCoast",
+      "name": "Amalfi Coast",
+      "x": 520.3,
+      "y": 370.8,
+      "waveLeft": false
+    },
+    {
+      "id": "MontSaintMichel",
+      "name": "Mont Saint-Michel",
+      "x": 302.9,
+      "y": 201.2,
+      "waveLeft": true
+    }
+  ],
+  "scenic-escapes": [
+    {
+      "id": "SwissAlps",
+      "name": "Swiss Alps",
+      "x": 424.7,
+      "y": 253.6,
+      "waveLeft": true
+    },
+    {
+      "id": "Dolomites",
+      "name": "The Dolomites",
+      "x": 476.4,
+      "y": 256.6,
+      "waveLeft": false
+    },
+    {
+      "id": "Santorini",
+      "name": "Santorini Caldera",
+      "x": 697.0,
+      "y": 433.6,
+      "waveLeft": false
+    },
+    {
+      "id": "LakeComo",
+      "name": "Lake Como",
+      "x": 441.4,
+      "y": 264.7,
+      "waveLeft": true
+    },
+    {
+      "id": "FrenchRiviera",
+      "name": "French Riviera",
+      "x": 412.6,
+      "y": 310.4,
+      "waveLeft": true
+    },
+    {
+      "id": "BlackForest",
+      "name": "Black Forest",
+      "x": 427.3,
+      "y": 218.4,
+      "waveLeft": true
+    },
+    {
+      "id": "CinqueTerre",
+      "name": "Cinque Terre",
+      "x": 447.6,
+      "y": 302.6,
+      "waveLeft": true
+    },
+    {
+      "id": "Geirangerfjord",
+      "name": "Norwegian Fjords",
+      "x": 424.5,
+      "y": -55.5,
+      "waveLeft": false
+    },
+    {
+      "id": "Capri",
+      "name": "Isle of Capri",
+      "x": 514.9,
+      "y": 372.8,
+      "waveLeft": false
+    },
+    {
+      "id": "Pyrenees",
+      "name": "The Pyrenees",
+      "x": 314.3,
+      "y": 325.2,
+      "waveLeft": true
+    }
+  ]
+};
+
+  let scrollCueDismissed = false;
+
+  function dismissScrollCue() {
+    if (scrollCueDismissed) return;
+    scrollCueDismissed = true;
+    if (scrollCue) {
+      scrollCue.classList.add("is-dismissed");
+    }
+  }
+
+  function renderCategory(catKey) {
+    const items = EUROPE_DESTINATIONS[catKey] || EUROPE_DESTINATIONS["major-cities"];
+    pinsLayer.innerHTML = "";
+    flagsLayer.innerHTML = "";
+
+    items.forEach((it) => {
+      // 1. Create Pin Group
+      const pin = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      pin.setAttribute("class", "europe-dest-pin");
+      pin.setAttribute("data-dest", it.id);
+      pin.setAttribute("data-name", it.name);
+      pin.setAttribute("transform", `translate(${it.x}, ${it.y})`);
+
+      const body = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      body.setAttribute("class", "europe-pin-body");
+      body.innerHTML = `
+        <ellipse cx="1" cy="0.8" rx="2.2" ry="1.2" fill="rgba(0,0,0,0.28)" />
+        <line x1="0" y1="0" x2="-1.8" y2="-7.5" stroke="#64748b" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="-2.5" cy="-10.5" r="3.8" fill="url(#ballpoint-red-europe)" filter="url(#ballpoint-shadow-europe)" />
+        <circle cx="-3.6" cy="-11.8" r="1.1" fill="#ffffff" opacity="0.92" />
+        <title>${it.name}</title>
+      `;
+      pin.appendChild(body);
+
+      // Generous 32px hit target
+      const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      hit.setAttribute("class", "europe-pin-hit");
+      hit.setAttribute("cx", "-2.5");
+      hit.setAttribute("cy", "-10.5");
+      hit.setAttribute("r", "16");
+      hit.setAttribute("fill", "transparent");
+      hit.setAttribute("pointer-events", "all");
+      hit.style.cursor = "pointer";
+      pin.appendChild(hit);
+
+      pinsLayer.appendChild(pin);
+
+      // 2. Build Flag Group
+      const textLen = it.name.length;
+      const textWidth = Math.max(38, textLen * 7.5);
+      const flagW = Math.round(textWidth + 28);
+
+      const flagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      flagGroup.setAttribute("class", "europe-dest-flag");
+      flagGroup.setAttribute("data-dest", it.id);
+      flagGroup.setAttribute("transform", `translate(${it.x}, ${it.y})`);
+
+      let bannerPath = "";
+      let stripeLine = "";
+      let textElem = "";
+
+      if (it.waveLeft) {
+        bannerPath = `M -2.5 -37 L ${-flagW - 2.5} -37 L ${-flagW + 6.5} -25 L ${-flagW - 2.5} -13 L -2.5 -13 Z`;
+        stripeLine = `<line x1="-5.5" y1="-35.5" x2="-5.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+        const centerX = Math.round((-flagW + 4) / 2);
+        textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${it.name}</text>`;
+      } else {
+        bannerPath = `M -2.5 -37 L ${flagW - 2.5} -37 L ${flagW - 11.5} -25 L ${flagW - 2.5} -13 L -2.5 -13 Z`;
+        stripeLine = `<line x1="0.5" y1="-35.5" x2="0.5" y2="-14.5" stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" />`;
+        const centerX = Math.round((flagW - 14) / 2);
+        textElem = `<text x="${centerX}" y="-25" text-anchor="middle" dominant-baseline="central" font-family="'Pixelify Sans', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="0.2">${it.name}</text>`;
+      }
+
+      flagsLayer.appendChild(flagGroup);
+      flagGroup.innerHTML = `
+        <g class="europe-flag-body">
+          <line x1="-2.5" y1="-10.5" x2="-2.5" y2="-38" stroke="#0f172a" stroke-width="1.3" stroke-linecap="round" />
+          <circle cx="-2.5" cy="-38.5" r="1.8" fill="#f59e0b" stroke="#b45309" stroke-width="0.6" />
+          <path d="${bannerPath}" fill="#ffffff" stroke="#0f172a" stroke-width="1.1" stroke-linejoin="round" />
+          ${stripeLine}
+          ${textElem}
+        </g>
+      `;
+
+      // Hover interactions
+      const onEnter = () => {
+        flagGroup.classList.add("is-hovered");
+        pin.classList.add("is-present");
+        flagsLayer.appendChild(flagGroup); // bring to front
+      };
+      const onLeave = () => {
+        flagGroup.classList.remove("is-hovered");
+        pin.classList.remove("is-present");
+      };
+
+      pin.addEventListener("mouseenter", onEnter);
+      pin.addEventListener("mouseleave", onLeave);
+      pin.addEventListener("pointerenter", onEnter);
+      pin.addEventListener("pointerleave", onLeave);
+
+      flagGroup.addEventListener("mouseenter", onEnter);
+      flagGroup.addEventListener("mouseleave", onLeave);
+      flagGroup.addEventListener("pointerenter", onEnter);
+      flagGroup.addEventListener("pointerleave", onLeave);
+
+      // Touch support
+      pin.addEventListener("touchstart", (e) => {
+        e.stopPropagation();
+        const isHovered = flagGroup.classList.contains("is-hovered");
+        flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+        pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => p.classList.remove("is-present"));
+        if (!isHovered) {
+          onEnter();
+        }
+      }, { passive: true });
+    });
+  }
+
+  // Options Scroller Physics and State
+  const totalOptions = optionCards.length;
+  const maxProgress = Math.max(0, totalOptions - 1);
+  const cardStep = 46;
+
+  let currentProgress = 0;
+  let targetProgress = 0;
+  let rafId = null;
+  let snapTimer = null;
+  let activeCat = "major-cities";
+
+  function updateVisuals(progress) {
+    if (track) {
+      track.style.transform = `translateY(${(-progress * cardStep).toFixed(2)}px)`;
+    }
+
+    optionCards.forEach((card, idx) => {
+      const dist = Math.abs(progress - idx);
+      const factor = Math.max(0, 1 - dist);
+      const smooth = factor * factor * (3 - 2 * factor);
+
+      const opacity = 0.26 + 0.74 * smooth;
+      const scale = 0.93 + 0.07 * smooth;
+
+      card.style.opacity = opacity.toFixed(3);
+      card.style.transform = `scale(${scale.toFixed(3)})`;
+
+      const dot = card.querySelector(".europe-option-dot");
+      if (dist < 0.5) {
+        card.classList.add("is-active");
+        if (dot && idx > 0) dot.classList.remove("secondary");
+      } else {
+        card.classList.remove("is-active");
+        if (dot && idx > 0) dot.classList.add("secondary");
+      }
+    });
+
+    const nearestIdx = Math.round(progress);
+    const targetCard = optionCards[nearestIdx];
+    const cat = targetCard ? targetCard.getAttribute("data-option") : "major-cities";
+    if (cat !== activeCat) {
+      activeCat = cat;
+      renderCategory(activeCat);
+    }
+  }
+
+  function setTarget(val) {
+    targetProgress = Math.max(0, Math.min(maxProgress, val));
+    if (!rafId) {
+      animate();
+    }
+  }
+
+  function animate() {
+    const diff = targetProgress - currentProgress;
+    if (Math.abs(diff) < 0.001) {
+      currentProgress = targetProgress;
+      updateVisuals(currentProgress);
+      rafId = null;
+      return;
+    }
+    currentProgress += diff * 0.18;
+    updateVisuals(currentProgress);
+    rafId = requestAnimationFrame(animate);
+  }
+
+  // Wheel listener
+  scrollerWrap?.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    dismissScrollCue();
+    const delta = e.deltaY * 0.0035;
+    targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + delta));
+    if (!rafId) animate();
+
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => {
+      setTarget(Math.round(targetProgress));
+    }, 140);
+  }, { passive: false });
+
+  // Keyboard navigation
+  scrollerWrap?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      dismissScrollCue();
+      setTarget(Math.min(maxProgress, Math.round(targetProgress) + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      dismissScrollCue();
+      setTarget(Math.max(0, Math.round(targetProgress) - 1));
+    }
+  });
+
+  // Direct card clicks glide smoothly to selected option
+  optionCards.forEach((card, idx) => {
+    card.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissScrollCue();
+      setTarget(idx);
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        dismissScrollCue();
+        setTarget(idx);
+      }
+    });
+  });
+
+  // Scroll cue click advances option
+  if (scrollCue) {
+    scrollCue.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissScrollCue();
+      const nextTarget = Math.round(targetProgress) >= maxProgress ? 0 : Math.round(targetProgress) + 1;
+      setTarget(nextTarget);
+    });
+  }
+
+  function openWindow() {
+    window.closeUSStatesDrawer?.();
+    window.closeChinaDrawer?.();
+    const worldMap = document.getElementById("world-map-backdrop");
+    if (worldMap) {
+      worldMap.style.opacity = "1.000";
+      worldMap.style.visibility = "visible";
+      worldMap.style.pointerEvents = "auto";
+    }
+    miniWindow.classList.add("is-open");
+    miniWindow.setAttribute("aria-hidden", "false");
+    regionEurope?.classList.add("is-active");
+
+    scrollCueDismissed = false;
+    if (scrollCue) {
+      scrollCue.classList.remove("is-dismissed");
+    }
+
+    currentProgress = 0;
+    targetProgress = 0;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    clearTimeout(snapTimer);
+    activeCat = "major-cities";
+    renderCategory("major-cities");
+    updateVisuals(0);
+  }
+
+  function closeWindow() {
+    miniWindow.classList.remove("is-open");
+    miniWindow.setAttribute("aria-hidden", "true");
+    regionEurope?.classList.remove("is-active");
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    clearTimeout(snapTimer);
+    pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => p.classList.remove("is-present"));
+    flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+  }
+
+  function toggleWindow() {
+    if (miniWindow.classList.contains("is-open")) {
+      closeWindow();
+    } else {
+      openWindow();
+    }
+  }
+
+  // Expose globally
+  window.openEuropeDrawer = openWindow;
+  window.closeEuropeDrawer = closeWindow;
+
+  // Click on Europe region on world map
+  regionEurope?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleWindow();
+  });
+
+  // Close when clicking outside the Europe map body
+  document.addEventListener("click", (e) => {
+    if (!miniWindow.classList.contains("is-open")) return;
+    const isInsideMap = miniWindowBody && miniWindowBody.contains(e.target);
+    const isMenu = scrollerWrap && scrollerWrap.contains(e.target);
+    const isCue = scrollCue && scrollCue.contains(e.target);
+    const isRegion = e.target === regionEurope || regionEurope?.contains(e.target);
+
+    if (!isInsideMap && !isMenu && !isCue && !isRegion) {
+      closeWindow();
+    }
+  });
+
+  // Escape key closes window
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && miniWindow.classList.contains("is-open")) {
+      closeWindow();
+    }
+  });
+}

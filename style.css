@@ -2556,9 +2556,10 @@ body.booting {
    9. US 50 STATES MINI-WINDOW & INTERACTIVE OUTLINE MAP
    ========================================================================== */
 
-/* --- US & China Interactive Countries on World Map --- */
+/* --- US, China & Europe Interactive Countries/Regions on World Map --- */
 .country-usa.interactive-country,
-.country-china.interactive-country {
+.country-china.interactive-country,
+.region-europe.interactive-country {
   cursor: pointer;
   pointer-events: auto;
   transition: filter 0.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease, stroke-width 0.2s ease;
@@ -2569,7 +2570,13 @@ body.booting {
 .country-usa.interactive-country.is-active,
 .country-china.interactive-country:hover,
 .country-china.interactive-country:focus,
-.country-china.interactive-country.is-active {
+.country-china.interactive-country.is-active,
+.region-europe.interactive-country:hover path,
+.region-europe.interactive-country:focus path,
+.region-europe.interactive-country.is-active path,
+.region-europe.interactive-country:hover,
+.region-europe.interactive-country:focus,
+.region-europe.interactive-country.is-active {
   stroke: #f59e0b !important;
   stroke-width: 1.6px !important;
   filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.18) saturate(1.25);
@@ -3351,3 +3358,389 @@ body.booting {
   -webkit-user-select: none;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   11. EUROPE CONTINENTAL MINI-WINDOW & INTERACTIVE OUTLINE MAP
+   ========================================================================== */
+
+/* Mini Floating Window - Centered over Map Viewport */
+.europe-mini-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.europe-mini-window.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+/* Vast Cloud Backdrop Aura */
+.europe-cloud-backdrop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(250vw, 2600px);
+  height: max(250vh, 2600px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(250, 247, 238, 0.99) 0%,
+    rgba(250, 247, 238, 0.98) 12%,
+    rgba(250, 247, 238, 0.94) 22%,
+    rgba(250, 247, 238, 0.84) 34%,
+    rgba(250, 247, 238, 0.65) 48%,
+    rgba(250, 247, 238, 0.40) 64%,
+    rgba(250, 247, 238, 0.18) 78%,
+    rgba(250, 247, 238, 0.05) 90%,
+    transparent 100%
+  );
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 18%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    black 0%,
+    black 18%,
+    rgba(0, 0, 0, 0.94) 28%,
+    rgba(0, 0, 0, 0.78) 44%,
+    rgba(0, 0, 0, 0.48) 65%,
+    rgba(0, 0, 0, 0.18) 84%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Centered Content Row */
+.europe-window-content-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* The Europe Map Body */
+.europe-mini-window-body {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: none;
+  width: min(860px, 78vw);
+  max-height: min(85vh, 550px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.europe-outline-svg {
+  width: 100%;
+  height: 100%;
+  max-height: min(85vh, 550px);
+  aspect-ratio: 860 / 500;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 10px 24px rgba(18, 28, 45, 0.18));
+}
+
+/* Base Country Vector Path */
+.europe-country-outline {
+  fill: #2a3447;
+  stroke: #475569;
+  stroke-width: 0.85px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  cursor: pointer;
+  pointer-events: all;
+  transition: fill 0.22s ease, stroke 0.22s ease, filter 0.22s ease;
+}
+
+.europe-country-outline:hover,
+.europe-country-outline:focus {
+  stroke: #f59e0b !important;
+  stroke-width: 1.6px !important;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.22);
+}
+
+/* Curated Hypsometric & Cultural European Country Palettes */
+.europe-country-outline.france { fill: #2d3748; }
+.europe-country-outline.germany { fill: #334155; }
+.europe-country-outline.spain { fill: #92400e; }
+.europe-country-outline.portugal { fill: #78350f; }
+.europe-country-outline.italy { fill: #b45309; }
+.europe-country-outline.austria { fill: #475569; }
+.europe-country-outline.switzerland { fill: #3b4252; }
+.europe-country-outline.netherlands { fill: #1e293b; }
+.europe-country-outline.belgium { fill: #374151; }
+.europe-country-outline.luxembourg { fill: #4b5563; }
+.europe-country-outline.czech-republic { fill: #3f3f46; }
+.europe-country-outline.poland { fill: #334155; }
+.europe-country-outline.hungary { fill: #434c5e; }
+.europe-country-outline.slovakia { fill: #475569; }
+.europe-country-outline.slovenia { fill: #0d9488; }
+.europe-country-outline.croatia { fill: #059669; }
+.europe-country-outline.bosnia-and-herzegovina { fill: #15803d; }
+.europe-country-outline.serbia { fill: #334155; }
+.europe-country-outline.montenegro { fill: #047857; }
+.europe-country-outline.albania { fill: #0284c7; }
+.europe-country-outline.macedonia { fill: #0369a1; }
+.europe-country-outline.greece { fill: #0284c7; }
+.europe-country-outline.bulgaria { fill: #78350f; }
+.europe-country-outline.romania { fill: #92400e; }
+.europe-country-outline.denmark { fill: #0284c7; }
+.europe-country-outline.sweden { fill: #0369a1; }
+.europe-country-outline.norway { fill: #075985; }
+.europe-country-outline.finland { fill: #0284c7; }
+.europe-country-outline.estonia { fill: #38bdf8; }
+.europe-country-outline.latvia { fill: #0284c7; }
+.europe-country-outline.lithuania { fill: #0369a1; }
+.europe-country-outline.belarus { fill: #3f3f46; }
+.europe-country-outline.ukraine { fill: #334155; }
+.europe-country-outline.moldova { fill: #475569; }
+.europe-country-outline.united-kingdom { fill: #1e293b; }
+.europe-country-outline.ireland { fill: #166534; }
+.europe-country-outline.andorra,
+.europe-country-outline.monaco,
+.europe-country-outline.san-marino,
+.europe-country-outline.liechtenstein { fill: #f59e0b; }
+
+/* European Destination Pins (Ballpoint 3D Style) */
+.europe-dest-pin {
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.europe-pin-body {
+  transform-origin: -2.5px -10.5px;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.europe-dest-pin:hover .europe-pin-body,
+.europe-dest-pin.is-present .europe-pin-body {
+  transform: scale(1.52);
+  filter: drop-shadow(0 0 10px rgba(225, 29, 72, 0.72));
+}
+
+/* Dedicated Flags Layer */
+.europe-destinations-flags-layer {
+  pointer-events: none;
+  overflow: visible;
+}
+
+.europe-dest-flag {
+  pointer-events: auto;
+  overflow: visible;
+}
+
+.europe-dest-flag .europe-flag-body {
+  transform-origin: -2.5px -10.5px;
+  transform: translateY(8px) scale(0.68) scaleY(0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.55s;
+  will-change: transform, opacity;
+}
+
+.europe-dest-flag.is-visible .europe-flag-body,
+.europe-dest-flag.is-hovered .europe-flag-body {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1) scaleY(1);
+  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.europe-dest-flag text {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* Side Options Menu */
+.europe-side-menu-wrap {
+  position: absolute;
+  z-index: 15;
+  left: calc(50% + min(430px, 39vw) + clamp(14px, 1.8vw, 32px));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.europe-side-scroller-wrap {
+  position: relative;
+  width: 156px;
+  height: 114px;
+  overflow: hidden;
+  padding: 38px 4px;
+  box-sizing: border-box;
+  pointer-events: auto;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 28%, black 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 28%, black 72%, transparent 100%);
+}
+
+.europe-side-scroller-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  will-change: transform;
+}
+
+.europe-option-card {
+  width: 148px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 19px;
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.europe-option-card:hover {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.europe-option-card.is-active {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(225, 29, 72, 0.75);
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.22), 0 0 0 1px rgba(225, 29, 72, 0.4);
+}
+
+.europe-option-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.europe-option-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e11d48;
+  box-shadow: 0 0 8px rgba(225, 29, 72, 0.85);
+  flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.europe-option-dot.secondary {
+  background: #94a3b8;
+  box-shadow: none;
+}
+
+.europe-option-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Double Vertical Arrow Scroll Cue */
+.europe-scroll-cue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 38px;
+  color: #94a3b8;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  animation: europeScrollCueBounce 2s ease-in-out infinite;
+}
+
+.europe-scroll-cue:hover {
+  color: #e11d48;
+  opacity: 1;
+}
+
+.europe-scroll-cue.is-dismissed {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  animation: none !important;
+}
+
+@keyframes europeScrollCueBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 900px) {
+  .europe-side-menu-wrap {
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+    top: auto;
+    transform: none;
+  }
+}
+
