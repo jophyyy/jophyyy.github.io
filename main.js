@@ -3112,6 +3112,12 @@ function initEuropeDrawer() {
     e.stopPropagation();
     toggleWindow();
   });
+  regionEurope?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleWindow();
+    }
+  });
 
   // Click on cloud aura backdrop closes window
   const cloudBackdrop = miniWindow.querySelector(".europe-cloud-backdrop");

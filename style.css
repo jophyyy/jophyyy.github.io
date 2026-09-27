@@ -2565,18 +2565,27 @@ body.booting {
   transition: filter 0.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease, stroke-width 0.2s ease;
 }
 
+/* Invisible Europe hitbox captures clicks across all European lands & coastal waters */
+.region-europe.interactive-country .europe-hitbox,
+.region-europe.interactive-country:hover .europe-hitbox,
+.region-europe.interactive-country:focus .europe-hitbox,
+.region-europe.interactive-country.is-active .europe-hitbox {
+  fill: transparent !important;
+  stroke: none !important;
+  filter: none !important;
+  pointer-events: all !important;
+  cursor: pointer !important;
+}
+
 .country-usa.interactive-country:hover,
 .country-usa.interactive-country:focus,
 .country-usa.interactive-country.is-active,
 .country-china.interactive-country:hover,
 .country-china.interactive-country:focus,
 .country-china.interactive-country.is-active,
-.region-europe.interactive-country:hover path,
-.region-europe.interactive-country:focus path,
-.region-europe.interactive-country.is-active path,
-.region-europe.interactive-country:hover,
-.region-europe.interactive-country:focus,
-.region-europe.interactive-country.is-active {
+.region-europe.interactive-country:hover path:not(.europe-hitbox),
+.region-europe.interactive-country:focus path:not(.europe-hitbox),
+.region-europe.interactive-country.is-active path:not(.europe-hitbox) {
   stroke: #f59e0b !important;
   stroke-width: 1.6px !important;
   filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.75)) brightness(1.18) saturate(1.25);
