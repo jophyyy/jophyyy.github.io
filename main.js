@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initUSStatesDrawer();
   initChinaDrawer();
   initEuropeDrawer();
+  initWorldMapTooltips();
 });
 
 /* ==========================================================================
@@ -2616,6 +2617,34 @@ function initEuropeDrawer() {
       "waveLeft": true
     },
     {
+      "id": "Lyon",
+      "name": "Lyon",
+      "x": 379.4,
+      "y": 263.6,
+      "waveLeft": true
+    },
+    {
+      "id": "Nice",
+      "name": "Nice",
+      "x": 409.6,
+      "y": 305.9,
+      "waveLeft": false
+    },
+    {
+      "id": "Frankfurt",
+      "name": "Frankfurt",
+      "x": 437.1,
+      "y": 180.9,
+      "waveLeft": true
+    },
+    {
+      "id": "Hamburg",
+      "name": "Hamburg",
+      "x": 459.3,
+      "y": 114.2,
+      "waveLeft": true
+    },
+    {
       "id": "Vienna",
       "name": "Vienna",
       "x": 534.6,
@@ -3093,7 +3122,32 @@ function initEuropeDrawer() {
     clearTimeout(snapTimer);
     pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => p.classList.remove("is-present"));
     flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+    const countryHud = document.getElementById("europe-country-hud");
+    if (countryHud) countryHud.classList.remove("is-visible");
   }
+
+  // Country hover HUD badge in Europe zoom-in
+  const countryHud = document.getElementById("europe-country-hud");
+  const countryHudText = countryHud?.querySelector(".europe-country-hud-text");
+  const countryOutlines = miniWindowBody?.querySelectorAll(".europe-country-outline");
+
+  countryOutlines?.forEach((country) => {
+    const countryName = country.getAttribute("data-country") || country.querySelector("title")?.textContent;
+    if (!countryName) return;
+
+    country.addEventListener("pointerenter", () => {
+      if (countryHud && countryHudText) {
+        countryHudText.textContent = countryName;
+        countryHud.classList.add("is-visible");
+      }
+    });
+
+    country.addEventListener("pointerleave", () => {
+      if (countryHud) {
+        countryHud.classList.remove("is-visible");
+      }
+    });
+  });
 
   function toggleWindow() {
     if (miniWindow.classList.contains("is-open")) {
@@ -3146,3 +3200,30 @@ function initEuropeDrawer() {
     }
   });
 }
+
+/* ==========================================================================
+   12. WORLD MAP INTERACTIVE TOOLTIPS & HOVER HUD
+   ========================================================================== */
+function initWorldMapTooltips() {
+  const pill = document.getElementById("world-map-hover-pill");
+  const pillText = pill?.querySelector(".world-map-hover-pill-text");
+  if (!pill || !pillText) return;
+
+  const targets = [
+    { el: document.getElementById("country-usa"), label: "United States • Click to explore 50 States" },
+    { el: document.getElementById("country-china"), label: "China • Click to explore Destinations & Provinces" },
+    { el: document.getElementById("region-europe"), label: "Continental Europe • Click to explore" }
+  ];
+
+  targets.forEach(({ el, label }) => {
+    if (!el) return;
+    el.addEventListener("pointerenter", () => {
+      pillText.textContent = label;
+      pill.classList.add("is-visible");
+    });
+    el.addEventListener("pointerleave", () => {
+      pill.classList.remove("is-visible");
+    });
+  });
+}
+
