@@ -2637,45 +2637,18 @@ body.booting {
   flex-shrink: 0;
 }
 
-/* --- Europe Zoom-in Floating Country HUD Pill --- */
-.europe-country-hud {
-  position: absolute;
-  top: 16px;
-  left: 20px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 15px;
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  border-radius: 9999px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(245, 158, 11, 0.25);
-  color: #f8fafc;
-  font-family: 'Pixelify Sans', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 60;
+/* --- Mini Windows Closed Isolation (Prevents capturing world map hover/clicks) --- */
+.europe-mini-window:not(.is-open),
+.us-mini-window:not(.is-open),
+.china-mini-window:not(.is-open) {
+  display: none !important;
+  pointer-events: none !important;
 }
 
-.europe-country-hud.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.europe-country-hud-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f59e0b;
-  box-shadow: 0 0 8px #f59e0b;
-  flex-shrink: 0;
+.europe-mini-window:not(.is-open) *,
+.us-mini-window:not(.is-open) *,
+.china-mini-window:not(.is-open) * {
+  pointer-events: none !important;
 }
 
 /* --- US 50 STATES MINI FLOATING WINDOW --- */
@@ -3557,6 +3530,12 @@ body.booting {
   justify-content: center;
   margin: 0 auto;
   overflow: visible;
+  pointer-events: none;
+}
+
+.europe-mini-window.is-open .europe-mini-window-body,
+.europe-mini-window.is-open .europe-country-outline,
+.europe-mini-window.is-open .europe-dest-pin {
   pointer-events: auto;
 }
 
@@ -3578,7 +3557,7 @@ body.booting {
   stroke-linejoin: round;
   stroke-linecap: round;
   cursor: pointer;
-  pointer-events: all;
+  pointer-events: auto;
   transition: fill 0.22s ease, stroke 0.22s ease, filter 0.22s ease;
   vector-effect: non-scaling-stroke;
 }
