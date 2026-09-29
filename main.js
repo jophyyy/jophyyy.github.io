@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initUSStatesDrawer();
   initChinaDrawer();
   initEuropeDrawer();
+  initRegionShinePulse();
 });
 
 /* ==========================================================================
@@ -1362,6 +1363,7 @@ function initVerticalImageTrack() {
 
   // Initialize timeline and get scroll updater
   const updateTimeline = window.updateShowcaseTimeline || initShowcaseTimeline();
+  let hasInitialShined = false;
 
   const imagesMid = Array.from(trackMid.getElementsByClassName("image"));
   const imagesLeft = trackLeft ? Array.from(trackLeft.getElementsByClassName("image")) : [];
@@ -1700,6 +1702,15 @@ function initVerticalImageTrack() {
       worldMap.style.transform = `scale(${mapScale.toFixed(3)})`;
       worldMap.style.visibility = mapOpacity > 0 ? "visible" : "hidden";
       worldMap.style.pointerEvents = mapOpacity > 0.4 ? "auto" : "none";
+
+      if (mapOpacity >= 0.95 && !hasInitialShined) {
+        hasInitialShined = true;
+        setTimeout(() => {
+          window.triggerRegionShineSequence?.();
+        }, 1200);
+      } else if (progress < 0.5) {
+        hasInitialShined = false;
+      }
     }
   }
 
@@ -3260,6 +3271,82 @@ function initEuropeDrawer() {
       closeWindow();
     }
   });
+}
+
+/* ==========================================================================
+   12. INTERACTIVE REGIONS AMBIENT SHINE PULSE (USA -> Europe -> China)
+   ========================================================================== */
+function initRegionShinePulse() {
+  const usa = document.getElementById("country-usa");
+  const europe = document.getElementById("region-europe");
+  const china = document.getElementById("country-china");
+  const worldMap = document.getElementById("world-map-backdrop");
+
+  if (!usa || !europe || !china || !worldMap) return;
+
+  const activeTimeouts = [];
+
+  function clearActiveShines() {
+    activeTimeouts.forEach(clearTimeout);
+    activeTimeouts.length = 0;
+    usa.classList.remove("is-shining");
+    europe.classList.remove("is-shining");
+    china.classList.remove("is-shining");
+  }
+
+  function shineRegion(el, delay, duration) {
+    const tStart = setTimeout(() => {
+      // Abort if any drawer is open
+      const isAnyOpen = document.querySelector(".us-mini-window.is-open, .china-mini-window.is-open, .europe-mini-window.is-open");
+      if (isAnyOpen) return;
+
+      el.classList.add("is-shining");
+
+      const tEnd = setTimeout(() => {
+        el.classList.remove("is-shining");
+      }, duration);
+      activeTimeouts.push(tEnd);
+    }, delay);
+    activeTimeouts.push(tStart);
+  }
+
+  function runSequence() {
+    // Abort if any drawer is open
+    const isAnyOpen = document.querySelector(".us-mini-window.is-open, .china-mini-window.is-open, .europe-mini-window.is-open");
+    if (isAnyOpen) return;
+
+    // Check world map visibility (must be visible on screen)
+    if (worldMap.style.visibility === "hidden" || parseFloat(worldMap.style.opacity || "0") < 0.4) {
+      return;
+    }
+
+    clearActiveShines();
+
+    // Sequence: 50 states (USA) -> Europe -> China (each shines for ~750ms)
+    shineRegion(usa, 0, 750);
+    shineRegion(europe, 950, 750);
+    shineRegion(china, 1900, 750);
+  }
+
+  // Clear active shines whenever a region is clicked or any drawer opens
+  window.addEventListener("click", () => {
+    setTimeout(() => {
+      const isAnyOpen = document.querySelector(".us-mini-window.is-open, .china-mini-window.is-open, .europe-mini-window.is-open");
+      if (isAnyOpen) clearActiveShines();
+    }, 10);
+  });
+
+  [usa, europe, china].forEach((el) => {
+    el.addEventListener("mouseenter", () => {
+      el.classList.remove("is-shining");
+    });
+  });
+
+  // Pulse sequence repeats every 15 seconds
+  setInterval(runSequence, 15000);
+
+  // Expose hook so scroll into map can trigger immediate shine
+  window.triggerRegionShineSequence = runSequence;
 }
 
 
