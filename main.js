@@ -2184,6 +2184,42 @@ function initUSStatesDrawer() {
     }
   });
 
+  // Touch swipe anywhere on the page scrolls options on mobile/tablet
+  let usTouchStartY = 0;
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+      if (e.touches && e.touches.length > 0) {
+        usTouchStartY = e.touches[0].clientY;
+      }
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+      if (!e.touches || e.touches.length === 0) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = usTouchStartY - currentY;
+      usTouchStartY = currentY;
+      dismissScrollCue();
+      e.preventDefault();
+      const progressDelta = deltaY * 0.004;
+      targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + progressDelta));
+      startPhysics();
+
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const nearest = Math.round(targetProgress);
+        setTarget(nearest);
+      }, 220);
+    },
+    { passive: false }
+  );
+
   // Direct card clicks glide smoothly to selected option
   optionCards.forEach((card, idx) => {
     card.addEventListener("click", (e) => {
@@ -2988,42 +3024,56 @@ function initEuropeDrawer() {
     }
   }
 
+  function startPhysics() {
+    if (rafId) return;
+    function loop() {
+      const diff = targetProgress - currentProgress;
+      if (Math.abs(diff) > 0.001) {
+        currentProgress += diff * 0.12;
+        updateVisuals(currentProgress);
+        rafId = requestAnimationFrame(loop);
+      } else {
+        currentProgress = targetProgress;
+        updateVisuals(currentProgress);
+        rafId = null;
+      }
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
   function setTarget(val) {
     targetProgress = Math.max(0, Math.min(maxProgress, val));
-    if (!rafId) {
-      animate();
+    if (targetProgress > 0.02) {
+      dismissScrollCue();
     }
+    startPhysics();
   }
 
-  function animate() {
-    const diff = targetProgress - currentProgress;
-    if (Math.abs(diff) < 0.001) {
-      currentProgress = targetProgress;
-      updateVisuals(currentProgress);
-      rafId = null;
-      return;
-    }
-    currentProgress += diff * 0.18;
-    updateVisuals(currentProgress);
-    rafId = requestAnimationFrame(animate);
-  }
+  // Scrolling anywhere on the page smoothly scrolls options and dismisses scroll cue
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
 
-  // Wheel listener
-  scrollerWrap?.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    dismissScrollCue();
-    const delta = e.deltaY * 0.0035;
-    targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + delta));
-    if (!rafId) animate();
+      dismissScrollCue();
+      e.preventDefault();
 
-    clearTimeout(snapTimer);
-    snapTimer = setTimeout(() => {
-      setTarget(Math.round(targetProgress));
-    }, 140);
-  }, { passive: false });
+      const progressDelta = e.deltaY * 0.0032;
+      targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + progressDelta));
+      startPhysics();
 
-  // Keyboard navigation
-  scrollerWrap?.addEventListener("keydown", (e) => {
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const nearest = Math.round(targetProgress);
+        setTarget(nearest);
+      }, 220);
+    },
+    { passive: false }
+  );
+
+  // Keyboard navigation anywhere on the page
+  window.addEventListener("keydown", (e) => {
+    if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       dismissScrollCue();
@@ -3034,6 +3084,42 @@ function initEuropeDrawer() {
       setTarget(Math.max(0, Math.round(targetProgress) - 1));
     }
   });
+
+  // Touch swipe anywhere on the page scrolls options on mobile/tablet
+  let europeTouchStartY = 0;
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+      if (e.touches && e.touches.length > 0) {
+        europeTouchStartY = e.touches[0].clientY;
+      }
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!miniWindow || !miniWindow.classList.contains("is-open")) return;
+      if (!e.touches || e.touches.length === 0) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = europeTouchStartY - currentY;
+      europeTouchStartY = currentY;
+      dismissScrollCue();
+      e.preventDefault();
+      const progressDelta = deltaY * 0.004;
+      targetProgress = Math.max(0, Math.min(maxProgress, targetProgress + progressDelta));
+      startPhysics();
+
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const nearest = Math.round(targetProgress);
+        setTarget(nearest);
+      }, 220);
+    },
+    { passive: false }
+  );
 
   // Container guard: instantly clear flags if cursor moves away from active pin/flag
   const europeSvg = document.querySelector(".europe-outline-svg");
