@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initUSStatesDrawer();
   initChinaDrawer();
   initEuropeDrawer();
-  initWorldMapTooltips();
 });
 
 /* ==========================================================================
@@ -3263,33 +3262,4 @@ function initEuropeDrawer() {
   });
 }
 
-/* ==========================================================================
-   12. WORLD MAP INTERACTIVE TOOLTIPS & HOVER HUD
-   ========================================================================== */
-function initWorldMapTooltips() {
-  const pill = document.getElementById("world-map-hover-pill");
-  const pillText = pill?.querySelector(".world-map-hover-pill-text");
-  if (!pill || !pillText) return;
-
-  const targets = [
-    { el: document.getElementById("country-usa"), label: "United States • Click to explore 50 States" },
-    { el: document.getElementById("country-china"), label: "China • Click to explore Destinations & Provinces" },
-    { el: document.getElementById("region-europe"), label: "Continental Europe • Click to explore" }
-  ];
-
-  targets.forEach(({ el, label }) => {
-    if (!el) return;
-    const showPill = () => {
-      pillText.textContent = label;
-      pill.classList.add("is-visible");
-    };
-    const hidePill = () => {
-      pill.classList.remove("is-visible");
-    };
-    el.addEventListener("pointerenter", showPill);
-    el.addEventListener("pointerleave", hidePill);
-    el.addEventListener("mouseenter", showPill);
-    el.addEventListener("mouseleave", hidePill);
-  });
-}
 
