@@ -3349,7 +3349,8 @@ body.booting {
   transition: filter 0.25s ease;
 }
 
-.china-dest-pin:hover circle:first-of-type {
+.china-dest-pin:hover circle:first-of-type,
+.china-dest-pin.is-present circle:first-of-type {
   filter: url(#ballpoint-shadow-china) brightness(1.15) drop-shadow(0 0 5px rgba(239, 68, 68, 0.85));
 }
 
@@ -3367,20 +3368,20 @@ body.booting {
 
 .china-flag-body {
   opacity: 0;
-  transform: translateY(12px) scale(0.72);
+  transform: translateY(16px) scale(0.68);
   transform-origin: -2.5px -10.5px;
-  transition: opacity 0.18s ease-out,
-              transform 0.22s ease-out;
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, opacity;
 }
 
-/* Active / Hovered: flag smoothly expands up */
+/* Active / Present / Hovered: flag slowly expands up into place smoothly */
 .china-dest-flag.is-visible .china-flag-body,
 .china-dest-flag.is-hovered .china-flag-body {
   opacity: 1;
   transform: translateY(0) scale(1);
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .china-dest-flag text {
@@ -3598,15 +3599,16 @@ body.booting {
 
 .europe-pin-body {
   transform-origin: -2.5px -10.5px;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
+  transform: scale(1);
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1), filter 0.5s ease;
+  will-change: transform, filter;
 }
 
 .europe-dest-pin:hover .europe-pin-body,
 .europe-dest-pin.is-present .europe-pin-body {
   transform: scale(1.52);
-  filter: drop-shadow(0 0 10px rgba(225, 29, 72, 0.72));
+  filter: drop-shadow(0 3px 9px rgba(225, 29, 72, 0.72));
+  transition: transform 1.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
 }
 
 /* Dedicated Flags Layer */
@@ -3622,13 +3624,13 @@ body.booting {
 
 .europe-dest-flag .europe-flag-body {
   transform-origin: -2.5px -10.5px;
-  transform: translateY(6px) scale(0.72) scaleY(0.5);
+  transform: translateY(16px) scale(0.68);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.18s ease-out,
-              transform 0.22s ease-out,
-              visibility 0.18s;
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.65s;
   will-change: transform, opacity;
 }
 
@@ -3637,9 +3639,9 @@ body.booting {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateY(0) scale(1) scaleY(1);
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0) scale(1);
+  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .europe-dest-flag text {

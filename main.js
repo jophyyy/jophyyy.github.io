@@ -2424,13 +2424,113 @@ function initChinaDrawer() {
   const destMap = new Map();
   let activeDestId = null;
 
+  // 3 Geographically balanced batches: zero overlapping flags across China
+  const batches = [
+    // Batch 1 (4 destinations: North, West, East, South)
+    ["Beijing", "Chengdu", "Shanghai", "HongKong"],
+    // Batch 2 (4 destinations: Far West, Central North, East, South Central)
+    ["Lhasa", "Xian", "Hangzhou", "Guilin"],
+    // Batch 3 (3 destinations: West Central, Central, Southeast Coast)
+    ["Chongqing", "Zhangjiajie", "Wenzhou"]
+  ];
+
+  let currentBatchIdx = 0;
+  let cycleTimer = null;
+  let fadeTimer = null;
+  let isRunning = false;
+
+  function isDestInCurrentBatch(destId) {
+    if (!isRunning) return false;
+    const currentBatch = batches[currentBatchIdx % batches.length];
+    return currentBatch && currentBatch.includes(destId);
+  }
+
+  function showBatch(batchIdx) {
+    pins.forEach((p) => {
+      const dest = p.getAttribute("data-dest");
+      if (dest !== activeDestId) {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".china-dest-flag").forEach((f) => {
+      const dest = f.getAttribute("data-dest");
+      if (dest !== activeDestId) {
+        f.classList.remove("is-visible");
+      }
+    });
+
+    const targetBatch = batches[batchIdx % batches.length];
+    targetBatch.forEach((destId) => {
+      const item = destMap.get(destId);
+      if (item) {
+        item.pin.classList.add("is-present");
+        item.flagGroup.classList.add("is-visible");
+      }
+    });
+  }
+
+  function advanceCycle() {
+    if (!isRunning) return;
+
+    showBatch(currentBatchIdx);
+
+    // Keep visible and expanded for 3.6s, then smoothly shrink pin & flag and fade out
+    fadeTimer = setTimeout(() => {
+      if (!isRunning) return;
+
+      const targetBatch = batches[currentBatchIdx % batches.length];
+      targetBatch.forEach((destId) => {
+        const item = destMap.get(destId);
+        if (item && destId !== activeDestId) {
+          item.pin.classList.remove("is-present");
+          item.flagGroup.classList.remove("is-visible");
+        }
+      });
+
+      // 0.75s pause while shrinking and fading completes, before next batch slowly expands up
+      cycleTimer = setTimeout(() => {
+        if (!isRunning) return;
+        currentBatchIdx = (currentBatchIdx + 1) % batches.length;
+        advanceCycle();
+      }, 750);
+    }, 3600);
+  }
+
+  function startCycle() {
+    if (isRunning) return;
+    isRunning = true;
+    currentBatchIdx = 0;
+    advanceCycle();
+  }
+
+  function stopCycle() {
+    isRunning = false;
+    clearTimeout(cycleTimer);
+    clearTimeout(fadeTimer);
+    cycleTimer = null;
+    fadeTimer = null;
+    pins.forEach((p) => {
+      if (p.getAttribute("data-dest") !== activeDestId) {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".china-dest-flag").forEach((f) => {
+      if (f.getAttribute("data-dest") !== activeDestId) {
+        f.classList.remove("is-visible");
+      }
+    });
+  }
+
   function setActiveDest(id) {
     if (activeDestId === id) return;
     if (activeDestId) {
       const prev = destMap.get(activeDestId);
       if (prev) {
         prev.flagGroup.classList.remove("is-hovered");
-        prev.pin.classList.remove("is-present");
+        if (!isDestInCurrentBatch(activeDestId)) {
+          prev.pin.classList.remove("is-present");
+          prev.flagGroup.classList.remove("is-visible");
+        }
       }
     }
     activeDestId = id;
@@ -2439,12 +2539,23 @@ function initChinaDrawer() {
       if (curr) {
         curr.flagGroup.classList.add("is-hovered");
         curr.pin.classList.add("is-present");
+        flagsLayer.appendChild(curr.flagGroup);
       }
     }
   }
 
   function clearActiveDest() {
-    setActiveDest(null);
+    if (activeDestId) {
+      const prev = destMap.get(activeDestId);
+      if (prev) {
+        prev.flagGroup.classList.remove("is-hovered");
+        if (!isDestInCurrentBatch(activeDestId)) {
+          prev.pin.classList.remove("is-present");
+          prev.flagGroup.classList.remove("is-visible");
+        }
+      }
+      activeDestId = null;
+    }
   }
 
   pins.forEach((pin) => {
@@ -2561,9 +2672,11 @@ function initChinaDrawer() {
     miniWindow.classList.add("is-open");
     miniWindow.setAttribute("aria-hidden", "false");
     countryChina?.classList.add("is-active");
+    startCycle();
   }
 
   function closeWindow() {
+    stopCycle();
     clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
@@ -2849,13 +2962,118 @@ function initEuropeDrawer() {
   let activeDestId = null;
   const destMap = new Map();
 
+  const europeBatches = [
+    // Batch 1 (5 cities: West, South, Central North, Central South, Southeast)
+    ["London", "Madrid", "Berlin", "Rome", "Athens"],
+    // Batch 2 (5 cities: Northwest, North, Central, Southwest, Northeast)
+    ["Paris", "Copenhagen", "Vienna", "Lisbon", "Helsinki"],
+    // Batch 3 (5 cities: Southwest, Central, East, North, Southeast)
+    ["Barcelona", "Frankfurt", "Warsaw", "Oslo", "Dubrovnik"],
+    // Batch 4 (6 cities: Northwest, West Central, South Central, North, North Italy, French Riviera)
+    ["Amsterdam", "Lyon", "Munich", "Stockholm", "Venice", "Nice"],
+    // Batch 5 (6 cities: Northwest, Central, Central East, Central East, North Germany, Central Italy)
+    ["Brussels", "Zurich", "Prague", "Budapest", "Hamburg", "Florence"]
+  ];
+
+  let europeBatchIdx = 0;
+  let europeCycleTimer = null;
+  let europeFadeTimer = null;
+  let isEuropeCycleRunning = false;
+
+  function isEuropeCityInCurrentBatch(cityId) {
+    if (!isEuropeCycleRunning) return false;
+    const currentBatch = europeBatches[europeBatchIdx % europeBatches.length];
+    return currentBatch && currentBatch.includes(cityId);
+  }
+
+  function showEuropeBatch(batchIdx) {
+    if (activeCat !== "major-cities") return;
+
+    pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => {
+      const dest = p.getAttribute("data-dest");
+      if (dest !== activeDestId) {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => {
+      const dest = f.getAttribute("data-dest");
+      if (dest !== activeDestId) {
+        f.classList.remove("is-visible");
+      }
+    });
+
+    const targetBatch = europeBatches[batchIdx % europeBatches.length];
+    targetBatch.forEach((cityId) => {
+      const item = destMap.get(cityId);
+      if (item) {
+        item.pin.classList.add("is-present");
+        item.flagGroup.classList.add("is-visible");
+      }
+    });
+  }
+
+  function advanceEuropeCycle() {
+    if (!isEuropeCycleRunning || activeCat !== "major-cities") return;
+
+    showEuropeBatch(europeBatchIdx);
+
+    europeFadeTimer = setTimeout(() => {
+      if (!isEuropeCycleRunning || activeCat !== "major-cities") return;
+
+      const targetBatch = europeBatches[europeBatchIdx % europeBatches.length];
+      targetBatch.forEach((cityId) => {
+        const item = destMap.get(cityId);
+        if (item && cityId !== activeDestId) {
+          item.pin.classList.remove("is-present");
+          item.flagGroup.classList.remove("is-visible");
+        }
+      });
+
+      europeCycleTimer = setTimeout(() => {
+        if (!isEuropeCycleRunning || activeCat !== "major-cities") return;
+        europeBatchIdx = (europeBatchIdx + 1) % europeBatches.length;
+        advanceEuropeCycle();
+      }, 750);
+    }, 3600);
+  }
+
+  function startEuropeCycle() {
+    if (isEuropeCycleRunning) return;
+    if (activeCat !== "major-cities") return;
+    isEuropeCycleRunning = true;
+    europeBatchIdx = 0;
+    advanceEuropeCycle();
+  }
+
+  function stopEuropeCycle() {
+    isEuropeCycleRunning = false;
+    clearTimeout(europeCycleTimer);
+    clearTimeout(europeFadeTimer);
+    europeCycleTimer = null;
+    europeFadeTimer = null;
+
+    pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => {
+      if (p.getAttribute("data-dest") !== activeDestId) {
+        p.classList.remove("is-present");
+      }
+    });
+    flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => {
+      if (f.getAttribute("data-dest") !== activeDestId) {
+        f.classList.remove("is-visible");
+      }
+    });
+  }
+
   function setActiveDest(id) {
     if (activeDestId === id) return;
     if (activeDestId) {
       const prev = destMap.get(activeDestId);
       if (prev) {
         prev.flagGroup.classList.remove("is-hovered");
-        prev.pin.classList.remove("is-present");
+        if (!isEuropeCityInCurrentBatch(activeDestId)) {
+          prev.pin.classList.remove("is-present");
+          prev.flagGroup.classList.remove("is-visible");
+        }
       }
     }
     activeDestId = id;
@@ -2864,12 +3082,23 @@ function initEuropeDrawer() {
       if (curr) {
         curr.flagGroup.classList.add("is-hovered");
         curr.pin.classList.add("is-present");
+        flagsLayer.appendChild(curr.flagGroup);
       }
     }
   }
 
   function clearActiveDest() {
-    setActiveDest(null);
+    if (activeDestId) {
+      const prev = destMap.get(activeDestId);
+      if (prev) {
+        prev.flagGroup.classList.remove("is-hovered");
+        if (!isEuropeCityInCurrentBatch(activeDestId)) {
+          prev.pin.classList.remove("is-present");
+          prev.flagGroup.classList.remove("is-visible");
+        }
+      }
+      activeDestId = null;
+    }
   }
 
   function renderCategory(catKey) {
@@ -3024,13 +3253,25 @@ function initEuropeDrawer() {
     const cat = targetCard ? targetCard.getAttribute("data-option") : "major-cities";
     if (cat !== activeCat) {
       activeCat = cat;
-      renderCategory(activeCat);
+      if (activeCat === "major-cities") {
+        renderCategory(activeCat);
+        startEuropeCycle();
+      } else {
+        stopEuropeCycle();
+        renderCategory(activeCat);
+      }
     }
 
     if (pinsLayer && flagsLayer) {
       const pinsOpacity = Math.max(0, Math.min(1, 1 - progress * 1.5));
       pinsLayer.style.opacity = pinsOpacity.toFixed(3);
       flagsLayer.style.opacity = pinsOpacity.toFixed(3);
+
+      if (progress >= 0.45 && isEuropeCycleRunning) {
+        stopEuropeCycle();
+      } else if (progress < 0.25 && !isEuropeCycleRunning && miniWindow?.classList.contains("is-open") && activeCat === "major-cities") {
+        startEuropeCycle();
+      }
     }
   }
 
@@ -3205,9 +3446,11 @@ function initEuropeDrawer() {
     activeCat = "major-cities";
     renderCategory("major-cities");
     updateVisuals(0);
+    startEuropeCycle();
   }
 
   function closeWindow() {
+    stopEuropeCycle();
     clearActiveDest();
     miniWindow.classList.remove("is-open");
     miniWindow.setAttribute("aria-hidden", "true");
@@ -3218,7 +3461,10 @@ function initEuropeDrawer() {
     }
     clearTimeout(snapTimer);
     pinsLayer.querySelectorAll(".europe-dest-pin").forEach((p) => p.classList.remove("is-present"));
-    flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => f.classList.remove("is-hovered"));
+    flagsLayer.querySelectorAll(".europe-dest-flag").forEach((f) => {
+      f.classList.remove("is-hovered");
+      f.classList.remove("is-visible");
+    });
   }
 
   function toggleWindow() {
